@@ -2,6 +2,8 @@
 
 [README](../README.md)
 
+These instructions deploy **your own copy**. The official game is [trickortake.com](https://trickortake.com/), released separately from its private production repository. This public repository does not publish a GitHub Pages website.
+
 ## Local development
 
 ```bash
