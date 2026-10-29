@@ -43,7 +43,7 @@ function safeFinish(remaining) {
 
 test('online matches require two to six ready players and only the owner can start', () => {
   const room = roomWith(1);
-  assert.equal(room.gameVersion, 6); assert.equal(room.mode, 'online');
+  assert.equal(room.gameVersion, 7); assert.equal(room.mode, 'online');
   assert.throws(() => applyCommand(room, 'p0', {type: 'start'}, 0), /not_enough_players/);
   joinRoom(room, player('p1'), 0);
   assert.throws(() => applyCommand(room, 'p1', {type: 'start'}, 0), /owner_only/);
@@ -122,7 +122,7 @@ test('the NPC automatically warns and watches with bounded variable timing and s
   assert.ok(warning.at - room.startsAt >= 1400 && warning.at - room.startsAt <= 8000);
   assert.ok(lookAt-warning.at>=950&&lookAt-warning.at<=1400);
   heartbeatAll(room, lookAt); assert.equal(room.attention, 'watching');
-  assert.ok(room.watchUntil - lookAt >= 1000 && room.watchUntil - lookAt <= 1800);
+  assert.ok(room.watchUntil - lookAt >= 850 && room.watchUntil - lookAt <= 2700);
   const end = room.watchUntil; heartbeatAll(room, end);
   assert.equal(room.attention, 'away'); assert.equal(room.activity, 'cleaning');
   const secondLook = nextWarning(room); const secondWarning = room.events.filter(e => e.type === 'warning').at(-1);

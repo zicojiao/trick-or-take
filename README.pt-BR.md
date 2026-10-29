@@ -42,7 +42,7 @@ Escolha o fantasma, a abóbora ou o gato-morcego. Jogue sozinho ou envie um cód
 4. Se for pego, sua contagem volta a zero. Depois de ficar atordoado por um instante, você pode tentar de novo.
 5. Quando o tempo acabar, os doces ainda nas mãos também contam. Vence quem tiver mais; pontuações iguais empatam.
 
-Cada partida dura 60 segundos. Lily alterna pausas curtas e longas, com um aviso de 0,90–1,35 segundos antes de olhar. Não há seletor de dificuldade.
+Cada partida dura 60 segundos. Lily alterna pausas curtas e longas, com um aviso de 0,55–1,90 segundos antes de olhar. Não há seletor de dificuldade.
 
 Os tempos variam a cada rodada. O servidor não revela a próxima virada antes do início do aviso. A música fica desligada no multijogador para não atrapalhar a conversa.
 

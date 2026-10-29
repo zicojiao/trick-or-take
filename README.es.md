@@ -42,7 +42,7 @@ Elige el fantasma, la calabaza o el gato murciélago. Juega a solas o comparte u
 4. Si te descubre, tu cuenta vuelve a cero. Tras un breve aturdimiento, puedes volver a intentarlo.
 5. Al terminar, también cuentan los caramelos que aún tienes en las manos. Gana quien tenga más; los empates se mantienen.
 
-Cada partida dura 60 segundos. Lily combina pausas cortas y largas y avisa durante 0,90–1,35 segundos antes de mirar. No hay selector de dificultad.
+Cada partida dura 60 segundos. Lily combina pausas cortas y largas y avisa durante 0,55–1,90 segundos antes de mirar. No hay selector de dificultad.
 
 Los tiempos cambian en cada ronda. El servidor no revela el siguiente giro antes de que empiece el aviso. La música permanece desactivada en multijugador para facilitar la conversación.
 

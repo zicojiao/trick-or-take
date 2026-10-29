@@ -313,8 +313,8 @@ export function createScene(canvas) {
     const activity = room?.activity || 'cooking';
     const lady = stage.hostess;
     const working = attention === 'away';
-    // Scale stop → listen → peek to the actual warning length so Hard stays
-    // telegraphable even when the window is only a few hundred milliseconds.
+    // Scale stop → listen → peek to each turn, including the quick surprises.
+    // A faster turn compresses the cue; it never skips straight to watching.
     const warningDuration = Math.max(1, Number(room?.warningMs) || 900);
     const warningProgress = attention === 'warning' ? clamp(1 - (lookAt - now) / warningDuration) : 0;
     const warningMs = warningProgress * warningDuration;

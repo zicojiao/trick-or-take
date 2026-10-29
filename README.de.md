@@ -42,7 +42,7 @@ Wähle den Geist, den Kürbis oder die Fledermauskatze. Spiele allein oder teile
 4. Wirst du erwischt, fällt dein Zähler auf null. Nach einer kurzen Betäubung kannst du weitermachen.
 5. Am Ende zählen auch die Süßigkeiten in deinen Händen. Die höchste Anzahl gewinnt; gleiche Ergebnisse bleiben unentschieden.
 
-Jede Runde dauert 60 Sekunden. Lily wechselt zwischen kurzen und langen Pausen und warnt 0,90–1,35 Sekunden vor ihrem Blick. Es gibt keine Schwierigkeitsauswahl.
+Jede Runde dauert 60 Sekunden. Lily wechselt zwischen kurzen und langen Pausen und warnt 0,55–1,90 Sekunden vor ihrem Blick. Es gibt keine Schwierigkeitsauswahl.
 
 Die Zeiten variieren pro Runde. Der Server verrät die nächste Drehung erst mit Beginn der Warnung. Im Mehrspielermodus bleibt die Musik aus, damit Gespräche gut hörbar sind.
 

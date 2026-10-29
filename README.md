@@ -42,7 +42,7 @@ The ghost, pumpkin and bat cat are all playable. Choose one, try a solo run, or 
 4. Get caught and your count returns to zero. After a short stun, you can try again.
 5. At the end, candy still in your hands counts too. Most candy wins; equal scores tie.
 
-Every round lasts 60 seconds. Lily mixes short and long pauses, with 0.90–1.35 seconds of warning before she watches. There is no difficulty selector.
+Every round lasts 60 seconds. Lily mixes short and long pauses, with 0.55–1.90 seconds of warning before she watches. There is no difficulty selector.
 
 Timing varies each round. Lily’s next look is not sent to other players before its warning begins. Multiplayer music stays off so it does not compete with voice chat.
 

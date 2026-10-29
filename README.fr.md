@@ -42,7 +42,7 @@ Choisis le fantôme, la citrouille ou le chat chauve-souris. Joue seul ou partag
 4. Si elle te surprend, ton score revient à zéro. Après un court étourdissement, tu peux recommencer.
 5. À la fin, les bonbons encore dans tes mains comptent aussi. Le meilleur total gagne ; les égalités sont conservées.
 
-Chaque partie dure 60 secondes. Lily alterne pauses courtes et longues et prévient 0,90–1,35 seconde avant de regarder. Aucun niveau de difficulté à choisir.
+Chaque partie dure 60 secondes. Lily alterne pauses courtes et longues et prévient 0,55–1,90 seconde avant de regarder. Aucun niveau de difficulté à choisir.
 
 Les délais varient à chaque partie. Le serveur ne révèle pas le prochain retournement avant le début de l’avertissement. La musique reste coupée en multijoueur pour laisser place aux conversations.
 

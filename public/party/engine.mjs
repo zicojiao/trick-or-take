@@ -2,8 +2,9 @@
 // NPC state is private to the authoritative room; publicRoom omits its future plan.
 // v3: fixed clock. v4/v5: varied tempos. v6: difficulty changes turn speed
 // while Hard keeps roughly Medium's overall glance cadence.
-export const GAME_VERSION = 6;
-export const SUPPORTED_RULES_VERSIONS = Object.freeze([3, 4, 5, 6]);
+// v7: one shared challenge with shuffled turn speeds and varied watch durations.
+export const GAME_VERSION = 7;
+export const SUPPORTED_RULES_VERSIONS = Object.freeze([3, 4, 5, 6, 7]);
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
 export const COUNTDOWN_MS = 3000;
@@ -21,6 +22,14 @@ export const DIFFICULTIES = Object.freeze({
   easy: Object.freeze({awayMin:3800,awayMax:6000,warning:1400,watchMin:1000,watchMax:1500}),
   medium: Object.freeze({awayMin:2400,awayMax:4400,warning:900,watchMin:1200,watchMax:1800}),
   hard: Object.freeze({awayMin:1000,awayMax:2000,warning:550,watchMin:800,watchMax:1200}),
+});
+// Independent wait, turn and watch choices avoid a learnable fixed rhythm.
+export const SHARED_TURN_TIMING = Object.freeze({
+  firstWait: [3200, 4800],
+  quick: [1700, 2500], normal: [3200, 5000], long: [5800, 8200],
+  quickChance: .24, longChance: .22,
+  turns: {fast: [550, 750], normal: [900, 1300], slow: [1450, 1900]},
+  watches: {brief: [850, 1200], normal: [1300, 1850], long: [2100, 2700]},
 });
 // Immutable per-version profiles so older tickets and rooms keep their clock.
 export const TURN_TIMINGS_BY_VERSION = Object.freeze({
@@ -47,7 +56,8 @@ export const TURN_TIMINGS_BY_VERSION = Object.freeze({
     hard:{quick:[1700,2500],normal:[3200,5000],long:[5800,8200],quickChance:.24,longChance:.22,warning:[360,580],fastChance:.65,watch:[1450,2150]},
   }),
 });
-export const TURN_TIMINGS = TURN_TIMINGS_BY_VERSION[GAME_VERSION];
+// Retained for consumers replaying the last selectable-difficulty ruleset.
+export const TURN_TIMINGS = TURN_TIMINGS_BY_VERSION[6];
 const timing = room => DIFFICULTIES[room.difficulty || 'medium'];
 const turnProfile = room => (TURN_TIMINGS_BY_VERSION[room.gameVersion] || TURN_TIMINGS)[room.difficulty || 'medium'];
 
@@ -105,9 +115,45 @@ function random(room) {
 function interval(room, minimum, maximum) {
   return minimum + Math.floor(random(room) * (maximum - minimum + 1));
 }
+function nextTurnSpeed(room) {
+  if (!room.turnBag.length) {
+    room.turnBag = ['slow', 'normal', 'fast', 'normal'];
+    // A shuffled bag guarantees contrast without unlucky streaks of fast turns.
+    for (let i = room.turnBag.length - 1; i > 0; i--) {
+      const j = Math.floor(random(room) * (i + 1));
+      [room.turnBag[i], room.turnBag[j]] = [room.turnBag[j], room.turnBag[i]];
+    }
+  }
+  if (room.lastTurnSpeed === 'fast' && room.turnBag[0] === 'fast') {
+    const other = room.turnBag.findIndex(speed => speed !== 'fast');
+    [room.turnBag[0], room.turnBag[other]] = [room.turnBag[other], room.turnBag[0]];
+  }
+  return room.turnBag.shift();
+}
+function scheduleSharedLook(room, at) {
+  const p = SHARED_TURN_TIMING, opening = room.turnCount === 0;
+  const roll = random(room);
+  let tempo = opening ? 'normal' : roll < p.quickChance ? 'quick' : roll < p.quickChance + p.longChance ? 'long' : 'normal';
+  if (tempo === 'quick' && room.quickStreak >= 2 || tempo === 'long' && room.lastTempo === 'long') tempo = 'normal';
+  room.quickStreak = tempo === 'quick' ? room.quickStreak + 1 : 0;
+  room.lastTempo = tempo;
+  room.nextLookAt = at + interval(room, ...(opening ? p.firstWait : p[tempo]));
+  const speed = opening ? 'normal' : nextTurnSpeed(room);
+  room.lastTurnSpeed = speed;
+  room.nextWarningMs = interval(room, ...p.turns[speed]);
+  room.turnCount += 1;
+}
+function sharedWatchDuration(room) {
+  const roll = random(room);
+  let kind = room.turnCount === 1 ? 'normal' : roll < .30 ? 'brief' : roll < .75 ? 'normal' : 'long';
+  if (kind === 'long' && room.lastWatch === 'long') kind = 'normal';
+  room.lastWatch = kind;
+  return interval(room, ...SHARED_TURN_TIMING.watches[kind]);
+}
 // Draw only at simulation boundaries, never per frame or per network request.
 // The next wait and turn speed stay private until their warning actually starts.
 function scheduleLook(room,at) {
+  if(room.gameVersion >= 7){scheduleSharedLook(room,at);return;}
   if(room.gameVersion===3){room.nextLookAt=at+interval(room,timing(room).awayMin,timing(room).awayMax);return;}
   const p=turnProfile(room),roll=random(room);
   let tempo=roll<p.quickChance?'quick':roll<p.quickChance+p.longChance?'long':'normal';
@@ -137,6 +183,7 @@ function startMatch(room, at) {
   room.nextAt = 0; room.attention = 'away'; room.lookAt = 0; room.watchUntil = 0;
   room.activity = 'cooking'; room.message = null;
   room.quickStreak=0;room.lastTempo=null;room.warningMs=timing(room).warning;
+  if(room.gameVersion >= 7){room.turnBag=[];room.turnCount=0;room.lastTurnSpeed=null;room.lastWatch=null;}
   scheduleLook(room,room.startsAt);
   for (const player of room.players) {
     dropHold(player); player.score = 0; player.roundScore = 0; player.stunnedUntil = 0; player.catches = 0;
@@ -162,6 +209,7 @@ export function createRoom({code, player, mode = 'online', seed, difficulty = 'm
   if (!Object.hasOwn(DIFFICULTIES, difficulty)) fail('invalid_difficulty');
   if (seed !== undefined && (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff)) fail('invalid_seed');
   if(!SUPPORTED_RULES_VERSIONS.includes(rulesVersion))fail('room_version_changed');
+  if(rulesVersion >= 7)difficulty = 'medium'; // Historical levels are replay-only.
   const member = makePlayer(player, now);
   const room = {
     gameVersion: rulesVersion, mode, difficulty, code, ownerId: member.id, players: [member],
@@ -241,7 +289,7 @@ export function advanceRoom(room, now) {
       room.warningMs=room.gameVersion===3?timing(room).warning:room.nextWarningMs;
       room.lookAt = room.nextLookAt + room.warningMs;
       const watch=room.gameVersion===3?[timing(room).watchMin,timing(room).watchMax]:turnProfile(room).watch;
-      room.watchUntil = room.lookAt + interval(room,...watch);
+      room.watchUntil = room.lookAt + (room.gameVersion >= 7 ? sharedWatchDuration(room) : interval(room,...watch));
       event(room, 'warning', room.nextLookAt, 'hostess', {activity: room.activity});
       room.nextLookAt = 0;
     }

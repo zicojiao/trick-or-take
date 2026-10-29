@@ -24,7 +24,7 @@ English is the default language at https://trickortake.com. Chinese is at https:
 
 One shared challenge: every new solo game and friends room uses the same balanced timing. There is no difficulty selector.
 
-Timing is randomized each round; watch Lily’s cues rather than a fixed rhythm.
+Timing is randomized each round; watch Lily’s cues rather than a fixed rhythm. Turns mix fast (0.55–0.75s), normal (0.90–1.30s), and slow (1.45–1.90s) warnings. Watching lasts 0.85–2.70s. The opening is gentler, fast turns never repeat consecutively, and a long break can end in a fast turn.
 
 ## Modes
 

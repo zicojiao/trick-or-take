@@ -7,7 +7,7 @@ function timeline(seed,difficulty='medium',step=50,rulesVersion=GAME_VERSION){
  const turns=[],waits=[];let lastId=0,lastAway=3000;
  for(let at=3000;at<=63000;at+=step){applyCommand(room,'p',{type:'heartbeat'},at);
   for(const e of room.events.filter(e=>e.id>lastId)){
-   if(e.type==='warning'){turns.push({at:e.at,warning:room.warningMs});waits.push(e.at-lastAway);}
+   if(e.type==='warning'&&room.lookAt){turns.push({at:e.at,warning:room.warningMs,watch:room.watchUntil-room.lookAt});waits.push(e.at-lastAway);}
    if(e.type==='away')lastAway=e.at;
   }lastId=room.eventSeq;
  }
@@ -16,7 +16,7 @@ function timeline(seed,difficulty='medium',step=50,rulesVersion=GAME_VERSION){
 test('Hard turns faster without glancing much more often than Medium',()=>{
  const counts={},warnings={};
  for(const difficulty of ['easy','medium','hard']){
-  const games=Array.from({length:80},(_,i)=>timeline(i+1,difficulty)),turns=games.flatMap(g=>g.turns),waits=games.flatMap(g=>g.waits),p=TURN_TIMINGS[difficulty];
+  const games=Array.from({length:80},(_,i)=>timeline(i+1,difficulty,50,6)),turns=games.flatMap(g=>g.turns),waits=games.flatMap(g=>g.waits),p=TURN_TIMINGS[difficulty];
   counts[difficulty]=turns.length/games.length;warnings[difficulty]=turns.reduce((n,t)=>n+t.warning,0)/turns.length;
   assert.ok(turns.every(t=>t.warning>=p.warning[0]&&t.warning<=p.warning[1]));
   assert.ok(waits.some(n=>n<=p.quick[1]),'quick returns really occur');
@@ -38,12 +38,12 @@ test('turn timing is repeatable across polling rates and does not expose the nex
 test('short waits are capped at two in a row, and a long break can end with a fast turn',()=>{
  let surprise=false;
  for(let seed=1;seed<=100;seed++){
-  const {turns,waits}=timeline(seed,'hard');let streak=0;
+  const {turns,waits}=timeline(seed,'hard',50,6);let streak=0;
   for(let i=0;i<waits.length;i++){streak=waits[i]<=2500?streak+1:0;assert.ok(streak<=2);if(waits[i]>=5800&&turns[i].warning<=460)surprise=true;}
  }
  assert.equal(surprise,true);
 });
-test('v3, v4 and v5 rooms retain their clocks while new games use v6',()=>{
+test('v3–v6 rooms retain their clocks while new games use v7',()=>{
  const {turns,waits}=timeline(12,'medium',50,3);
  assert.ok(turns.every(t=>t.warning===900));assert.ok(waits.every(t=>t>=2400&&t<=4400));
  const v4=timeline(12,'hard',50,4),p4=TURN_TIMINGS_BY_VERSION[4].hard;
@@ -52,7 +52,70 @@ test('v3, v4 and v5 rooms retain their clocks while new games use v6',()=>{
  assert.ok(v5.turns.every(t=>t.warning>=p5.warning[0]&&t.warning<=p5.warning[1]));
  assert.throws(()=>createRoom({code:'123456',rulesVersion:2,player:{id:'p',name:'Player'}},0),/room_version_changed/);
  const room=createRoom({code:'123456',player:{id:'p',name:'Player'}},0);
- assert.equal(room.gameVersion,6);
+ assert.equal(room.gameVersion,7);
  assert.equal(publicRoom(room,'p',0).difficulty,'medium');
  assert.throws(()=>createRoom({code:'123456',difficulty:'impossible',player:{id:'p',name:'Player'}},0),/invalid_difficulty/);
+});
+
+test('v6 seeded timing remains byte-for-byte stable for issued scores',()=>{
+ const {turns}=timeline(712,'medium',50,6);
+ assert.deepEqual(turns.map(t=>[t.at,t.warning,t.watch]),[[7713,1233,1245],[18008,1259,1333],[23080,1003,1382],[27251,972,1514],[33562,1135,1331],[40376,1028,1147],[47430,1209,1076],[52159,991,1544],[59689,1025,1571]]);
+});
+
+test('each shared round mixes fast and slow turns, with a safe opening and bounded streaks',()=>{
+ let surprise=false,brief=0,long=0,totalTurns=0;
+ const schedules=new Set();
+ for(let seed=1;seed<=500;seed++){
+  const {turns,waits,room}=timeline(seed);totalTurns+=turns.length;schedules.add(JSON.stringify(turns));
+  assert.equal(room.phase,'finished');
+  assert.ok(waits[0]>=3200&&waits[0]<=4800);
+  assert.ok(turns[0].warning>=900&&turns[0].warning<=1300);
+  assert.ok(turns.some(t=>t.warning<=750),'a fast turn in every full round');
+  assert.ok(turns.some(t=>t.warning>=1450),'a slow turn in every full round');
+  let quickStreak=0;
+  for(let i=0;i<turns.length;i++){
+   const t=turns[i];assert.ok(t.warning>=550&&t.warning<=1900);assert.ok(t.watch>=850&&t.watch<=2700);
+   if(i){assert.ok(!(t.warning<=750&&turns[i-1].warning<=750),'no consecutive fast turns');assert.ok(!(t.watch>=2100&&turns[i-1].watch>=2100),'no consecutive long stares');assert.ok(!(waits[i]>=5800&&waits[i-1]>=5800),'no consecutive long breaks');}
+   quickStreak=waits[i]<=2500?quickStreak+1:0;assert.ok(quickStreak<=2);
+   if(waits[i]>=5800&&t.warning<=750)surprise=true;
+   if(t.watch<=1200)brief++;if(t.watch>=2100)long++;
+  }
+  const view=publicRoom(room,'p',63000);
+  for(const key of ['turnBag','turnCount','lastTurnSpeed','lastWatch','nextWarningMs','npcState'])assert.equal(key in view,false);
+ }
+ assert.equal(schedules.size,500);assert.equal(surprise,true);
+ assert.ok(brief>totalTurns*.15&&long>totalTurns*.10);
+ assert.ok(totalTurns/500>=6&&totalTurns/500<=10,'variation must not become constant looking back');
+});
+
+test('one shared schedule ignores historical level names and survives JSON storage',()=>{
+ assert.deepEqual(timeline(57,'easy').turns,timeline(57,'hard').turns);
+ const room=createRoom({code:'TEST',seed:57,mode:'solo',player:{id:'p',name:'Player'}},0);
+ applyCommand(room,'p',{type:'ready',ready:true},0);applyCommand(room,'p',{type:'start'},0);
+ for(let t=3000;t<24000;t+=250)applyCommand(room,'p',{type:'heartbeat'},t);
+ const restored=JSON.parse(JSON.stringify(room));
+ for(let t=24000;t<=63000;t+=250){applyCommand(room,'p',{type:'heartbeat'},t);applyCommand(restored,'p',{type:'heartbeat'},t);}
+ assert.deepEqual(restored,room);
+ applyCommand(room,'p',{type:'again'},63000);applyCommand(room,'p',{type:'ready',ready:true},63000);applyCommand(room,'p',{type:'start'},63000);
+ assert.equal(room.turnCount,1);assert.deepEqual(room.turnBag,[]);assert.equal(room.lastTurnSpeed,'normal');
+ assert.notEqual(room.nextLookAt-room.startsAt,timeline(57).waits[0],'a rematch advances randomness instead of replaying the first schedule');
+});
+
+test('a 250ms observation interval plus 200ms reaction can safely release during every warning',()=>{
+ for(let seed=1;seed<=100;seed++){
+  const room=createRoom({code:'TEST',seed,mode:'solo',player:{id:'p',name:'Player'}},0);
+  applyCommand(room,'p',{type:'ready',ready:true},0);applyCommand(room,'p',{type:'start'},0);
+  let releaseAt=null,seq=0;
+  for(let at=3000;at<=63000;at+=50){
+   applyCommand(room,'p',{type:'heartbeat'},at);
+   if(room.phase!=='playing')continue;
+   if(releaseAt!==null&&at>=releaseAt){applyCommand(room,'p',{type:'hold',held:false,seq:seq++,roundIndex:0},at);releaseAt=null;}
+   if(at%250===0){
+    if(room.attention==='away'&&!room.players[0].holding)applyCommand(room,'p',{type:'hold',held:true,seq:seq++,roundIndex:0},at);
+    if(room.attention==='warning'&&room.players[0].holding&&releaseAt===null)releaseAt=at+200;
+   }
+  }
+  assert.equal(room.players[0].catches,0,`seed ${seed} must leave a usable reaction window`);
+  assert.ok(room.players[0].score>0);
+ }
 });

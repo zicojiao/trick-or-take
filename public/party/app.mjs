@@ -36,7 +36,7 @@ let holding = false, seq = 0, epoch = 0, offset = 0, lastSuccess = 0, online = t
 let lastEvent = 0, lastUi = 0, lastLocalTick = 0, pollTimer, pollFlight;
 let entryBusy = false, roomBusy = false, artReady = false, artFailed = false;
 let rosterSignature = '', resultSignature = '', toastTimer, feedbackTimer, finaleTimer;
-const bestKey = () => 'candy-local-best-v6';
+const bestKey = () => 'candy-local-best-v' + GAME_VERSION;
 let finishedBest = false, best = Math.max(0, Number(read(localStorage, bestKey())) || 0);
 let soloStarting = false, soloTicket = null, soloTrace = [], resultIdentity = null;
 let publication = {state:'idle'}, publicationKey = '', boardEpoch = 0, boardState = 'loading', publishNameDefault = true;
