@@ -91,9 +91,10 @@ body[data-entry=join] .join-row .small-button{background:#ffc247;border-color:#3
   .roster-state[data-ready=true]{background:#def1e6;color:#245d46}
   .remove-seat{font-size:11px;min-width:44px;min-height:44px}
   .lobby-note{font-size:12px;line-height:1.6;margin:14px 0;color:#746173}
-  body[data-view=lobby]{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
-  .lobby-actions{position:fixed;z-index:30;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));padding:10px;background:#fffaf0;border:1px solid #d2c4b0;border-radius:14px;box-shadow:0 -3px 24px #352b421a;gap:10px}
-  .lobby-actions>button{min-height:48px;font-size:13px}
+  /* Keep room controls in the card's flow. A fixed descendant can be clipped
+     by the rounded scene/card on iOS, especially as Safari's toolbar changes. */
+  .lobby-actions{position:static;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px;margin-top:18px;padding:0 0 5px}
+  .lobby-actions>button{min-width:0;min-height:52px;height:auto;padding:12px 10px;font-size:13px;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
   .lobby-panel>#leave-button{min-height:44px;font-size:12px;margin:6px auto 0}
   body[data-view=playing],body[data-view=countdown]{padding-bottom:calc(94px + env(safe-area-inset-bottom))}
   body[data-view=playing] .game-heading,body[data-view=countdown] .game-heading,
