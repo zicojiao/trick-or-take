@@ -461,6 +461,8 @@ test('pause exit asks before leaving and finished results leave without a confir
   await app.click('pause-exit');
   assert.equal(app.element('leave-dialog').open,true);assert.equal(app.element('pause-dialog').open,false);
   assert.match(app.element('leave-copy').textContent,/still going/);
+  app.window.dispatch('blur');
+  assert.equal(app.element('pause-dialog').open,false,'losing focus must not cover the leave confirmation');
   await app.click('leave-stay');
   assert.equal(app.element('leave-dialog').open,false);assert.equal(app.element('pause-dialog').open,true);
   await app.click('resume-button');app.advance(63000);

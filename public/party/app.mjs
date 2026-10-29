@@ -446,7 +446,7 @@ function localTick(stamp) {
 function pauseLocal(display = true) {
   if (!localRoom || !active()) return;
   clearHold(); clock.pause();syncMusic();
-  if (display && !$('pause-dialog').open && !$('help-dialog').open) $('pause-dialog').showModal();
+  if (display && !$('pause-dialog').open && !$('help-dialog').open && !$('leave-dialog').open) $('pause-dialog').showModal();
 }
 function resumeLocal() {
   if(soundEnabled)void music.unlock();
