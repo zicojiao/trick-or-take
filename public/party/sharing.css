@@ -1,19 +1,76 @@
-.share-card{margin:15px 0;padding:15px;text-align:left;background:#e6f2e9;border:1px solid #9bc1a8;border-radius:12px}
-.share-card>strong{font-size:15px;color:#24543e}
-.share-card p{font-size:11px;line-height:1.6;margin:7px 0 12px;color:#4e6657}
-.share-card .primary-button{width:100%;font-size:13px;min-height:44px}
-.share-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
-.share-actions .small-button{font-size:11px;min-height:40px;padding:8px;border-width:1px}
-#share-link{font:12px Nunito,sans-serif;background:#fffdf7;border:1px solid #a2baa9;border-radius:7px;padding:9px;width:100%;min-height:40px;color:#24543e}
-#share-status:empty{display:none}
+/* A little Halloween challenge ticket: orange action, purple ink, clear app icons. */
+.share-card{padding:16px;background:#fff3cf;border:2px solid #b7854b;border-radius:16px;text-align:left;min-width:0;box-shadow:0 4px 0 #b7854b30}
+.share-heading{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.share-stamp{display:grid;place-items:center;flex:none;width:38px;height:38px;border:2px solid #352b42;border-radius:11px;background:#ffc247;transform:rotate(-7deg)}
+.share-stamp svg,.share-primary svg,.share-utilities svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.share-heading strong{display:block;color:#352b42;font:600 23px/1.15 Fredoka,Nunito,sans-serif}
+.share-card p{font:400 12px/1.5 Nunito,sans-serif;color:#69516c;margin:6px 0 0}
+.share-preview{display:grid;place-items:center;aspect-ratio:1200/630;width:100%;overflow:hidden;background:#f1e5d0;border:1px solid #c5ac8c;border-radius:10px;margin-bottom:12px}
+.share-preview img{display:block;width:100%;height:auto}
+.share-preview span{padding:14px;text-align:center;color:#69516c;font-size:13px}
+.share-card .share-primary{display:flex;justify-content:center;align-items:center;gap:9px;width:100%;min-height:48px;font-size:16px;margin:0 0 14px;padding:10px 12px}
+.share-socials{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:4px 0 13px}
+.social-button{display:flex;flex-direction:column;align-items:center;gap:6px;color:#47344e;font:800 11px/1.2 Nunito,sans-serif;text-decoration:none;min-width:0;padding:5px 0;border-radius:9px;transition:background .15s,transform .15s}
+.social-icon{display:grid;place-items:center;width:42px;height:42px;background:var(--social-bg);color:#fff;border:2px solid #352b42;box-shadow:0 3px 0 #352b42;border-radius:13px;transition:transform .15s,box-shadow .15s}
+.social-icon svg{height:23px;width:23px;fill:currentColor;stroke:none}
+.social-x{--social-bg:#25212c}.social-whatsapp{--social-bg:#168441}.social-facebook{--social-bg:#1767d2}.social-telegram{--social-bg:#127eae}.social-reddit{--social-bg:#c43910}
+.social-button:hover{background:#ffe3a6}.social-button:hover .social-icon{transform:translateY(-2px);box-shadow:0 5px 0 #352b42}
+.social-button:active .social-icon{transform:translateY(3px);box-shadow:0 0 0 #352b42}
+.social-button[aria-disabled=true]{cursor:wait;opacity:.6}
+.share-utilities{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.share-utilities button{display:flex;justify-content:center;align-items:center;gap:7px;min-width:0;min-height:46px;padding:8px;font:800 13px/1.2 Nunito,sans-serif;color:#533476;background:#fffaf0;border:1.5px solid #9678b3;border-radius:9px;box-shadow:0 2px 0 #9678b3}
+.share-utilities button:active{transform:translateY(2px);box-shadow:none}
+.share-utilities button:disabled{opacity:.55;cursor:wait}
+.share-link-row{margin-top:12px}
+.share-link-row label{display:block;font-size:10px;font-weight:800;color:#69516c;margin-bottom:4px}
+#share-link{font:12px Nunito,sans-serif;background:#fffdf7;border:1px solid #c5ac8c;border-radius:7px;padding:9px;width:100%;min-height:40px;min-width:0;color:#533476;user-select:text;-webkit-user-select:text}
+#share-status{min-height:0;padding-top:2px}#share-status:empty{display:none}
+.share-card :is(button,a,input):focus-visible{outline:3px solid #7141d9;outline-offset:4px}
 .challenge-banner{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:13px 15px;margin-bottom:13px;border:1px solid #b5a0cd;background:#eee4fb;border-radius:12px}
 .challenge-banner strong{display:block;font:600 22px Fredoka,sans-serif;color:#533476}
 .challenge-banner span{display:block;font-size:11px;margin-top:5px;color:#746173}
 .challenge-banner .eyebrow{margin-bottom:5px;font-size:8px}
 .challenge-banner .small-button{font-size:11px;white-space:nowrap}
+/* Put score + sharing on the first row; keep optional publication below. */
+@media(min-width:701px){
+ body[data-view=finished] .result-panel{width:min(900px,calc(100% - 32px));grid-template-columns:minmax(200px,.8fr) minmax(330px,1.2fr);align-items:start;gap:24px;padding:24px;max-height:calc(100% - 20px)}
+ .result-summary .result-score strong{font-size:76px;color:#7141d9}
+}
 @media(max-width:700px){
-  .share-card>strong{font-size:15px}.share-card p{font-size:12px}
-  .share-actions .small-button{min-height:44px;font-size:12px}
-  .challenge-banner{flex-direction:column;align-items:stretch;margin-top:12px}
-  .challenge-banner .small-button{min-height:44px}
+ body[data-view=finished] .result-panel{padding:22px 14px calc(24px + env(safe-area-inset-bottom));overflow:visible}
+ .result-summary .result-copy{font-size:13px;margin:8px 0 14px}
+ .result-actions>*{margin:0}
+ .share-card{padding:14px}.share-heading strong{font-size:24px}.share-card p{font-size:13px}
+ .share-socials{gap:3px}.social-button{font-size:10px;min-height:66px;justify-content:center}
+ .share-utilities button{font-size:13px;min-height:48px}
+ .challenge-banner{flex-direction:column;align-items:stretch;margin-top:12px}.challenge-banner .small-button{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.social-button,.social-icon{transition:none}}
+.publish-details{border:1.5px solid #ad91c5;background:#efe5f5;border-radius:12px;min-width:0;text-align:left}
+.publish-details>summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;min-height:48px;padding:11px 12px;font-weight:800;font-size:13px;color:#533476}
+.publish-details>summary::-webkit-details-marker{display:none}
+.publish-details>summary::after{content:'+';margin-left:auto;font-size:20px}
+.publish-details[open]>summary::after{content:'−'}
+.publish-details>summary svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;flex:none}
+.publish-details .publish-card{margin:0;border:0;background:none;padding:0 12px 12px;box-shadow:none}
+.publish-details .publish-card>strong{display:none}
+.result-replay{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.result-replay #again-button{width:100%;min-height:48px}
+.result-replay #result-exit{min-height:40px;margin:0}
+@media(min-width:701px){
+ body[data-view=finished] .result-panel{row-gap:14px}
+ .result-actions{display:contents}
+ .result-summary{grid-column:1;grid-row:1;position:static;padding-top:8px}
+ #result-share{grid-column:2;grid-row:1/span 3}
+ .publish-details{grid-column:1;grid-row:2}
+ .result-replay{grid-column:1;grid-row:3;align-self:start}
+ .share-preview{max-height:190px;aspect-ratio:auto}.share-preview img{max-height:190px;object-fit:contain}
+ .share-heading strong{font-size:21px}
+}
+@media(max-width:700px){
+ body[data-view=finished] .result-panel{display:flex;flex-direction:column;gap:18px}
+ .result-summary{order:1;width:100%;padding:0}
+ .result-summary .result-medal{display:none}.result-summary .result-score{margin-top:6px}.result-summary .result-copy{margin-bottom:0}
+ .result-actions{display:contents}#result-share{order:2;width:100%}
+ .result-replay{order:3;width:100%}.publish-details{order:4;width:100%}
 }

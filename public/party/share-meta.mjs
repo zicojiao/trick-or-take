@@ -53,6 +53,18 @@ export function shareMeta(lang='en',result=null){
       description: `${label}。60 秒偷糖挑戰，鬆手裝乖，試試能否打破這個成績！`,
       alt: `${score} 顆糖 · ${label} · Trick or Take`};
   }
+  const localized = {
+    es:[`${score} caramelos. ¿Puedes superarme?`,`${label}. Un robo de caramelos de 60 segundos. Mantén para robar y suelta para disimular. ¡Supera mi puntuación!`],
+    ja:[`${score}個のお菓子！このスコアを超えられる？`,`${label}。60秒のお菓子泥棒チャレンジ。長押しで盗んで、離して知らんぷり。記録に挑戦しよう！`],
+    ko:[`사탕 ${score}개! 내 점수를 넘을 수 있나요?`,`${label}. 60초 사탕 훔치기 도전. 누르면 훔치고 떼면 숨겨요. 이 점수에 도전하세요!`],
+    fr:[`${score} bonbons. Peux-tu me battre ?`,`${label}. Un casse de bonbons de 60 secondes. Maintiens pour voler, relâche pour faire l’innocent. Bats mon score !`],
+    de:[`${score} Süßigkeiten. Kannst du mich schlagen?`,`${label}. 60 Sekunden auf Süßigkeitenjagd. Halten zum Klauen, loslassen und unschuldig schauen. Schlage diesen Punktestand!`],
+    pt:[`${score} doces. Consegue me superar?`,`${label}. Um roubo de doces de 60 segundos. Segure para pegar e solte para disfarçar. Supere esta pontuação!`],
+    ru:[`${score} конфет. Сможешь побить мой результат?`,`${label}. 60 секунд на кражу конфет. Удерживай, чтобы красть, отпусти и притворись невинным. Побей этот результат!`],
+    it:[`${score} caramelle. Riesci a battermi?`,`${label}. Un furto di caramelle di 60 secondi. Tieni premuto per rubare e rilascia per fare l’innocente. Batti questo punteggio!`],
+    id:[`${score} permen. Bisa mengalahkanku?`,`${label}. Aksi mencuri permen selama 60 detik. Tahan untuk mencuri, lepas untuk berpura-pura polos. Kalahkan skor ini!`],
+  }[lang];
+  if(localized)return {...meta,title:localized[0]+' · Trick or Take',description:localized[1],alt:`${localized[0]} · ${label} · Trick or Take`};
   return {
     ...meta,
     title: `${score} treats. Can you beat me? · Trick or Take`,

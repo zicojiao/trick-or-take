@@ -1032,7 +1032,7 @@ placeBoard();
 $('board-refresh').addEventListener('click',refreshBoard);
 const resultSharing=createResultSharing({document,navigator,nav:navigator,track,origin:location.origin,search:location.search,request:api,
   getContext:()=>({lang,key:publicationKey+':'+lang,available:room?.phase==='finished'&&!!(localRoom?soloTicket:resultIdentity),canStart:!room&&artReady,
-    identity:localRoom?soloTicket:resultIdentity,body:{runId:(localRoom?soloTicket:resultIdentity)?.runId,...(localRoom?{trace:soloTrace}:{})}}),
+    result:{score:score(mine()),mode:localRoom?'solo':'online'},identity:localRoom?soloTicket:resultIdentity,body:{runId:(localRoom?soloTicket:resultIdentity)?.runId,...(localRoom?{trace:soloTrace}:{})}}),
   onChallenge:()=>{mode='solo';void startSolo();},
 });
 $('sound-button').addEventListener('click', () => {
