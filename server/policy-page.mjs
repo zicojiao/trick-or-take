@@ -1,0 +1,23 @@
+import {MESSAGES} from '../public/party/messages.mjs';
+import {ogImageUrl} from '../public/party/seo.mjs';
+import {languagePath, publicUrl} from '../public/party/locale.mjs';
+const escape = text => String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+export function renderPolicyPage(page,language,origin) {
+  if(!['privacy','terms'].includes(page))throw new RangeError('Unknown policy page');
+  const lang=language==='zh'?'zh':'en',m=MESSAGES[lang],other=lang==='en'?'zh':'en';
+  const title=m[page==='privacy'?'homePrivacy':'homeTerms'];
+  const description=m[page==='privacy'?'policyPrivacyDescription':'policyTermsDescription'];
+  const fullTitle=title+' · '+m.brand;
+  const canonical=publicUrl(origin,lang,page);
+  const link=route=>languagePath(lang,route==='/'?'':route);
+  const image=ogImageUrl(origin,lang);
+  const locale=lang==='zh'?'zh_CN':'en_US';
+  const sections=Array.from({length:page==='privacy'?4:3},(_,i)=>`<section><h2>${escape(m[page+'H'+(i+1)])}</h2><p>${escape(m[page+'P'+(i+1)])}</p></section>`).join('');
+  const providers=page==='privacy'?`<nav class="providers"><a href="https://www.agora.io/en/privacy-policy/" target="_blank" rel="noopener noreferrer">${escape(m.providerAgora)}</a><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">${escape(m.providerCloudflare)}</a><a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">PostHog privacy policy ↗</a></nav>`:'';
+  const enHref=publicUrl(origin,'en',page),zhHref=publicUrl(origin,'zh',page);
+  return `<!doctype html><html lang="${lang==='zh'?'zh-CN':'en'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(fullTitle)}</title><meta name="description" content="${escape(description)}"><meta name="robots" content="index,follow"><meta name="theme-color" content="#f8ecd6"><link rel="canonical" href="${escape(canonical)}"><link rel="alternate" hreflang="en" href="${escape(enHref)}"><link rel="alternate" hreflang="zh-CN" href="${escape(zhHref)}"><link rel="alternate" hreflang="x-default" href="${escape(enHref)}"><link rel="llms" href="/llms.txt" type="text/plain" title="LLM brief"><link rel="manifest" href="/manifest.webmanifest?v=3"><link rel="icon" href="/party/assets/favicon.svg?v=3" type="image/svg+xml"><link rel="icon" href="/party/assets/icons/icon-32.png?v=3" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/party/assets/icons/icon-180.png?v=3" sizes="180x180"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Trick or Take"><link rel="stylesheet" href="/party/policy.css"><script src="/config.js"></script><script type="module" src="/party/analytics.mjs"></script><meta property="og:title" content="${escape(fullTitle)}"><meta property="og:description" content="${escape(description)}"><meta property="og:url" content="${escape(canonical)}"><meta property="og:type" content="website"><meta property="og:site_name" content="${escape(m.brand)}"><meta property="og:locale" content="${locale}"><meta property="og:locale:alternate" content="${lang==='zh'?'en_US':'zh_CN'}"><meta property="og:image" content="${escape(image)}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/png"><meta property="og:image:alt" content="${escape(m.brand)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escape(fullTitle)}"><meta name="twitter:description" content="${escape(description)}"><meta name="twitter:image" content="${escape(image)}"></head><body>
+  <header><a class="brand" href="${link('/')}"><img src="/party/assets/favicon.svg?v=3" width="42" height="42" alt=""><img src="/party/assets/wordmark-v3-ink.png" width="226" height="37" alt="${escape(m.brand)}" style="width:min(226px,45vw);height:auto"></a><a class="language" href="${languagePath(other,page)}" lang="${other==='zh'?'zh-CN':'en'}" aria-label="${escape(m.languageSwitchLabel)}">${escape(m.languageSwitch)}</a></header>
+  <main><a class="back" href="${link('/')}">← ${escape(m.policyBack)}</a><article><p class="date">${escape(m.policyDate)}</p><h1>${escape(title)}</h1><p class="intro">${escape(description)}</p>${sections}${providers}</article></main>
+  <footer><a href="${link('/privacy')}" ${page==='privacy'?'aria-current="page"':''}>${escape(m.homePrivacy)}</a><a href="${link('/terms')}" ${page==='terms'?'aria-current="page"':''}>${escape(m.homeTerms)}</a><a href="${link('/')}#faq">${escape(m.homeFaq)}</a></footer></body></html>`;
+}

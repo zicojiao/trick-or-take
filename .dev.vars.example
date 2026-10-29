@@ -1,0 +1,6 @@
+# Optional: enable Agora RTC voice and RTM room notifications.
+AGORA_APP_ID=""
+AGORA_APP_CERTIFICATE=""
+# Optional: your own public PostHog project token. Empty disables analytics.
+POSTHOG_PROJECT_TOKEN=""
+POSTHOG_HOST="https://eu.i.posthog.com"
