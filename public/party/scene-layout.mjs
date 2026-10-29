@@ -42,18 +42,16 @@ export function sceneLayout(width, height, count,imageWidth=1672,imageHeight=941
 // Half the painted wrapped-candy width, shared by pickup and confiscation.
 export const candySize = bowl => bowl.radius * .32;
 
-// A pickup clears the thief's silhouette before landing in the inner hand.
-// The outward bend separates simultaneous steals on either side of the bowl.
+// Keep the pickup near the bowl and reaching hand, with a small readable hop.
+// Candy is painted in front of the actors, so it need not fly over their heads.
 export function pickupPoint(stage, location, progress) {
   const p=Math.max(0,Math.min(1,progress)), eased=p*p*(3-2*p);
   const size=candySize(stage.bowl), side=location.x<stage.bowl.x?-1:1;
   const start=stage.bowl.pile ?? {x:stage.bowl.x,y:stage.bowl.y-stage.bowl.radius*.4};
-  const end={x:location.x-side*location.height*.19,y:location.foot-location.height*.44};
-  const middle=(start.y+end.y)/2;
-  const crest=Math.max(size*1.5,Math.min(start.y,end.y,location.foot-location.height)-size*1.4);
-  const lift=Math.min(middle-size*1.5,Math.max(stage.bowl.radius*1.45,middle-crest));
+  const end={x:location.x-side*location.height*.35,y:location.foot-location.height*.52};
+  const lift=Math.min(stage.bowl.radius*.62,Math.abs(end.x-start.x)*.35+size*.55);
   return {
-    x:start.x+(end.x-start.x)*eased+side*Math.sin(p*Math.PI)*location.height*.18,
+    x:start.x+(end.x-start.x)*eased+side*Math.sin(p*Math.PI)*location.height*.04,
     y:start.y+(end.y-start.y)*eased-Math.sin(p*Math.PI)*lift,
   };
 }

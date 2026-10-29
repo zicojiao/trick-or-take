@@ -704,23 +704,16 @@ export function createScene(canvas) {
     const locations = new Map(players.map((player, i) => [player.id, stage.positions[i]]));
     for (let i = particles.length - 1; i >= 0; i--) {
       const particle = particles[i], age = clock - particle.at - (particle.delay || 0);
-      const duration = particle.type === 'bank' ? 1.25 : particle.type === 'confetti' ? 3.3 : .8;
+      const duration = particle.type === 'bank' ? 1.25 : particle.type === 'confetti' ? 3.3 : particle.type === 'candy' ? .56 : .8;
       if (age > duration) {particles.splice(i, 1); continue;}
       if (age < 0) continue;
       const loc = locations.get(particle.playerId);
       g.save();
       if (particle.type === 'candy' && loc && !reduced) {
         const progress = clamp(age / duration), {x,y}=pickupPoint(stage,loc,progress);
-        g.globalAlpha = Math.min(1, (1 - progress) * 6);
-        // A short cream trail and halo separate the sweet from busy artwork.
-        g.beginPath();
-        for(let j=0;j<=5;j++){
-          const point=pickupPoint(stage,loc,Math.max(0,progress-.13+j*.026));
-          if(j===0)g.moveTo(point.x,point.y);else g.lineTo(point.x,point.y);
-        }
-        g.strokeStyle='#fff5d9b3';g.lineWidth=Math.max(2,candySize(stage.bowl)*.20);g.lineCap='round';g.stroke();
-        g.shadowColor='#fff5d9';g.shadowBlur=Math.max(2,candySize(stage.bowl)*.28);
-        candy(x, y, candySize(stage.bowl), particle.color, progress * 4 + particle.seed % 3);
+        g.globalAlpha = Math.min(1, (1 - progress) * 10);
+        const side=loc.x<stage.bowl.x?-1:1;
+        candy(x, y, candySize(stage.bowl), particle.color, (particle.seed%7-3)*.12+side*progress*.6);
       } else if (particle.type === 'confiscate' && loc && !reduced) {
         const progress = clamp(age / duration), side = particle.index % 2 ? -1 : 1;
         const spread = .24 + particle.index * .055;

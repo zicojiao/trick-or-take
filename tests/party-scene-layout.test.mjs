@@ -13,20 +13,25 @@ test('the camera and all feet share the painted floor, including wide short canv
   }
 });
 
-test('pickup arcs clear both thieves and stay visible on short and tall mobile stages',()=>{
+test('pickup arcs stay near the bowl and reach each inner hand on mobile and desktop',()=>{
   for(const [w,h] of [[381,318],[381,450],[320,180],[430,552],[1200,520]]){
     const stage=sceneLayout(w,h,2),size=candySize(stage.bowl);
     // Use an explicit painted-pile anchor, as the loaded artwork does.
     stage.bowl.pile={x:stage.bowl.x+2,y:stage.bowl.y-stage.bowl.radius*.6};
-    const crests=stage.positions.map(loc=>{
+    const hands=stage.positions.map(loc=>{
       assert.deepEqual(pickupPoint(stage,loc,0),stage.bowl.pile);
       const peak=pickupPoint(stage,loc,.5);
-      assert.ok(peak.y+size<loc.foot-loc.height,'sweet rises completely above the character');
+      assert.ok(peak.y>loc.foot-loc.height,'sweet stays below the top of the character');
       const end=pickupPoint(stage,loc,1);
-      assert.ok(Math.abs(end.x-loc.x)<loc.height*.2,'sweet lands at the inner hand');
-      return peak;
+      assert.ok(Math.abs(Math.abs(end.x-loc.x)-loc.height*.35)<1e-9,'sweet lands at the reaching hand');
+      assert.equal(end.y,loc.foot-loc.height*.52);
+      for(let frame=0;frame<=80;frame++){
+        const point=pickupPoint(stage,loc,frame/80);
+        assert.ok(point.y>=Math.min(stage.bowl.pile.y,end.y)-stage.bowl.radius*.62,'the hop never becomes an overhead throw');
+      }
+      return end;
     });
-    assert.ok(crests[1].x-crests[0].x>size*4,'simultaneous pickups use distinct left and right paths');
+    assert.ok(hands[1].x-hands[0].x>size*2,'two players receive candy on opposite sides of the pile');
   }
 });
 
