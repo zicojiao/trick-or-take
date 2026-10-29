@@ -3,7 +3,7 @@ import {legacyLanguageRedirect} from "../server/legacy-language.mjs";
 import {renderPolicyPage} from "../server/policy-page.mjs";
 import {handlePartyRequest} from "../server/party-service.mjs";
 import { MESSAGES } from "../public/party/messages.mjs";
-import { publicPage, publicUrl, languagePath } from "../public/party/locale.mjs";
+import { publicPage, publicUrl, languagePath, PAGE_META, SUPPORTED_LANGS } from "../public/party/locale.mjs";
 
 import {shareMeta,challengeUrl} from "../public/party/share-meta.mjs";
 import {gameJsonLd, stringifyJsonLd, ogImageUrl} from "../public/party/seo.mjs";
@@ -27,7 +27,7 @@ const worker = {
     }
     const page = publicPage(url.pathname);
     if(page && page.page !== 'home' && ['GET','HEAD'].includes(request.method)) {
-      return new Response(request.method==='HEAD'?null:renderPolicyPage(page.page,page.lang,url.origin),{headers:{'content-type':'text/html; charset=utf-8','cache-control':'private, no-store','content-language':page.lang==='zh'?'zh-CN':'en'}});
+      return new Response(request.method==='HEAD'?null:renderPolicyPage(page.page,page.lang,url.origin),{headers:{'content-type':'text/html; charset=utf-8','cache-control':'private, no-store','content-language':PAGE_META[page.lang].htmlLang}});
     }
     const image = /^\/og\/(default|[a-f0-9]{24})\.png$/.exec(url.pathname);
     if(image && ['GET','HEAD'].includes(request.method)) {
@@ -48,6 +48,7 @@ const worker = {
       headers.delete("if-none-match"); headers.delete("if-modified-since");
       const response = await env.ASSETS.fetch(new Request(target, {...request, headers, method:request.method}));
       const lang = page.lang;
+      const messages = MESSAGES[lang] || MESSAGES.en;
       const id=url.searchParams.get('result');
       let result=null;
       if(id && /^[a-f0-9]{24}$/.test(id)) result=await getSharedResult(env.DB,id).catch(()=>null);
@@ -58,14 +59,18 @@ const worker = {
       const hreflangZh=result?challengeUrl(url.origin,result.id,'zh'):publicUrl(url.origin,'zh');
       const jsonLd=stringifyJsonLd(gameJsonLd(url.origin,lang,result));
       const localized = new HTMLRewriter()
-        .on('[data-i18n]', {element(e) {const key=e.getAttribute('data-i18n');const copy=MESSAGES[lang][key];if(copy !== undefined)e.setInnerContent(copy);}})
-        .on('[data-placeholder]', {element(e) {const key=e.getAttribute('data-placeholder');const copy=MESSAGES[lang][key];if(copy !== undefined)e.setAttribute('placeholder',copy);}})
-        .on('[data-aria]', {element(e) {const key=e.getAttribute('data-aria');const copy=MESSAGES[lang][key];if(copy !== undefined)e.setAttribute('aria-label',copy);}})
-        .on('[data-title]', {element(e) {const key=e.getAttribute('data-title');const copy=MESSAGES[lang][key];if(copy !== undefined)e.setAttribute('title',copy);}})
+        .on('head', {element(e) {for (const code of SUPPORTED_LANGS.filter(code => !['en','zh'].includes(code))) {
+          const href = result ? challengeUrl(url.origin,result.id,code) : publicUrl(url.origin,code);
+          e.append(`<link rel="alternate" hreflang="${PAGE_META[code].htmlLang}" href="${href}">`, {html:true});
+        }}})
+        .on('[data-i18n]', {element(e) {const key=e.getAttribute('data-i18n');const copy=messages[key] ?? MESSAGES.en[key];if(copy !== undefined)e.setInnerContent(copy);}})
+        .on('[data-placeholder]', {element(e) {const key=e.getAttribute('data-placeholder');const copy=messages[key] ?? MESSAGES.en[key];if(copy !== undefined)e.setAttribute('placeholder',copy);}})
+        .on('[data-aria]', {element(e) {const key=e.getAttribute('data-aria');const copy=messages[key] ?? MESSAGES.en[key];if(copy !== undefined)e.setAttribute('aria-label',copy);}})
+        .on('[data-title]', {element(e) {const key=e.getAttribute('data-title');const copy=messages[key] ?? MESSAGES.en[key];if(copy !== undefined)e.setAttribute('title',copy);}})
         .on('#brand-link', {element(e) {e.setAttribute('href', languagePath(lang));}})
         .on('#home-link-home-how,#home-link-faq', {element(e) {e.setAttribute('href', languagePath(lang) + '#' + e.getAttribute('id').replace('home-link-',''));}})
         .on('#home-link-privacy,#home-link-terms', {element(e) {e.setAttribute('href', languagePath(lang, e.getAttribute('id').replace('home-link-','')));}})
-        .on("html", {element(e) {e.setAttribute("lang", lang === "zh" ? "zh-CN" : "en");}})
+        .on("html", {element(e) {e.setAttribute("lang", PAGE_META[lang].htmlLang);}})
         .on("title", {element(e) {e.setInnerContent(meta.title);}})
         .on('meta[name="description"],meta[property="og:description"],meta[name="twitter:description"]', {element(e) {e.setAttribute("content",meta.description);}})
         .on('meta[property="og:title"],meta[name="twitter:title"]', {element(e) {e.setAttribute("content",meta.title);}})

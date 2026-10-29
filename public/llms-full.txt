@@ -11,9 +11,9 @@ Trick or Take is a free, bilingual Halloween browser game: hold to steal candy w
 
 ## What it is
 
-Trick or Take (brand name kept in English in both locales) is a casual reflex / party game played entirely in the web browser at https://trickortake.com/. No download, account, or payment is required. The setting is Lily’s cozy Halloween kitchen. Players are mischievous candy thieves; Lily is controlled by the game, never by a human host.
+Trick or Take (brand name kept in English across all locales) is a casual reflex / party game played entirely in the web browser at https://trickortake.com/. No download, account, or payment is required. The setting is Lily’s cozy Halloween kitchen. Players are mischievous candy thieves; Lily is controlled by the game, never by a human host.
 
-English is the default language at https://trickortake.com. Chinese is at https://trickortake.com/zh. Privacy and terms use the same prefix: /privacy, /terms, /zh/privacy, /zh/terms. Document title, description, Open Graph, Twitter, and share-card artwork follow the path language.
+English is the default language at https://trickortake.com. Chinese is at https://trickortake.com/zh. Privacy and terms use the same prefix: /privacy, /terms, /zh/privacy, /zh/terms. Document titles and descriptions follow the path language. Share artwork is available in English and Simplified Chinese.
 
 ## How to play
 
@@ -65,7 +65,7 @@ Nothing is posted automatically.
 - Hold to steal, release to freeze, dodge Lily’s broom
 - Solo or 2–6 friends with room codes
 - Optional live voice powered by Agora
-- English and Chinese
+- 12 interface languages
 - Opt-in leaderboard and anonymous score challenges
 - Play at https://trickortake.com/
 
@@ -112,3 +112,7 @@ A: 不会。结束后可保持私密、提交排行榜，或生成匿名挑战�
 Official play URL: https://trickortake.com/
 Powered by Agora RTC and RTM for multiplayer messaging and optional voice.
 Privacy and terms: https://trickortake.com/privacy and https://trickortake.com/terms
+
+## Interface languages
+
+English (/), Simplified Chinese (/zh), Traditional Chinese (/zh-tw), Spanish (/es), Japanese (/ja), Korean (/ko), French (/fr), German (/de), Portuguese (/pt), Russian (/ru), Italian (/it), and Indonesian (/id). Privacy and terms follow the same locale prefixes. OG artwork is available in English and Simplified Chinese; other locales currently use the English artwork.

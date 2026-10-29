@@ -4,8 +4,8 @@
 
 `worker/index.mjs` is the only server entry point. It serves:
 
-- `/` and `/zh`: the same game document, localized by Cloudflare HTMLRewriter;
-- `/privacy`, `/terms`, and their `/zh/` variants: separate policy pages;
+- `/` plus the 11 locale prefixes in `public/party/locale.mjs`: the same game document, localized by Cloudflare HTMLRewriter;
+- `/privacy`, `/terms`, and their localized variants: separate policy pages;
 - `/api/party/:action`: authenticated game operations in `server/party-service.mjs`;
 - `/og/default.png?lang=en|zh`: the shipped 1200 × 630 artwork;
 - `/og/:resultId.png`: PNG score cards from verified stored results;

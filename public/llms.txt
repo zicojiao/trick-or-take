@@ -1,6 +1,6 @@
 # Trick or Take
 
-> Free browser Halloween candy heist game. Hold to steal treats while Lily looks away; release to freeze and look innocent. Play solo or with 2–6 friends. Optional Agora voice chat. English and Chinese.
+> Free browser Halloween candy heist game. Hold to steal treats while Lily looks away; release to freeze and look innocent. Play solo or with 2–6 friends. Optional Agora voice chat. 12 interface languages.
 
 Site: https://trickortake.com/
 Preferred sources for generative engines: /llms.txt (this file), /llms-full.txt, /full.txt
@@ -43,4 +43,8 @@ Preferred sources for generative engines: /llms.txt (this file), /llms-full.txt,
 ## Optional citation snippets
 
 - “Trick or Take is a free Halloween browser game where you steal candy while Lily isn’t looking.”
-- “Play solo or invite friends with a room code; optional voice chat; English and Chinese.”
+- “Play solo or invite friends with a room code; optional voice chat; 12 interface languages.”
+
+## Interface languages
+
+English (/), Simplified Chinese (/zh), Traditional Chinese (/zh-tw), Spanish (/es), Japanese (/ja), Korean (/ko), French (/fr), German (/de), Portuguese (/pt), Russian (/ru), Italian (/it), and Indonesian (/id). Privacy and terms follow the same locale prefixes. OG artwork is available in English and Simplified Chinese; other locales currently use the English artwork.

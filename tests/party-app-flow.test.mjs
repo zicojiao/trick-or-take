@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import {createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION} from '../public/party/engine.mjs';
-import {PAGE_META,requestLanguage} from '../public/party/locale.mjs';
+import {PAGE_META,requestLanguage,SUPPORTED_LANGS,LANGUAGES_INFO,languagePath} from '../public/party/locale.mjs';
 import {replaySolo} from '../server/leaderboard.mjs';
 import {randomNickname} from '../public/party/profile.mjs';
 import {createChoiceGroup} from '../public/party/choice.mjs';
@@ -86,10 +86,10 @@ function harness({configFailures = 0, configured = true, restore = false, legacy
   const serverRoom = createRoom({code: identity.code, seed: 1,
     player: {id: 'p1', uid: 1, name: 'Reviewer', avatar: 0}}, wallTime);
   const context = vm.createContext({track:()=>{},MESSAGES,document, window, localStorage, sessionStorage,
-    location: {pathname: language === 'zh' ? '/zh' : '/', search, origin: 'https://game.test'}, history: {replaceState(_state, _title, url) {historyUrl = url;}},
+    location: {pathname: languagePath(language), search, origin: 'https://game.test'}, history: {replaceState(_state, _title, url) {historyUrl = url;}},
     navigator: {clipboard: {writeText: async value => {copiedInvite = value;}}}, AbortController, URLSearchParams, Uint32Array,
     crypto: {getRandomValues(array) {array[0] = 1; return array;}}, Date: {now: () => wallTime},
-    createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION, PAGE_META, requestLanguage, randomNickname, createChoiceGroup, createHoldInput, createLocalClock, pollCommand, installInteractions, createResultSharing, createSoloMusic,
+    createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION, PAGE_META, requestLanguage, SUPPORTED_LANGS, LANGUAGES_INFO, languagePath, randomNickname, createChoiceGroup, createHoldInput, createLocalClock, pollCommand, installInteractions, createResultSharing, createSoloMusic,
     setTimeout: () => ++timerId, clearTimeout() {}, requestAnimationFrame: callback => {nextFrame = callback;},
     createScene: () => ({ready: Promise.resolve(artResult), update() {}, retryAssets: () => Promise.resolve({ok: true})}),
     createSignaling:({onStatus})=>{let key=null;return{connect:async(next,retry=false)=>{if(key!==next||retry){key=next;signalJoins++;onStatus({state:'connected'});}return true;},leave:async()=>{key=null;signalLeaves++;onStatus({state:'idle'});},pulse:version=>signalPulses.push(version)};},
@@ -557,4 +557,25 @@ test('untouched anonymous name follows the selected language',async()=>{
  assert.equal(app.element('publish-name').value,'Anonymous user');
  await app.click('language-button');assert.equal(app.element('publish-name').value,'匿名玩家');
  await app.click('language-button');assert.equal(app.element('publish-name').value,'Anonymous user');
+});
+
+test('every translated page keeps its language after boot and sharing refresh',async()=>{
+  for(const language of SUPPORTED_LANGS){
+    const app=harness({language});await app.flush();
+    assert.equal(app.document.title,PAGE_META[language].title,language);
+    assert.equal(app.document.documentElement.lang,PAGE_META[language].htmlLang,language);
+    assert.equal(app.element('meta-description').content,PAGE_META[language].description,language);
+  }
+});
+
+test('the language picker keeps invitation links and uses the shared language registry',async()=>{
+  const app=harness({language:'en',search:'?room=001234'});await app.flush();
+  await app.click('lang-picker-button');
+  const options=app.element('language-options-grid').children;
+  assert.equal(options.length,SUPPORTED_LANGS.length);
+  const japanese=options.find(option=>option.dataset.code==='ja');
+  japanese.dispatch('click');await app.flush();
+  assert.equal(app.historyUrl,'/ja?room=001234');
+  assert.equal(app.document.title,PAGE_META.ja.title);
+  assert.equal(app.element('language-dialog').open,false);
 });

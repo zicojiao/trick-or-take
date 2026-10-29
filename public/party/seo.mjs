@@ -1,4 +1,4 @@
-import {PAGE_META, publicUrl} from './locale.mjs';
+import {PAGE_META, publicUrl, SUPPORTED_LANGS} from './locale.mjs';
 import {MESSAGES} from './messages.mjs';
 import {shareMeta, challengeUrl} from './share-meta.mjs';
 
@@ -19,21 +19,22 @@ export function absolutePage(origin, path = '/', lang = 'en') {
 /** JSON-LD for the home/game document. Safe for crawlers and generative engines. */
 export function gameJsonLd(origin = SITE_ORIGIN, lang = 'en', result = null) {
   const meta = shareMeta(lang, result);
-  const m = MESSAGES[lang === 'zh' ? 'zh' : 'en'];
+  const m = MESSAGES[lang] || MESSAGES.en;
   const url = result ? challengeUrl(origin, result.id, lang) : absolutePage(origin, '/', lang);
   const image = ogImageUrl(origin, lang, result?.id || 'default');
+  const htmlLang = PAGE_META[lang]?.htmlLang || (lang === 'zh' ? 'zh-CN' : lang);
   const game = {
     '@type': 'VideoGame',
     '@id': `${SITE_ORIGIN}/#game`,
     name: m.brand,
     alternateName: lang === 'zh'
       ? ['Trick or Take', '万圣节偷糖', '万圣节糖果游戏']
-      : ['Trick or Take', 'Halloween candy game', 'Halloween candy heist'],
-    description: PAGE_META[lang === 'zh' ? 'zh' : 'en'].description,
+      : (lang === 'zh-tw' ? ['Trick or Take', '萬聖節偷糖', '萬聖節糖果遊戲'] : ['Trick or Take', 'Halloween candy game', 'Halloween candy heist']),
+    description: (PAGE_META[lang] || PAGE_META.en).description,
     url: absolutePage(origin, '/', 'en'),
     image,
     screenshot: image,
-    inLanguage: ['en', 'zh-CN'],
+    inLanguage: SUPPORTED_LANGS.map(code => PAGE_META[code].htmlLang),
     genre: ['Casual', 'Party', 'Halloween', 'Reflex'],
     gamePlatform: ['Web browser', 'Mobile web'],
     applicationCategory: 'GameApplication',
@@ -51,7 +52,7 @@ export function gameJsonLd(origin = SITE_ORIGIN, lang = 'en', result = null) {
     url,
     name: meta.title,
     description: meta.description,
-    inLanguage: lang === 'zh' ? 'zh-CN' : 'en',
+    inLanguage: htmlLang,
     isPartOf: {'@type': 'WebSite', '@id': `${SITE_ORIGIN}/#website`, name: m.brand, url: SITE_ORIGIN},
     primaryImageOfPage: {'@type': 'ImageObject', url: image, width: 1200, height: 630},
     about: {'@id': `${SITE_ORIGIN}/#game`},
@@ -59,7 +60,7 @@ export function gameJsonLd(origin = SITE_ORIGIN, lang = 'en', result = null) {
   const faq = {
     '@type': 'FAQPage',
     '@id': `${SITE_ORIGIN}/#faq`,
-    inLanguage: lang === 'zh' ? 'zh-CN' : 'en',
+    inLanguage: htmlLang,
     mainEntity: [1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => ({
       '@type': 'Question',
       name: m[`faqQ${i}`],

@@ -32,7 +32,7 @@ Elige el fantasma, la calabaza o el gato murciélago. Juega a solas o comparte u
 | Clasificación | Una tabla común; tú decides si publicas tu nombre y puntuación |
 | Compartir | Enlaces a resultados verificados y tarjetas descargables |
 | Móvil | Controles táctiles, diseño adaptable e iconos de pantalla de inicio |
-| Idiomas del juego | Inglés en `/` y chino simplificado en `/zh`, incluidos los metadatos y las imágenes OG |
+| Idiomas del juego | 12 idiomas de interfaz con metadatos traducidos; imágenes OG en inglés y chino |
 
 ## Cómo jugar
 

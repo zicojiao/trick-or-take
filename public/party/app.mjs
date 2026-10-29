@@ -1,7 +1,7 @@
 import {track} from './analytics.mjs';
 import {MESSAGES} from './messages.mjs';
 import {createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION} from './engine.mjs';
-import {PAGE_META, requestLanguage} from './locale.mjs';
+import {SUPPORTED_LANGS, LANGUAGES_INFO, PAGE_META, requestLanguage, languagePath} from './locale.mjs';
 import {randomNickname} from './profile.mjs';
 import {createChoiceGroup} from './choice.mjs';
 import {createScene} from './scene.mjs';
@@ -27,7 +27,6 @@ const node = (tag, className, text) => {
   if (text !== undefined) element.textContent = text;
   return element;
 };
-const {en,zh}=MESSAGES;
 let lang = requestLanguage(location.origin + location.pathname + location.search);
 let difficulty = Object.hasOwn(DIFFICULTIES,read(localStorage,'candy-difficulty')) ? read(localStorage,'candy-difficulty') : 'medium';
 let avatar = Math.abs(Number(read(localStorage, 'pumpkin-avatar')) || 0) % 3;
@@ -49,9 +48,61 @@ let helpPausedLocal = false, leavePausedLocal = false;
 const input = createHoldInput();
 const clock = createLocalClock();
 const scene = createScene($('party-canvas'));
-const tr = (english, chinese) => lang === 'zh' ? chinese : english;
-const t = key => (lang === 'zh' ? zh : en)[key] ?? en[key] ?? key;
-const roomPath = code => (lang === 'zh' ? '/zh?room=' : '/?room=') + code;
+const toPath = languagePath;
+const supportedLangs = SUPPORTED_LANGS;
+const langsInfo = LANGUAGES_INFO;
+const APP_STRINGS = {
+  'you': { zh:'你', 'zh-tw':'你', es:'tú', ja:'あなた', ko:'나', fr:'vous', de:'du', pt:'você', ru:'ты', it:'tu', id:'kamu' },
+  'room host': { zh:'房主', 'zh-tw':'房主', es:'anfitrión', ja:'ホスト', ko:'방장', fr:'hôte', de:'Host', pt:'anfitrião', ru:'хост', it:'host', id:'tuan rumah' },
+  'offline': { zh:'离线', 'zh-tw':'離線', es:'desconectado', ja:'オフライン', ko:'오프라인', fr:'hors ligne', de:'offline', pt:'offline', ru:'не в сети', it:'offline', id:'offline' },
+  '✓ ready': { zh:'✓ 准备', 'zh-tw':'✓ 準備', es:'✓ listo', ja:'✓ 準備完了', ko:'✓ 준비 완료', fr:'✓ prêt', de:'✓ bereit', pt:'✓ pronto', ru:'✓ готов', it:'✓ pronto', id:'✓ siap' },
+  'waiting': { zh:'准备中', 'zh-tw':'準備中', es:'esperando', ja:'待機中', ko:'대기 중', fr:'en attente', de:'wartet', pt:'esperando', ru:'ждет', it:'in attesa', id:'menunggu' },
+  'Remove': { zh:'移除', 'zh-tw':'移除', es:'Eliminar', ja:'削除', ko:'제거', fr:'Retirer', de:'Entfernen', pt:'Remover', ru:'Удалить', it:'Rimuovi', id:'Hapus' },
+  'Remove offline player ': { zh:'移除离线玩家 ', 'zh-tw':'移除離線玩家 ', es:'Eliminar jugador desconectado ', ja:'オフラインのプレイヤーを削除: ', ko:'오프라인 플레이어 제거: ', fr:'Retirer le joueur hors ligne ', de:'Offline-Spieler entfernen ', pt:'Remover jogador offline ', ru:'Удалить отключившегося игрока ', it:'Rimuovi giocatore offline ', id:'Hapus pemain offline ' },
+  '✓ Ready · undo': { zh:'✓ 已准备 · 取消', 'zh-tw':'✓ 已準備 · 取消', es:'✓ Listo · deshacer', ja:'✓ 準備完了 · 取消', ko:'✓ 준비 완료 · 취소', fr:'✓ Prêt · annuler', de:'✓ Bereit · zurücknehmen', pt:'✓ Pronto · desfazer', ru:'✓ Готов · отмена', it:'✓ Pronto · annulla', id:'✓ Siap · batal' },
+  'All little hands ready. The room host can start.': { zh:'小手都准备好了，房主可以开始。', 'zh-tw':'小手都準備好了，房主可以開始。', es:'¡Listos! El anfitrión puede empezar.', ja:'準備完了！ホストが開始できます。', ko:'모두 준비 완료! 방장이 시작할 수 있습니다.', fr:'Tout le monde est prêt. L\'hôte peut lancer la partie.', de:'Alle Pfoten bereit. Der Host kann starten.', pt:'Todos prontos. O anfitrião já pode começar.', ru:'Все готовы! Хост может начинать.', it:'Tutti pronti! L\'host può iniziare.', id:'Semua sudah siap. Tuan rumah bisa memulai.' },
+  'Copy the invite and bring a friend. You both get to steal.': { zh:'复制邀请，叫上一位朋友。你们都负责偷糖。', 'zh-tw':'複製邀請，叫上一位朋友。你們都負責偷糖。', es:'Copia la invitación y trae a un amigo. Los dos robarán caramelos.', ja:'招待をコピーして友達を呼ぼう。ふたりでお菓子泥棒だ！', ko:'초대를 복사하고 친구를 데려오세요. 둘 다 사탕을 훔칠 수 있어요.', fr:'Copiez l\'invitation et amenez un ami. Vous volerez tous les deux.', de:'Einladung kopieren und Freunde mitbringen. Ihr stehlt beide.', pt:'Copie o convite e traga um amigo. Vocês dois vão roubar doces.', ru:'Скопируй ссылку и позови друга. Будете воровать вместе.', it:'Copia l\'invito e invita un amico. Ruberete insieme.', id:'Salin undangan dan ajak teman. Kalian berdua akan mencuri permen.' },
+  'Everyone gets ready first. Lily watches all of you.': { zh:'等所有人准备好。女主人会同时盯着大家哦。', 'zh-tw':'等所有人準備好。女主人會同時盯著大家哦。', es:'Todos deben estar listos. Lily los vigilará a todos.', ja:'全員が準備するのを待っています。リリーは全員を同時に見張るよ。', ko:'모두 준비를 마쳐야 합니다. 릴리가 모두를 동시에 지켜봅니다.', fr:'Tout le monde doit être prêt. Lily vous surveille tous.', de:'Alle müssen bereit sein. Lily beobachtet euch alle.', pt:'Todos precisam estar prontos. A Lily fica de olho em todo mundo.', ru:'Сначала все должны быть готовы. Лили следит за всеми вами.', it:'Tutti devono essere pronti. Lily vi terrà d\'occhio tutti quanti.', id:'Semua harus siap dulu. Lily akan mengawasi kalian semua.' },
+  'CANDY POCKETED. MAKE YOUR ESCAPE!': { zh:'糖果到手，快跑！', 'zh-tw':'糖果到手，快跑！', es:'¡DULCES EN EL BOLSILLO. ESCAPA!', ja:'お菓子ゲット！逃げろー！', ko:'사탕 챙겼다! 어서 도망쳐!', fr:'BONBONS EN POCHE. ENFUYEZ-VOUS !', de:'SÜSSIGKEITEN EINGESACKT. LAUF WEG!', pt:'DOCES NO BOLSO. FUJA!', ru:'КОНФЕТЫ В КАРМАНЕ. УНОСИ НОГИ!', it:'DOLCETTI IN TASCA. SCAPPA!', id:'PERMEN DIKANTONGI. KABUR!' },
+  'EMPTY POCKETS. INNOCENT FACE.': { zh:'口袋空空，表情无辜。', 'zh-tw':'口袋空空，表情無辜。', es:'BOLSILLOS VACÍOS. CARA INOCENTE.', ja:'ポケットは空っぽ。無邪気な顔。', ko:'주머니는 텅텅. 표정은 결백.', fr:'POCHES VIDES. AIR INNOCENT.', de:'LEERE TASCHEN. UNSCHULDSBLICK.', pt:'BOLSOS VAZIOS. CARA DE INOCENTE.', ru:'ПУСТЫЕ КАРМАНЫ. НЕВИННЫЙ ВЗГЛЯД.', it:'TASCHE VUOTE. FACCIA INNOCENTE.', id:'KANTONG KOSONG. MUKA POLOS.' },
+  'THE GREAT LITTLE CANDY COUNT': { zh:'来数数，谁最会偷。', 'zh-tw':'來數數，誰最會偷。', es:'EL GRAN RECUENTO DE DULCES', ja:'お菓子集計！誰が一番泥棒上手？', ko:'사탕 대결 결과 발표', fr:'LE GRAND DÉCOMPTE DES BONBONS', de:'DIE GROSSE SÜSSIGKEITEN-ZÄHLUNG', pt:'A GRANDE CONTAGEM DOS DOCES', ru:'БОЛЬШОЙ ПОДСЧЕТ СЛАДОСТЕЙ', it:'IL GRANDE CONTEGGIO DEI DOLCETTI', id:'PENGHITUNGAN PERMEN AKHIR' },
+  'A delicious new best!': { zh:'新纪录！藏得真好。', 'zh-tw':'新紀錄！藏得真好。', es:'¡Un nuevo récord delicioso!', ja:'新記録達成！上手にかくれたね。', ko:'새로운 최고 기록! 완벽했어요.', fr:'Un délicieux nouveau record !', de:'Ein köstlicher neuer Rekord!', pt:'Um novo recorde delicioso!', ru:'Восхитительный новый рекорд!', it:'Un delizioso nuovo record!', id:'Rekor baru yang manis!' },
+  'A very sweet little haul.': { zh:'今天收获满满。', 'zh-tw':'今天收穫滿滿。', es:'Un botín de lo más dulce.', ja:'大収穫！たくさん盗めたね。', ko:'달콤하고 풍성한 수확.', fr:'Un bien joli butin.', de:'Eine süße kleine Ausbeute.', pt:'Um belo e doce botim.', ru:'Очень сладкая добыча.', it:'Un dolcissimo bottino.', id:'Hasil panen yang sangat manis.' },
+  'Not a single crumb. Lily wins this one.': { zh:'一颗都没拿到，这局莉莉赢了。', 'zh-tw':'一顆都沒拿到，這局莉莉贏了。', es:'Ni una sola miga. Esta ronda la gana Lily.', ja:'1個も取れず… 今回はリリーの勝ち！', ko:'단 한 개도 건지지 못함. 이번엔 릴리 승리.', fr:'Pas une seule miette. Lily gagne cette manche.', de:'Nicht ein einziger Krümel. Lily gewinnt diese Runde.', pt:'Nem uma migalha. A Lily ganhou essa.', ru:'Ни крошки. В этот раз победила Лили.', it:'Neanche una briciola. Questa la vince Lily.', id:'Nol permen. Kali ini Lily yang menang.' },
+  'A very sweet tie.': { zh:'一样厉害，甜蜜平局。', 'zh-tw':'一樣厲害，甜蜜平局。', es:'Un empate de lo más dulce.', ja:'同じスコア！甘い引き分け。', ko:'막상막하! 달콤한 무승부.', fr:'Une égalité parfaite et sucrée.', de:'Ein zuckersüßes Unentschieden.', pt:'Um empate docinho.', ru:'Сладкая ничья!', it:'Un pareggio dolcissimo.', id:'Sama-sama jago, seri yang manis.' },
+  'The candy crown is yours!': { zh:'偷糖冠军就是你！', 'zh-tw':'偷糖冠軍就是你！', es:'¡La corona de los dulces es tuya!', ja:'お菓子王冠はキミのもの！', ko:'사탕 왕관의 주인공은 바로 당신!', fr:'La couronne de bonbons est à vous !', de:'Die Süßigkeiten-Krone gehört dir!', pt:'A coroa dos doces é sua!', ru:'Конфетная корона твоя!', it:'La corona di dolcetti è tua!', id:'Mahkota permen jadi milikmu!' },
+  'Waiting for the room host…': { zh:'等房主再开一局…', 'zh-tw':'等房主再開一局…', es:'Esperando al anfitrión…', ja:'ホストの再開を待っています…', ko:'방장이 다시 시작하기를 기다리는 중…', fr:'En attente de l\'hôte…', de:'Warten auf den Host…', pt:'Aguardando o anfitrião…', ru:'Ждем хоста комнаты…', it:'In attesa dell\'host…', id:'Menunggu tuan rumah…' },
+  'Submitting…': { zh:'正在提交…', 'zh-tw':'正在提交…', es:'Enviando…', ja:'送信中…', ko:'제출 중…', fr:'Envoi…', de:'Wird gesendet…', pt:'Enviando…', ru:'Отправка…', it:'Invio…', id:'Mengirim…' },
+  '✓ Score added to the leaderboard.': { zh:'✓ 成绩已加入排行榜。', 'zh-tw':'✓ 成績已加入排行榜。', es:'✓ Puntuación añadida a la clasificación.', ja:'✓ ランキングに登録されました。', ko:'✓ 순위표에 점수가 등록되었습니다.', fr:'✓ Score ajouté au classement.', de:'✓ Punktestand zur Bestenliste hinzugefügt.', pt:'✓ Pontuação adicionada ao placar.', ru:'✓ Счет добавлен в таблицу лидеров.', it:'✓ Punteggio aggiunto alla classifica.', id:'✓ Skor berhasil masuk ke papan peringkat.' },
+  'Kept private. Your score was not published.': { zh:'已保留为私人记录，没有公开成绩。', 'zh-tw':'已保留為私人記錄，沒有公開成績。', es:'Guardado como privado. Tu puntuación no se ha publicado.', ja:'非公開に設定しました。スコアは公開されません。', ko:'비공개로 유지되었습니다. 점수가 공개되지 않았습니다.', fr:'Gardé privé. Votre score n\'a pas été publié.', de:'Privat gehalten. Dein Score wurde nicht veröffentlicht.', pt:'Mantido em privado. Sua pontuação não foi publicada.', ru:'Оставлено приватным. Ваш счет не опубликован.', it:'Mantenuto privato. Il punteggio non è stato pubblicato.', id:'Tetap privat. Skormu tidak dipublikasikan.' },
+  'Final ten seconds!': { zh:'最后十秒！', 'zh-tw':'最後十秒！', es:'¡Últimos diez segundos!', ja:'残り10秒！', ko:'마지막 10초!', fr:'Dernières 10 secondes !', de:'Die letzten 10 Sekunden!', pt:'Últimos 10 segundos!', ru:'Последние 10 секунд!', it:'Ultimi 10 secondi!', id:'10 detik terakhir!' },
+  ' / sec': { zh:' / 秒', 'zh-tw':' / 秒', es:' / s', ja:' / 秒', ko:' / 초', fr:' / s', de:' / Sek.', pt:' / s', ru:' / сек', it:' / s', id:' / dtk' },
+  'Hold to steal': { zh:'按住偷糖', 'zh-tw':'按住偷糖', es:'Mantén para robar', ja:'長押しで盗む', ko:'눌러서 훔치기', fr:'Maintenez pour voler', de:'Halten zum Stehlen', pt:'Segure para roubar', ru:'Зажми, чтоб воровать', it:'Tieni premuto per rubare', id:'Tahan buat nyuri' },
+  'Release to hide': { zh:'松手装乖', 'zh-tw':'鬆手裝乖', es:'Suelta para esconderte', ja:'離して隠れる', ko:'떼서 숨기', fr:'Relâchez pour vous cacher', de:'Loslassen zum Verstecken', pt:'Solte para esconder', ru:'Отпусти, чтоб спрятаться', it:'Rilascia per nasconderti', id:'Lepas buat sembunyi' },
+  'Stay still': { zh:'别动', 'zh-tw':'別動', es:'Quédate quieto', ja:'動くな', ko:'얼음!', fr:'Ne bougez pas', de:'Stillstehen', pt:'Fique imóvel', ru:'Не двигайся', it:'Fermo!', id:'Jangan bergerak' },
+  'Watch for her turn': { zh:'注意回头预警', 'zh-tw':'注意回頭預警', es:'Atento a su giro', ja:'振り向きに注意', ko:'돌아보기 주의', fr:'Attention au demi-tour', de:'Achtung beim Umdrehen', pt:'Fique atento ao giro', ru:'Следи за поворотом', it:'Attento a quando si gira', id:'Awas dia mau noleh' },
+  'Hold now = caught': { zh:'现在按住就会被抓', 'zh-tw':'現在按住就會被抓', es:'Si mantienes ahora = ¡atrapado!', ja:'今押すと捕まる！', ko:'지금 누르면 들켜요', fr:'Maintenir maintenant = attrapé', de:'Jetzt halten = erwischt', pt:'Segurar agora = pego', ru:'Нажмешь сейчас = попался', it:'Premi ora = beccato', id:'Nahan sekarang = ketahuan' },
+  "She’s turning. Release!": { zh:'她要回头啦，快松手装乖！', 'zh-tw':'她要回頭啦，快鬆手裝乖！', es:'¡Se está girando. Suelta!', ja:'振り向くよ！離して！', ko:'돌아봅니다. 손 떼세요!', fr:'Elle se retourne. Lâchez !', de:'Sie dreht sich um. Loslassen!', pt:'Ela vai virar. Solte!', ru:'Она поворачивается. Отпускай!', it:'Si sta girando. Rilascia!', id:'Dia mau noleh. Lepasin!' },
+  'Candy lost. Try again soon.': { zh:'糖果全部没收，稍后再试', 'zh-tw':'糖果全部沒收，稍後再試', es:'Dulces perdidos. Prueba pronto.', ja:'お菓子没収。すぐ再挑戦できるよ。', ko:'사탕 전부 압수. 곧 다시 도전!', fr:'Bonbons perdus. Réessayez bientôt.', de:'Alles weg. Gleich nochmal.', pt:'Doces perdidos. Tente logo.', ru:'Конфеты сгорели. Скоро можно снова.', it:'Dolcetti persi. Riprova presto.', id:'Permen hangus. Coba lagi bentar lagi.' },
+  'Reconnecting…': { zh:'正在重连…', 'zh-tw':'正在重連…', es:'Reconectando…', ja:'再接続中…', ko:'재연결 중…', fr:'Reconnexion…', de:'Wiederverbindung…', pt:'Reconectando…', ru:'Переподключение…', it:'Riconnessione…', id:'Menyambung ulang…' },
+  'Connecting…': { zh:'连接中…', 'zh-tw':'連接中…', es:'Conectando…', ja:'接続中…', ko:'연결 중…', fr:'Connexion…', de:'Verbinden…', pt:'Conectando…', ru:'Подключение…', it:'Connessione…', id:'Menghubungkan…' },
+  'Room code copied: ': { zh:'房间码已复制：', 'zh-tw':'房間代碼已複製：', es:'Código de sala copiado: ', ja:'部屋番号をコピーしました: ', ko:'방 코드 복사됨: ', fr:'Code de salle copié : ', de:'Raum-Code kopiert: ', pt:'Código copiado: ', ru:'Код комнаты скопирован: ', it:'Codice stanza copiato: ', id:'Kode ruangan disalin: ' },
+  'Invite link copied. Send it to a friend.': { zh:'邀请链接已复制，发给朋友吧。', 'zh-tw':'邀請連結已複製，發給朋友吧。', es:'Enlace copiado. Compártelo con tus amigos.', ja:'招待リンクをコピーしました。友達にシェアしよう！', ko:'초대 링크가 복사되었습니다. 친구에게 보내보세요.', fr:'Lien d\'invitation copié. Envoyez-le à vos amis.', de:'Einladungslink kopiert. Sende ihn deinen Freunden.', pt:'Link de convite copiado. Mande para um amigo.', ru:'Ссылка скопирована. Отправь ее другу.', it:'Link di invito copiato. Invialo a un amico.', id:'Tautan undangan tersalin. Kirimkan ke temanmu.' },
+  'Your name: ': { zh:'你的名字：', 'zh-tw':'你的名字：', es:'Tu nombre: ', ja:'プレイヤー名: ', ko:'내 이름: ', fr:'Votre nom : ', de:'Dein Name: ', pt:'Seu nome: ', ru:'Твое имя: ', it:'Il tuo nome: ', id:'Nama kamu: ' },
+  'Public name: ': { zh:'公开名字：', 'zh-tw':'公開名字：', es:'Nombre público: ', ja:'公開名: ', ko:'공개 닉네임: ', fr:'Nom public : ', de:'Öffentlicher Name: ', pt:'Nome público: ', ru:'Публичное имя: ', it:'Nome pubblico: ', id:'Nama publik: ' }
+};
+const normalizeCopy = value => value.replace(/[‘’]/g, "'");
+const messageKeysByEnglish = new Map(Object.entries(MESSAGES.en).map(([key,value]) => [normalizeCopy(value),key]));
+const tr = (english, chinese) => {
+  if (lang === 'zh') return chinese;
+  if (lang === 'en') return english;
+  const match = APP_STRINGS[english];
+  if (match && match[lang]) return match[lang];
+  const key = messageKeysByEnglish.get(normalizeCopy(english));
+  return MESSAGES[lang]?.[key] ?? english;
+};
+const t = key => (MESSAGES[lang] || MESSAGES.en)[key] ?? MESSAGES.en[key] ?? key;
+const roomPath = code => (lang === 'en' ? '/?room=' : `/${lang}?room=`) + code;
 const now = () => localRoom ? clock.now : Math.round(Date.now() + offset);
 const mine = () => room?.players.find(player => player.id === session?.playerId);
 const isOwner = () => !!room && room.ownerId === session?.playerId;
@@ -323,7 +374,7 @@ function resetRoom(sendLeave = true) {
   for (const id of ['help-dialog', 'pause-dialog', 'leave-dialog']) if ($(id).open) $(id).close();
   write(sessionStorage, 'candy-room-v2', null);
   write(sessionStorage, 'pumpkin-room', null);
-  history.replaceState(null, '', lang === 'zh' ? '/zh' : '/');
+  history.replaceState(null, '', toPath(lang));
   void voice.leave(); levels = {};
   if (sendLeave) {$('code-input').value='';leaveIdentity(oldIdentity);}
   show('stage-feedback', false); show('entry-error', false); clearFinale();
@@ -789,19 +840,20 @@ function renderSignal(){
   show('signal-retry',visible&&['error','reconnecting'].includes(state));setText('signal-retry',tr('Retry','重试'));
 }
 function applyLanguage() {
-  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-  document.title = PAGE_META[lang].title;
-  const home=lang==='zh'?'/zh':'/';
+  const meta = PAGE_META[lang] || PAGE_META.en;
+  document.documentElement.lang = meta.htmlLang || (lang === 'zh' ? 'zh-CN' : lang);
+  document.title = meta.title;
+  const home = toPath(lang);
   for(const page of ['privacy','terms'])$('home-link-'+page).setAttribute('href',home==='/'?'/'+page:home+'/'+page);
   $('home-link-home-how').setAttribute('href',home+'#home-how');
   $('home-link-faq').setAttribute('href',home+'#faq');
   const brand=$('brand-link'); if(brand) brand.setAttribute('href',home);
-  $('meta-description').content = PAGE_META[lang].description;
+  $('meta-description').content = meta.description;
   for(const type of ['og','twitter']) {
-    $('meta-' + type + '-title').content = PAGE_META[lang].title;
-    $('meta-' + type + '-description').content = PAGE_META[lang].description;
+    $('meta-' + type + '-title').content = meta.title;
+    $('meta-' + type + '-description').content = meta.description;
   }
-  $('meta-og-locale').content = PAGE_META[lang].locale;
+  $('meta-og-locale').content = meta.locale;
   $('brand-link').setAttribute('aria-label', tr('Trick or Take home', 'Trick or Take 首页'));
   $('code-input').setAttribute('aria-label', tr('Six-digit room code', '6 位数字房间码'));
   $('invite-button').setAttribute('aria-label', tr('Copy room invitation', '复制房间邀请'));
@@ -818,14 +870,14 @@ function applyLanguage() {
   document.querySelectorAll('[data-i18n]').forEach(element => {element.textContent = t(element.dataset.i18n);});
   document.querySelectorAll('[data-aria]').forEach(element => element.setAttribute('aria-label',t(element.dataset.aria)));
   document.querySelectorAll('[data-placeholder]').forEach(element => {element.placeholder = t(element.dataset.placeholder);});
-  setText('language-button', lang === 'zh' ? 'EN' : '中文');
+  setText('language-button', lang === 'en' ? '中文' : 'EN');
   $('sound-button').setAttribute('aria-label', soundEnabled ? tr('Mute music and effects', '关闭音乐与音效') : tr('Enable music and effects', '开启音乐与音效'));
   $('sound-button').setAttribute('title',tr('Playful Halloween music in solo. Music is off with friends.','单人模式有活泼的万圣节配乐，多人模式不播放背景音乐。'));
   $('sound-button').setAttribute('aria-pressed', String(soundEnabled));
   $('help-button').setAttribute('aria-label', tr('How to play', '游戏说明'));
   $('pause-button').setAttribute('aria-label', tr('Pause local game', '暂停本地游戏'));
   $('party-canvas').setAttribute('aria-label', tr('A 2D cartoon Halloween kitchen. Lily is busy while little ghosts sneak candy. Hold to steal and release to freeze.', '2D 万圣节小厨房，女主人忙碌，小鬼偷偷拿糖。按住偷糖，松手定住。'));
-  document.querySelectorAll('.avatar-choice').forEach((button, index) => {button.setAttribute('aria-label', lang === 'zh' ? ['糯米小鬼', '南瓜憨憨', '蝙蝠小猫'][index] : ['Mochi', 'Pumpkin', 'Bat Cat'][index]);});
+  document.querySelectorAll('.avatar-choice').forEach((button, index) => {button.setAttribute('aria-label', characterName(index));});
   write(localStorage, 'pumpkin-language', lang);
   if (publishNameDefault && room?.phase === 'finished') $('publish-name').value = t('anonymousUser');
   rosterSignature = resultSignature = ''; render(); renderArt(); renderBoardStatus();
@@ -910,17 +962,64 @@ for(const id of ['home-how','faq'])$('home-link-'+id).addEventListener('click',e
   event.preventDefault();const target=$(id);
   const params=new URLSearchParams(location.search);params.delete('lang');
   const query=params.toString();
-  history.replaceState(null,'',(lang==='zh'?'/zh':'/')+(query?'?'+query:'')+'#'+id);
+  history.replaceState(null,'',toPath(lang)+(query?'?'+query:'')+'#'+id);
   target.scrollIntoView({block:'start'});
 });
 for (const id of ['close-help', 'got-it']) $(id).addEventListener('click', closeHelp);
-$('language-button').addEventListener('click', () => {
-  lang = lang === 'zh' ? 'en' : 'zh';
+function switchLanguage(target) {
+  lang = supportedLangs.includes(target) ? target : 'en';
   const params = new URLSearchParams(location.search); params.delete('lang');
-  const path = lang === 'zh' ? '/zh' : '/';
+  const path = toPath(lang);
   const query = params.toString();
-  history.replaceState(null,'',path+(query?'?'+query:'')+(location.hash||''));applyLanguage();
+  history.replaceState(null,'',path+(query?'?'+query:'')+(location.hash||''));
+  applyLanguage();
+}
+function renderLanguageDialog() {
+  const grid = $('language-options-grid');
+  if (!grid) return;
+  grid.replaceChildren();
+  for (const code of supportedLangs) {
+    const info = langsInfo[code];
+    if (!info) continue;
+    const btn = node('button', 'lang-choice-card' + (code === lang ? ' active' : ''));
+    btn.setAttribute('aria-pressed', String(code === lang));
+    btn.setAttribute('type', 'button');
+    btn.dataset.code = code;
+    if (code === lang) btn.dataset.active = 'true';
+    const flag = node('span', 'lang-card-flag', info.flag);
+    const textWrap = node('div', 'lang-card-text');
+    const native = node('strong', 'lang-card-native', info.native);
+    const english = node('small', 'lang-card-name', info.name);
+    textWrap.append(native, english);
+    btn.append(flag, textWrap);
+    btn.addEventListener('click', () => {
+      switchLanguage(code);
+      if ($('language-dialog')?.open) $('language-dialog').close();
+    });
+    grid.append(btn);
+  }
+}
+$('language-button').addEventListener('click', () => {
+  switchLanguage(lang === 'en' ? 'zh' : 'en');
 });
+if ($('lang-picker-button')) {
+  $('lang-picker-button').addEventListener('click', () => {
+    renderLanguageDialog();
+    $('language-dialog')?.showModal?.();
+  });
+}
+if ($('footer-lang-button')) {
+  $('footer-lang-button').addEventListener('click', (e) => {
+    e.preventDefault();
+    renderLanguageDialog();
+    $('language-dialog')?.showModal?.();
+  });
+}
+if ($('close-language')) {
+  $('close-language').addEventListener('click', () => {
+    $('language-dialog')?.close?.();
+  });
+}
 const difficultyChoice = createChoiceGroup(Object.keys(DIFFICULTIES).map(level=>[level,$('difficulty-' + level)]),difficulty,level=>{
   if(room || soloStarting)return;
   difficulty = level;track('difficulty_selected',{difficulty:level});write(localStorage,'candy-difficulty',level);
@@ -976,7 +1075,23 @@ $('copy-room-code').addEventListener('click',async()=>{
   try {await navigator.clipboard.writeText(room.code);setText('invite-status',tr('Room code copied: ','房间码已复制：')+room.code);}
   catch {setText('invite-status',tr('Room code: ','房间码：')+room.code);}
 });
-function characterName(index) {return (lang === 'zh' ? ['糯米小鬼','南瓜憨憨','蝙蝠小猫'] : ['Mochi','Pumpkin','Bat Cat'])[index];}
+function characterName(index) {
+  const names = {
+    zh: ['糯米小鬼','南瓜憨憨','蝙蝠小猫'],
+    'zh-tw': ['糯米小鬼','南瓜憨憨','蝙蝠小貓'],
+    es: ['Mochi','Calabacita','Gato Murciélago'],
+    ja: ['モチおばけ','かぼちゃ小僧','こうもりネコ'],
+    ko: ['모찌 유령','호박 꾸러기','박쥐 고양이'],
+    fr: ['Mochi','Citrouille','Chat Chauve-souris'],
+    de: ['Mochi','Kürbisgeist','Fledermauskatze'],
+    pt: ['Mochi','Abobrinha','Gato-Morcego'],
+    ru: ['Моти','Тыковка','Кот-Летучая мышь'],
+    it: ['Mochi','Zucchetto','Gatto Pipistrello'],
+    id: ['Mochi','Labu Cilik','Kucing Kelelawar'],
+    en: ['Mochi','Pumpkin','Bat Cat']
+  };
+  return (names[lang] || names.en)[index] || names.en[index];
+}
 $('avatar-picker').replaceChildren();
 $('avatar-picker').setAttribute('aria-busy','false');
 for (let index = 0; index < 3; index++) {

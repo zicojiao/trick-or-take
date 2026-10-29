@@ -46,9 +46,9 @@
   <link rel="apple-touch-icon" href="/party/assets/icons/icon-152.png?v=3" sizes="152x152">
   <link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./toon.css"><link rel="stylesheet" href="./mobile.css"><link rel="stylesheet" href="./interaction.css"><link rel="stylesheet" href="./desktop.css"><link rel="stylesheet" href="./sharing.css"><link rel="stylesheet" href="./agora.css"><link rel="stylesheet" href="./layout.css"><link rel="stylesheet" href="./guide.css"><link rel="stylesheet" href="./home.css"><link rel="stylesheet" href="./loading.css"><link rel="stylesheet" href="./polish.css"><link rel="stylesheet" href="./branding.css">
   <script id="json-ld" type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"VideoGame","@id":"https://trickortake.com/#game","name":"Trick or Take","alternateName":["Halloween candy game","Trick or Take candy heist"],"description":"Play Trick or Take solo or with friends. Take candy, dodge Lily, and see how much you can collect in 60 seconds.","url":"https://trickortake.com","image":"https://trickortake.com/og/default.png?lang=en&v=3","genre":["Casual","Party","Halloween","Reflex"],"gamePlatform":["Web browser","Mobile web"],"applicationCategory":"GameApplication","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":["en","zh-CN"],"playMode":["SinglePlayer","MultiPlayer"],"numberOfPlayers":{"@type":"QuantitativeValue","minValue":1,"maxValue":6},"publisher":{"@type":"Organization","name":"Trick or Take","url":"https://trickortake.com/"}},{"@type":"WebSite","@id":"https://trickortake.com/#website","name":"Trick or Take","url":"https://trickortake.com/","inLanguage":["en","zh-CN"],"potentialAction":{"@type":"PlayAction","target":"https://trickortake.com"}}]}</script>
-  <script src="/config.js"></script>
   <script defer src="./boot.js"></script>
   <script id="game-script" type="module" src="./app.mjs"></script>
+<script src="/config.js"></script>
 </head>
 <body data-boot="pending" data-assets="loading" data-view="home" data-mode="solo" data-attention="away">
 <svg class="svg-defs" aria-hidden="true"><defs>
@@ -71,7 +71,7 @@
   <header class="topbar">
     <div class="header-identity"><a class="brand" id="brand-link" href="/" aria-label="Trick or Take home" data-aria="brandHome"><span class="brand-icon"><img src="/party/assets/favicon.svg?v=3" width="44" height="44" alt=""></span><img class="brand-wordmark" src="/party/assets/wordmark-v3-ink.png" width="534" height="88" alt="Trick or Take"></a>
     <a class="agora-credit" href="https://www.agora.io/" target="_blank" rel="noopener noreferrer" aria-label="Powered by Agora RTC and RTM"><span>Powered by</span><img src="/party/assets/agora-logo-rgb-blue.svg" alt="Agora" width="88" height="30"><strong>RTC · RTM</strong></a></div>
-    <nav class="tools"><button type="button" class="icon-button music-button" id="music-button" aria-pressed="true" aria-label="Music on" data-aria="musicInitial">♫</button><button class="icon-button" id="sound-button" aria-label="Mute music and effects" data-aria="soundInitial" aria-pressed="false"><svg><use href="#i-sound"/></svg><span class="sound-off-dot"></span></button><button class="icon-button help-button" id="help-button" aria-label="How to play" data-aria="helpTitle">?</button><button class="icon-button language-button" id="language-button" aria-label="Switch to Chinese" data-aria="languageSwitchLabel" data-i18n="languageSwitch">中文</button><button class="icon-button board-shortcut" id="leaderboard-button" aria-label="Leaderboard" data-aria="leaderboard"><svg aria-hidden="true"><use href="#i-star"/></svg></button></nav>
+    <nav class="tools"><button type="button" class="icon-button music-button" id="music-button" aria-pressed="true" aria-label="Music on" data-aria="musicInitial">♫</button><button class="icon-button" id="sound-button" aria-label="Mute music and effects" data-aria="soundInitial" aria-pressed="false"><svg><use href="#i-sound"/></svg><span class="sound-off-dot"></span></button><button class="icon-button help-button" id="help-button" aria-label="How to play" data-aria="helpTitle">?</button><button class="icon-button language-button" id="language-button" aria-label="Switch to Chinese" data-aria="languageSwitchLabel" data-i18n="languageSwitch">中文</button><button type="button" class="icon-button lang-picker-button" id="lang-picker-button" data-aria="languagePickerTitle" aria-label="Select language" data-title="languagePickerTitle" title="Select language">🌐</button><button class="icon-button board-shortcut" id="leaderboard-button" aria-label="Leaderboard" data-aria="leaderboard"><svg aria-hidden="true"><use href="#i-star"/></svg></button></nav>
   </header>
   <main class="desktop-layout">
     <div class="play-column"><div class="setup-panel">
@@ -136,7 +136,7 @@
 <details><summary data-i18n="faqQ9">What changes with difficulty?</summary><p data-i18n="faqA9">Easy gives long breaks and slow turns. Medium mixes the rhythm. Hard turns much faster, but looks back about as often as Medium. Every round lasts 60 seconds.</p></details>
 </section></section>
   <footer>
-    <nav aria-label="Game information" data-aria="infoLabel"><a href="/#home-how" id="home-link-home-how" data-i18n="helpTitle">How to play</a><a href="/#faq" id="home-link-faq" data-i18n="homeFaq">FAQ</a><a href="/privacy" id="home-link-privacy" data-i18n="homePrivacy">Privacy</a><a href="/terms" id="home-link-terms" data-i18n="homeTerms">Terms</a></nav>
+    <nav aria-label="Game information" data-aria="infoLabel"><a href="/#home-how" id="home-link-home-how" data-i18n="helpTitle">How to play</a><a href="/#faq" id="home-link-faq" data-i18n="homeFaq">FAQ</a><a href="/privacy" id="home-link-privacy" data-i18n="homePrivacy">Privacy</a><a href="/terms" id="home-link-terms" data-i18n="homeTerms">Terms</a><button type="button" class="footer-lang-button" id="footer-lang-button" data-i18n="languagePickerTitle">Select language</button></nav>
   </footer>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -166,5 +166,6 @@
   <button class="text-button" id="leave-confirm" data-i18n="leaveConfirm">Leave match</button>
 </dialog>
 <dialog id="leaderboard-dialog" class="dialog leaderboard-dialog" aria-labelledby="leaderboard-title"><button class="close-button" id="close-leaderboard" aria-label="Close leaderboard" data-aria="closeBoardLabel">×</button><div id="board-modal-slot"></div></dialog>
+<dialog id="language-dialog" class="dialog language-dialog" aria-labelledby="language-dialog-title"><div class="guide-heading"><span class="guide-seal" aria-hidden="true"><svg><use href="#i-candy"/></svg></span><div><h2 id="language-dialog-title" data-i18n="languagePickerTitle">Select Language</h2></div><button class="close-button" id="close-language" data-aria="closeLanguage" aria-label="Close">×</button></div><div class="language-options-grid" id="language-options-grid"></div></dialog>
 <noscript data-i18n="noScript">Enable JavaScript to play. You can still read the guide below.</noscript>
 </body></html>

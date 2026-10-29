@@ -48,6 +48,9 @@
 @media(min-width:701px){
   body[data-view=finished] .setup-panel{display:none}
   body[data-view=finished] .game-dock,body[data-view=finished] .under-stage{display:none}
+  /* The 16:9 stage already fills a short window. The footer then sticks out by a few
+     pixels, the scrollbar appears and disappears, and the card width jumps every frame. */
+  body[data-view=finished] .app-shell>footer{display:none}
 }
 .welcome-sticker{display:none!important}
 @media(min-width:1100px){

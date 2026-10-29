@@ -32,7 +32,7 @@ The ghost, pumpkin and bat cat are all playable. Choose one, try a solo run, or 
 | Leaderboard | One shared ranking; submitting your name and score is always your choice |
 | Challenges | Share a verified result link or download a score card |
 | Mobile | Touch controls, responsive layout, home-screen icons and install manifest |
-| Languages | English at `/`, Simplified Chinese at `/zh`, including metadata and OG images |
+| Languages | 12 interface languages with localized page metadata; English and Chinese OG artwork |
 
 ## How to play
 

@@ -32,7 +32,7 @@ Escolha o fantasma, a abóbora ou o gato-morcego. Jogue sozinho ou envie um cód
 | Ranking | Uma classificação única; você escolhe se publica seu nome e sua pontuação |
 | Compartilhamento | Links para resultados verificados e cartões de pontuação para baixar |
 | Celular | Controles por toque, layout adaptável e ícones para a tela inicial |
-| Idiomas do jogo | Inglês em `/` e chinês simplificado em `/zh`, incluindo metadados e imagens OG |
+| Idiomas do jogo | Interface e metadados em 12 idiomas; imagens OG em inglês e chinês |
 
 ## Como jogar
 

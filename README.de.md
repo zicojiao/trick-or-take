@@ -32,7 +32,7 @@ Wähle den Geist, den Kürbis oder die Fledermauskatze. Spiele allein oder teile
 | Bestenliste | Gemeinsame Rangliste; Name und Punktzahl werden nur auf Wunsch veröffentlicht |
 | Teilen | Links zu geprüften Ergebnissen und herunterladbare Ergebniskarten |
 | Mobilgeräte | Touch-Steuerung, anpassbares Layout und Startbildschirm-Symbole |
-| Spielsprachen | Englisch unter `/`, vereinfachtes Chinesisch unter `/zh`, einschließlich Metadaten und OG-Bildern |
+| Spielsprachen | Oberfläche und Metadaten in 12 Sprachen; OG-Bilder auf Englisch und Chinesisch |
 
 ## So wird gespielt
 

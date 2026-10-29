@@ -70,4 +70,34 @@
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
+  <url><loc>https://trickortake.com/zh-tw</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/zh-tw/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/zh-tw/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/es</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/es/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/es/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ja</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ja/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ja/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ko</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ko/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ko/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/fr</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/fr/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/fr/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/de</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/de/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/de/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/pt</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/pt/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/pt/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ru</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ru/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/ru/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/it</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/it/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/it/terms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/id</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/id/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://trickortake.com/id/terms</loc><changefreq>monthly</changefreq></url>
 </urlset>

@@ -47,3 +47,12 @@ test('homepage previews serve the approved localized artwork, without a placehol
  }
  assert.deepEqual(requested,['/party/assets/og-home-v3-en.png','/party/assets/og-home-v3-zh.png']);
 });
+
+test('a non-English challenge keeps its locale in prepared and canonical links',async()=>{
+ const h=setup();h.setContext({key:'run:ja',lang:'ja'});
+ assert.match(h.doc.title,/ハロウィン/);
+ assert.equal(h.el('canonical-url').href,'https://game.test/ja');
+ await h.el('share-prepare').events.click();
+ assert.match(h.el('share-link').value,/\/ja\?result=a{24}$/);
+ assert.match(h.el('meta-og-image').content,/lang=en/,'new locales use the shipped English artwork');
+});

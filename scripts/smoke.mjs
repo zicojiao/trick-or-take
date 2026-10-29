@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import {SUPPORTED_LANGS, PAGE_META, languagePath} from '../public/party/locale.mjs';
+import {MESSAGES} from '../public/party/messages.mjs';
 import {spawn, spawnSync} from 'node:child_process';
 import {mkdtemp, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -31,7 +33,8 @@ try {
     await delay(250);
   }
   assert.ok(ready, `Worker startup timed out: ${output}`);
-  for (const [path, language] of [['/', 'en'], ['/zh', 'zh-CN']]) {
+  for (const lang of SUPPORTED_LANGS) {
+    const path=languagePath(lang),language=PAGE_META[lang].htmlLang;
     const response = await fetch(origin + path);
     assert.equal(response.status, 200);
     const html = await response.text();
@@ -39,6 +42,12 @@ try {
     assert.match(html, /Trick or Take/);
     assert.match(html, /config\.js/);
     assert.match(html, /og:image/);
+    assert.ok(html.includes(MESSAGES[lang].loadingTitle), `localized loading: ${lang}`);
+    for(const kind of ['privacy','terms']){
+      const policy=await fetch(origin+languagePath(lang,kind));
+      assert.equal(policy.status,200);
+      assert.equal(policy.headers.get('content-language'),language);
+    }
   }
   for (const path of ['/privacy', '/terms', '/zh/privacy', '/zh/terms', '/party/app.mjs', '/favicon.ico', '/manifest.webmanifest']) {
     assert.equal((await fetch(origin + path)).status, 200, path);

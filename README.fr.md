@@ -32,7 +32,7 @@ Choisis le fantôme, la citrouille ou le chat chauve-souris. Joue seul ou partag
 | Classement | Un classement commun ; publication du nom et du score au choix |
 | Partage | Liens vers des résultats vérifiés et cartes de score téléchargeables |
 | Mobile | Commandes tactiles, mise en page adaptative et icônes d’écran d’accueil |
-| Langues du jeu | Anglais sur `/`, chinois simplifié sur `/zh`, métadonnées et images OG comprises |
+| Langues du jeu | Interface et métadonnées en 12 langues ; images OG en anglais et en chinois |
 
 ## Comment jouer
 
