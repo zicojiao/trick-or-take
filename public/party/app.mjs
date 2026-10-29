@@ -1,9 +1,8 @@
 import {track} from './analytics.mjs';
 import {MESSAGES} from './messages.mjs';
-import {createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION} from './engine.mjs';
+import {createRoom, applyCommand, publicRoom, GAME_VERSION} from './engine.mjs';
 import {SUPPORTED_LANGS, LANGUAGES_INFO, PAGE_META, requestLanguage, languagePath} from './locale.mjs';
 import {randomNickname} from './profile.mjs';
-import {createChoiceGroup} from './choice.mjs';
 import {createScene} from './scene.mjs';
 import {createVoice} from './voice.mjs';
 import {pollCommand} from './input.mjs';
@@ -11,6 +10,7 @@ import {createHoldInput, createLocalClock} from './controls.mjs';
 import {installInteractions} from './interaction.mjs';
 import {createResultSharing} from './sharing.mjs';
 import {createSoloMusic} from './music.mjs';
+import {createGameAudio} from './audio.mjs';
 import {createSignaling} from './signaling.mjs';
 import './stage-fit.mjs';
 
@@ -28,7 +28,7 @@ const node = (tag, className, text) => {
   return element;
 };
 let lang = requestLanguage(location.origin + location.pathname + location.search);
-let difficulty = Object.hasOwn(DIFFICULTIES,read(localStorage,'candy-difficulty')) ? read(localStorage,'candy-difficulty') : 'medium';
+const difficulty = 'medium'; // One shared ruleset; legacy records retain their original timings.
 let avatar = Math.abs(Number(read(localStorage, 'pumpkin-avatar')) || 0) % 3;
 let mode = 'solo', room = null, session = null, localRoom = null;
 let activeTouchId = null;
@@ -36,13 +36,13 @@ let holding = false, seq = 0, epoch = 0, offset = 0, lastSuccess = 0, online = t
 let lastEvent = 0, lastUi = 0, lastLocalTick = 0, pollTimer, pollFlight;
 let entryBusy = false, roomBusy = false, artReady = false, artFailed = false;
 let rosterSignature = '', resultSignature = '', toastTimer, feedbackTimer, finaleTimer;
-const bestKey = () => difficulty === 'medium' ? 'candy-local-best-v6' : 'candy-local-best-v6-' + difficulty;
+const bestKey = () => 'candy-local-best-v6';
 let finishedBest = false, best = Math.max(0, Number(read(localStorage, bestKey())) || 0);
 let soloStarting = false, soloTicket = null, soloTrace = [], resultIdentity = null;
 let publication = {state:'idle'}, publicationKey = '', boardEpoch = 0, boardState = 'loading', publishNameDefault = true;
 let voiceState = {state: 'idle', muted: false}, config = {voiceConfigured: null}, levels = {};
 let configState = 'loading', configPromise;
-let soundEnabled = read(localStorage, 'candy-sound') !== 'false', audioContext, audioOutput;
+let soundEnabled = read(localStorage, 'candy-sound') !== 'false';
 let musicEnabled=read(localStorage,'candy-music')!=='false';
 let signalState={state:'idle'},rtmRefreshPending=false,lastSignalEvent=0;
 let helpPausedLocal = false, leavePausedLocal = false;
@@ -130,50 +130,15 @@ function feedback(message) {
   setText('stage-feedback', message); show('stage-feedback', true);
   clearTimeout(feedbackTimer); feedbackTimer = setTimeout(() => show('stage-feedback', false), 1400);
 }
-function getAudio(){
-  if(!audioContext||audioContext.state==='closed'){
-    const Audio=globalThis.AudioContext||globalThis.webkitAudioContext;if(!Audio)return null;
-    audioContext=new Audio();audioOutput=audioContext.createGain();audioOutput.gain.value=.75;audioOutput.connect(audioContext.destination);
-  }
-  return {context:audioContext,output:audioOutput};
+const effects=createGameAudio({onState:state=>{document.body.dataset.audio=state;}});
+effects.setEnabled(soundEnabled);
+const music=createSoloMusic({getAudio:effects.getAudio,onStatus:state=>{document.body.dataset.music=state;}});
+function unlockAudio(){
+  if(!soundEnabled)return;
+  effects.unlock();void music.unlock();
 }
-const music=createSoloMusic({getAudio,onStatus:state=>{document.body.dataset.music=state;}});
 function syncMusic(){music.sync({enabled:soundEnabled&&musicEnabled,solo:!!localRoom,active:active(),paused:clockPaused(),hidden:document.hidden,attention:room?.attention});}
-function playTone(type, frequency, start, duration, level, endFrequency) {
-  const oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
-  oscillator.type = type;
-  oscillator.frequency.setValueAtTime(frequency, start);
-  if (endFrequency) oscillator.frequency.exponentialRampToValueAtTime(endFrequency, start + duration);
-  gain.gain.setValueAtTime(.0001, start);
-  gain.gain.exponentialRampToValueAtTime(level, start + .016);
-  gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
-  oscillator.connect(gain); gain.connect(audioOutput);
-  oscillator.start(start); oscillator.stop(start + duration + .02);
-}
-function sound(kind) {
-  if (!soundEnabled) return;
-  try {
-    if(!getAudio())return;
-    void audioContext.resume().catch(() => {});
-    const start = audioContext.currentTime;
-    if (kind === 'finish' || kind === 'best') {
-      // D minor tiptoe, then a bright lift: the heist got away with it.
-      [293.66, 349.23, 440, 587.33].forEach((frequency, index) => {
-        playTone('triangle', frequency, start + index * .08, .26, .05);
-        playTone('sine', frequency / 2, start + index * .08, .3, .028);
-      });
-      for (const frequency of [293.66, 349.23, 440]) playTone('sine', frequency, start + .36, .72, .03);
-      playTone('triangle', 880, start + .62, .28, .035);
-      if (kind === 'best') {
-        playTone('triangle', 1174.66, start + .78, .42, .04);
-        playTone('sine', 587.33, start + .78, .5, .03);
-      }
-      return;
-    }
-    const notes = kind === 'catch' ? [260, 190] : kind === 'warning' ? [520, 620] : [730, 930];
-    notes.forEach((frequency, index) => playTone('sine', frequency, start + index * .09, .14, .045));
-  } catch {}
-}
+function sound(kind){if(soundEnabled&&!document.hidden)effects.play(kind);}
 function clearFinale() {
   clearTimeout(finaleTimer); finaleTimer = null;
   const finale = $('finale');
@@ -224,7 +189,7 @@ function errorCopy(error) {
     invalid_trace: ['This run could not be verified. Start a new game to try again.', '本局记录无法验证，请重新开始一局。'],
     result_not_found: ['This result has expired. Play a new round.', '成绩记录已过期，请重新玩一局。'],
     match_not_finished: ['Finish the full game before submitting your score.', '请完成整局游戏后再提交成绩。'],
-    invalid_difficulty: ['Choose Easy, Medium or Hard.', '请选择简单、中等或困难。'],
+    invalid_difficulty: ['Please start a new round.', '请重新开始一局。'],
     voice_unconfigured: ['Voice is not configured yet. The game still works.', '语音尚未配置，仍然可以正常玩游戏。'],
     voice_sdk_load: ['The voice service could not load. Please retry.', '语音服务加载失败，请重试。'],
     PERMISSION_DENIED: ['Allow microphone access, then try again.', '请允许麦克风权限后再试。'],
@@ -283,7 +248,10 @@ function accept(data) {
       sound('catch');
     } else if (event.type === 'warning') sound('warning');
   }
-  if (score(mine()) > previousScore && holding === false && previousPhase === 'playing') sound('bank');
+  if (previousPhase === 'playing' && room.phase === 'playing' && score(mine()) > previousScore) {
+    if(holding && mine()?.holding && room.attention==='away')sound('pickup');
+    else if(!holding)sound('bank');
+  }
   if (room.phase === 'playing' && previousPhase !== 'playing') track('round_started',{mode:localRoom?'solo':'friends',difficulty:room.difficulty});
   if (previousPhase === 'finished' && room.phase !== 'finished') clearFinale();
   if (room.phase === 'finished' && previousPhase !== 'finished') {
@@ -388,6 +356,7 @@ function selectMode(nextMode) {
 }
 async function enter(action) {
   if (entryBusy || room || mode !== 'online') return;
+  unlockAudio();
   const name = $('name-input').value.trim(), code = $('code-input').value.trim().toUpperCase();
   if (!name || (action === 'join' && !/^[A-Z0-9]{6}$/.test(code))) {
     setText('entry-error', errorCopy({code: name ? 'invalid_code' : 'invalid_name'}));
@@ -415,7 +384,7 @@ async function enter(action) {
 
 async function startSolo() {
   if (!artReady || soloStarting) return;
-  if(soundEnabled)void music.unlock();
+  unlockAudio();
   resetRoom(); mode = 'solo'; clock.reset(Date.now());
   const requestEpoch = epoch;
   soloStarting = true; render();
@@ -449,7 +418,7 @@ function pauseLocal(display = true) {
   if (display && !$('pause-dialog').open && !$('help-dialog').open && !$('leave-dialog').open) $('pause-dialog').showModal();
 }
 function resumeLocal() {
-  if(soundEnabled)void music.unlock();
+  unlockAudio();
   if ($('pause-dialog').open) $('pause-dialog').close();
   if (localRoom && active()) clock.resume();syncMusic();
 }
@@ -500,6 +469,7 @@ function updateHold() {
   const desired = input.held;
   if (desired === holding) return;
   if (desired && !canHold()) {input.clear(); return;}
+  if(desired)unlockAudio();
   holding = desired; seq += 1; saveSession(); renderTimers();
   if (room?.phase === 'playing') void command({type: 'hold', held: holding, seq, roundIndex: room.roundIndex}, {silent: !holding, keepalive: !holding});
 }
@@ -543,6 +513,7 @@ if (nativeTouch) {
   const releaseTouch = event => {
     if (activeTouchId === null || !Array.from(event.changedTouches).some(finger => finger.identifier === activeTouchId)) return;
     const id = activeTouchId; activeTouchId = null;
+    unlockAudio();
     event.preventDefault();
     if (input.releasePointer(id)) updateHold();
   };
@@ -770,11 +741,6 @@ function render() {
   show('scene-badge', !['lobby', 'finished'].includes(phase));
   $('solo-start').disabled = !artReady || soloStarting;
   setText('solo-start-label', soloStarting ? tr('Preparing your game…', '正在准备游戏…') : t('soloStart'));
-  const level = room?.difficulty || difficulty;
-  for(const key of Object.keys(DIFFICULTIES)) {
-    $('difficulty-' + key).disabled = !!room || soloStarting;
-  }
-  difficultyChoice.setValue(level);
   $('create-button').disabled = $('join-button').disabled = entryBusy;
   $('random-name').disabled = $('name-input').disabled = entryBusy;
   setText('create-button-label', entryBusy ? tr('Connecting…', '正在连接…') : t('create'));
@@ -805,7 +771,7 @@ const voice = createVoice({
     if (requestEpoch !== epoch) throw Object.assign(new Error('voice_session_changed'), {code: 'voice_session_changed'});
     return credentials;
   },
-  onStatus: status => {if(status.state==='connected' && voiceState.state!=='connected')track('voice_connected',{mode:'friends'});voiceState = status; renderVoice();},
+  onStatus: status => {if(status.state==='connected' && voiceState.state!=='connected')track('voice_connected',{mode:'friends'});voiceState = status;effects.setVoiceActive(!['idle','error'].includes(status.state));renderVoice();},
   onLevels: value => {levels = value;},
 });
 function refreshConfig(force = false) {
@@ -944,8 +910,8 @@ $('join-button').addEventListener('click', () => enter('join'));
 $('code-input').addEventListener('input', event => {event.target.value = event.target.value.replace(/[^0-9]/g, '');render();});
 $('code-input').addEventListener('keydown', event => {if (event.key === 'Enter') void enter('join');});
 $('name-input').addEventListener('keydown', event => {if (event.key === 'Enter') void enter($('code-input').value ? 'join' : 'create');});
-$('ready-button').addEventListener('click', () => roomAction({type: 'ready', ready: !mine()?.ready}));
-$('start-button').addEventListener('click', () => roomAction({type: 'start'}));
+$('ready-button').addEventListener('click', () => {unlockAudio();void roomAction({type: 'ready', ready: !mine()?.ready});});
+$('start-button').addEventListener('click', () => {unlockAudio();void roomAction({type: 'start'});});
 for (const id of ['leave-button', 'exit-match', 'pause-exit']) $(id).addEventListener('click', requestLeave);
 $('result-exit').addEventListener('click', () => resetRoom());
 $('leave-stay').addEventListener('click', stayInMatch);
@@ -1036,11 +1002,6 @@ if ($('close-language')) {
     $('language-dialog')?.close?.();
   });
 }
-const difficultyChoice = createChoiceGroup(Object.keys(DIFFICULTIES).map(level=>[level,$('difficulty-' + level)]),difficulty,level=>{
-  if(room || soloStarting)return;
-  difficulty = level;track('difficulty_selected',{difficulty:level});write(localStorage,'candy-difficulty',level);
-  best = Math.max(0,Number(read(localStorage,bestKey())) || 0);render();
-});
 $('submit-score').addEventListener('click',publishScore);
 $('publish-name').addEventListener('input',()=>{publishNameDefault=false;});
 $('publish-random-name').addEventListener('click',()=>{
@@ -1063,11 +1024,11 @@ $('board-refresh').addEventListener('click',refreshBoard);
 const resultSharing=createResultSharing({document,navigator,nav:navigator,track,origin:location.origin,search:location.search,request:api,
   getContext:()=>({lang,key:publicationKey+':'+lang,available:room?.phase==='finished'&&!!(localRoom?soloTicket:resultIdentity),canStart:!room&&artReady,
     identity:localRoom?soloTicket:resultIdentity,body:{runId:(localRoom?soloTicket:resultIdentity)?.runId,...(localRoom?{trace:soloTrace}:{})}}),
-  onChallenge:result=>{difficulty=result.difficulty;write(localStorage,'candy-difficulty',difficulty);mode='solo';difficultyChoice.setValue(difficulty);void startSolo();},
+  onChallenge:()=>{mode='solo';void startSolo();},
 });
 $('sound-button').addEventListener('click', () => {
-  soundEnabled = !soundEnabled; musicEnabled = soundEnabled;
-  if(soundEnabled)void music.unlock();
+  soundEnabled = !soundEnabled; musicEnabled = soundEnabled;effects.setEnabled(soundEnabled);
+  unlockAudio();
   write(localStorage, 'candy-sound', String(soundEnabled));
   write(localStorage, 'candy-music', String(musicEnabled));
   applyLanguage(); sound('bank');
@@ -1084,7 +1045,7 @@ $('voice-button').addEventListener('click', async () => {
       }
     }
     if (['connected', 'reconnecting'].includes(voiceState.state)) await voice.mute(!voiceState.muted);
-    else await voice.join();
+    else {effects.setVoiceActive(true);await voice.join();}
   } catch (error) {toast(errorCopy(error));}
 });
 $('voice-leave').addEventListener('click', () => voice.leave());

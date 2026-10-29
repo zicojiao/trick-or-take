@@ -30,7 +30,7 @@ async function setup(t){
 test('solo publication is opt-in, authenticated, complete-length and idempotent; scores are replayed',async t=>{
   const {db,api}=await setup(t);
   const ticket=(await api('solo-ticket',{difficulty:'hard'})).data;
-  assert.ok(ticket.runId&&ticket.token);assert.equal(ticket.difficulty,'hard');
+  assert.ok(ticket.runId&&ticket.token);assert.equal(ticket.difficulty,'medium');
   assert.equal((await api('leaderboard?difficulty=hard&mode=solo')).data.entries.length,0);
   const body={runId:ticket.runId,name:'Player',trace:[{at:0,held:true},{at:500,held:false}]};
   assert.equal((await api('submit-score',body,'f'.repeat(64))).status,401);
@@ -53,7 +53,7 @@ test('online finished scores survive a rematch, require the correct member and a
   const {db,api}=await setup(t);
   const owner=(await api('create',{name:'Host',difficulty:'easy'})).data;
   const friend=(await api('join',{code:owner.room.code,name:'Friend'})).data;
-  assert.equal(friend.room.difficulty,'easy');
+  assert.equal(friend.room.difficulty,'medium');
   const command=(member,command)=>api('state',{code:owner.room.code,playerId:member.playerId,command},member.token);
   for(const member of [owner,friend])await command(member,{type:'ready',ready:true});
   await command(owner,{type:'start'});

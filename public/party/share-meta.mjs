@@ -1,21 +1,6 @@
 import {PAGE_META, languagePath} from './locale.mjs';
 export const SHARE_SIZE={width:1200,height:630};
 
-const LEVELS = {
-  zh: {easy:'简单',medium:'中等',hard:'困难'},
-  'zh-tw': {easy:'簡單',medium:'中等',hard:'困難'},
-  es: {easy:'Fácil',medium:'Medio',hard:'Difícil'},
-  ja: {easy:'かんたん',medium:'ふつう',hard:'むずかしい'},
-  ko: {easy:'쉬움',medium:'보통',hard:'어려움'},
-  fr: {easy:'Facile',medium:'Moyen',hard:'Difficile'},
-  de: {easy:'Einfach',medium:'Mittel',hard:'Schwer'},
-  pt: {easy:'Fácil',medium:'Médio',hard:'Difícil'},
-  ru: {easy:'Легко',medium:'Средне',hard:'Сложно'},
-  it: {easy:'Facile',medium:'Medio',hard:'Difficile'},
-  id: {easy:'Mudah',medium:'Sedang',hard:'Sulit'},
-  en: {easy:'Easy',medium:'Medium',hard:'Hard'}
-};
-
 const MODES = {
   zh: {online:'好友对战',solo:'单人挑战'},
   'zh-tw': {online:'好友對戰',solo:'單人挑戰'},
@@ -46,9 +31,8 @@ const LABELS = {
   en: '60 seconds · Play free'
 };
 
-export const shareLevel=(level,lang='en')=>(LEVELS[lang]||LEVELS.en)[level]||level;
 export const shareMode=(mode,lang='en')=>(MODES[lang]||MODES.en)[mode]||mode;
-export const shareLabel=(r,lang='en')=>r?shareLevel(r.difficulty,lang)+' · '+shareMode(r.mode,lang):(LABELS[lang]||LABELS.en);
+export const shareLabel=(r,lang='en')=>r?shareMode(r.mode,lang):(LABELS[lang]||LABELS.en);
 
 export function shareMeta(lang='en',result=null){
   const meta=PAGE_META[lang] || PAGE_META.en;

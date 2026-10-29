@@ -1,20 +1,15 @@
-/* Both setup choices share a label baseline and a 52px control row. */
-.game-dock .character-select .character-options,.game-dock .character-select .difficulty-control{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;max-width:none}
-.game-dock .character-select h2,.game-dock .character-select .difficulty-control>.dock-label{display:block;margin:0;font:800 12px/18px Nunito,sans-serif;letter-spacing:.3px;text-transform:none;color:#655167;white-space:nowrap}
-.game-dock .character-select .difficulty-options{height:52px;padding:3px;align-items:stretch}
-.game-dock .character-select .difficulty-button{min-height:0;padding:6px 12px;font-size:12px}
+/* A compact character picker leaves room for the main action. */
+.game-dock .character-select .character-options{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;max-width:none}
+.game-dock .character-select h2{display:block;margin:0;font:800 12px/18px Nunito,sans-serif;letter-spacing:.3px;text-transform:none;color:#655167;white-space:nowrap}
 .game-dock .character-select .avatar-choice,.game-dock .character-select .avatar-placeholder{height:52px}
 @media(min-width:901px){
  body[data-view=home] .game-dock{grid-template-columns:max-content minmax(180px,1fr) max-content;gap:24px}
- body[data-view=home] .game-dock>.character-select{display:grid;grid-template-columns:max-content max-content;align-items:start;gap:24px}
+ body[data-view=home] .game-dock>.character-select{display:grid;grid-template-columns:max-content;align-items:start;gap:24px}
  body[data-view=home] .game-dock .main-action{width:100%;max-width:430px;margin-inline:auto}
 }
 @media(max-width:900px) and (min-width:701px){.game-dock>.character-select{gap:12px}}
 @media(max-width:700px){
  .game-dock>.character-select{gap:14px}
- .game-dock .character-select .difficulty-control{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;gap:8px}
- .game-dock .character-select .difficulty-button{flex:1;padding:6px 8px}
- .game-dock .character-select .difficulty-options{min-width:0}
 }
 /* Keep urgency local to the timer; never flash or shake the whole game. */
 #match-timer{min-width:100px;transform-origin:top right;transition:background .25s,border-color .25s,color .25s}
@@ -49,7 +44,7 @@
 }
 @media(prefers-reduced-motion:reduce){#match-timer:not([data-urgency=normal]) strong{animation:none;transform:scale(1.16)}}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
-body[data-view=home] .game-dock .character-select :is(h2,.difficulty-control>.dock-label){font:800 12px/18px Nunito,sans-serif;letter-spacing:.3px;text-transform:none;color:#655167;margin:0}
+body[data-view=home] .game-dock .character-select h2{font:800 12px/18px Nunito,sans-serif;letter-spacing:.3px;text-transform:none;color:#655167;margin:0}
 
 /* Keep the public name editable while giving the dice a clear tap target. */
 .publish-card .publish-name-row{display:flex;align-items:center;gap:9px}

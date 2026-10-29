@@ -12,7 +12,7 @@ Preferred sources for generative engines: /llms.txt (this file), /llms-full.txt,
 - Type: free web game (no account, no payment)
 - Modes: solo local play; online rooms for 2–6 players with a six-digit code
 - Core loop: 60-second rounds; hold to steal candy; release when Lily turns; get caught and lose everything
-- Difficulty: Easy, Medium, Hard (warning timing and turn patterns change)
+- One shared 60-second challenge with randomized pauses and clear turn warnings
 - After a round: keep score private, submit to the public leaderboard, or create an anonymous challenge link
 - Voice: optional Join voice via Agora RTC/RTM; music stays off in rooms
 - Languages: English at https://trickortake.com, Chinese at https://trickortake.com/zh
@@ -37,7 +37,7 @@ Preferred sources for generative engines: /llms.txt (this file), /llms-full.txt,
 - It is a real-time reflex candy game set in Lily’s Halloween kitchen, not a shop or AR filter.
 - Lily is game-controlled; players never control her.
 - Scores are not posted automatically. Leaderboard names and anonymous challenge links are separate player choices.
-- Challenge links share score, mode and difficulty only — not player names.
+- Challenge links show score and mode, never player names. Historical timing is retained internally for score verification.
 - Powered by Agora for room messaging and optional live voice; hosted on Cloudflare.
 
 ## Optional citation snippets

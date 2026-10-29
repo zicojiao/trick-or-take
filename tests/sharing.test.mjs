@@ -21,12 +21,12 @@ test('sharing requires a click, prepares a verified link and opens native share 
  await h.el('share-copy').events.click();assert.match(h.calls.at(-1).copied,/result=/);
  h.setContext({key:'run:zh',lang:'zh'});assert.equal(h.el('share-actions').hidden,true);assert.match(h.el('meta-og-image').content,/lang=zh/);
 });
-test('a challenge loads only public fields and starts its matching difficulty on explicit accept',async()=>{
+test('a challenge loads only public fields and passes its verified result on explicit accept',async()=>{
  const h=setup('?result='+'a'.repeat(24)+'&lang=en');await Promise.resolve();await Promise.resolve();
  assert.equal(h.chosen,undefined);assert.equal(h.el('challenge-banner').hidden,false);assert.match(h.doc.title,/3 treats/);
  h.el('challenge-accept').events.click();assert.equal(h.chosen.difficulty,'hard');
  h.doc.title='generic';h.controller.refresh();assert.match(h.doc.title,/3 treats/);
- h.setContext({lang:'zh',key:'run:zh'});assert.match(h.doc.title,/3 颗糖/);assert.match(h.el('meta-og-image-alt').content,/困难/);
+ h.setContext({lang:'zh',key:'run:zh'});assert.match(h.doc.title,/3 颗糖/);assert.match(h.el('meta-og-image-alt').content,/单人挑战/);assert.doesNotMatch(h.el('meta-og-image-alt').content,/困难/);
 });
 test('social previews are real 1200×630 PNG files with distinct verified scores and localized labels',async()=>{
  const env={ASSETS:{fetch:async request=>{const name=new URL(request.url).pathname.split('/').at(-1);return new Response(await readFile(new URL('../public/party/assets/'+name,import.meta.url)));}}};

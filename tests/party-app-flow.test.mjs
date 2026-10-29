@@ -7,7 +7,7 @@ import {createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION} from '
 import {PAGE_META,requestLanguage,SUPPORTED_LANGS,LANGUAGES_INFO,languagePath} from '../public/party/locale.mjs';
 import {replaySolo} from '../server/leaderboard.mjs';
 import {randomNickname} from '../public/party/profile.mjs';
-import {createChoiceGroup} from '../public/party/choice.mjs';
+import {createGameAudio} from '../public/party/audio.mjs';
 import {installInteractions} from '../public/party/interaction.mjs';
 import {createResultSharing} from '../public/party/sharing.mjs';
 import {createSoloMusic} from '../public/party/music.mjs';
@@ -20,6 +20,7 @@ const appSource = readFileSync(new URL('../public/party/app.mjs', import.meta.ur
 // Execute the actual application against its HTML IDs and real game/input rules.
 // Only browser surfaces, image loading, transport and the audio device are mocked.
 function harness({touchDevice = false, configFailures = 0, configured = true, restore = false, legacyBest = null, language = 'zh', storedLanguage = language, artResult = {ok:true}, search = ''} = {}) {
+  const sounds=[];
   let document, stamp = 0, wallTime = 1_000_000, nextFrame, timerId = 0;
   let configAttempts = 0, voiceJoins = 0, copiedInvite, historyUrl, submissions = [], ticketDifficulty, entryPayload, boardRequests=[],signalJoins=0,signalLeaves=0,signalPulses=[];
   class Element {
@@ -96,7 +97,7 @@ function harness({touchDevice = false, configFailures = 0, configured = true, re
     location: {pathname: languagePath(language), search, origin: 'https://game.test'}, history: {replaceState(_state, _title, url) {historyUrl = url;}},
     navigator: {clipboard: {writeText: async value => {copiedInvite = value;}}}, AbortController, URLSearchParams, Uint32Array,
     crypto: {getRandomValues(array) {array[0] = 1; return array;}}, Date: {now: () => wallTime},
-    createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION, PAGE_META, requestLanguage, SUPPORTED_LANGS, LANGUAGES_INFO, languagePath, randomNickname, createChoiceGroup, createHoldInput, createLocalClock, pollCommand, installInteractions, createResultSharing, createSoloMusic,
+    createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION, PAGE_META, requestLanguage, SUPPORTED_LANGS, LANGUAGES_INFO, languagePath, randomNickname, createGameAudio:options=>({...createGameAudio({...options,host:{}}),play:kind=>sounds.push(kind)}), createHoldInput, createLocalClock, pollCommand, installInteractions, createResultSharing, createSoloMusic,
     setTimeout: () => ++timerId, clearTimeout() {}, requestAnimationFrame: callback => {nextFrame = callback;},
     createScene: () => ({ready: Promise.resolve(artResult), update() {}, retryAssets: () => Promise.resolve({ok: true})}),
     createSignaling:({onStatus})=>{let key=null;return{connect:async(next,retry=false)=>{if(key!==next||retry){key=next;signalJoins++;onStatus({state:'connected'});}return true;},leave:async()=>{key=null;signalLeaves++;onStatus({state:'idle'});},pulse:version=>signalPulses.push(version)};},
@@ -143,7 +144,7 @@ function harness({touchDevice = false, configFailures = 0, configured = true, re
     tick(0);
     while (milliseconds > 0) {const step = Math.min(100, milliseconds); tick(step); milliseconds -= step;}
   }
-  return {element, window, document, flush, click, advance, sessionStorage, localStorage,
+  return {sounds, element, window, document, flush, click, advance, sessionStorage, localStorage,
     get configAttempts() {return configAttempts;}, get voiceJoins() {return voiceJoins;},
     get copiedInvite() {return copiedInvite;},
     get historyUrl() {return historyUrl;},
@@ -246,13 +247,22 @@ test('title, description and share-preview metadata follow the selected language
   assert.equal(app.historyUrl,'/zh');
 });
 
-test('difficulty is selected before play and best scores stay separated',async()=>{
-  const app=harness();await app.flush();await app.click('difficulty-hard');
-  await app.solo();assert.equal(app.ticketDifficulty,'hard');
-  assert.equal(app.element('difficulty-hard').disabled,true);
-  app.element('hold-button').dispatch('pointerdown');app.advance(500);app.element('hold-button').dispatch('pointerup');app.advance(60000);
-  assert.equal(app.localStorage.getItem('candy-local-best-v6-hard'),'3');
-  assert.equal(app.localStorage.getItem('candy-local-best-v6'),null);
+test('one shared challenge ignores old difficulty preferences and keeps the standard best',async()=>{
+ const app=harness();app.localStorage.setItem('candy-difficulty','hard');await app.flush();
+ assert.doesNotMatch(html,/id="difficulty-/);
+ await app.solo();assert.equal(app.ticketDifficulty,'medium');
+ app.element('hold-button').dispatch('pointerdown');app.advance(500);app.element('hold-button').dispatch('pointerup');app.advance(60000);
+ assert.equal(app.localStorage.getItem('candy-local-best-v6'),'3');
+ assert.equal(app.localStorage.getItem('candy-local-best-v6-hard'),null);
+});
+
+test('pickup sounds follow earned candy while holding and stop on release',async()=>{
+ const app=harness();await app.solo();app.sounds.length=0;
+ app.advance(200);assert.equal(app.sounds.includes('pickup'),false);
+ app.element('hold-button').dispatch('pointerdown');app.advance(500);
+ assert.ok(app.sounds.includes('pickup'));
+ app.element('hold-button').dispatch('pointerup');app.sounds.length=0;app.advance(200);
+ assert.equal(app.sounds.includes('pickup'),false);
 });
 
 test('finishing and choosing Keep private never submits a score',async()=>{

@@ -28,7 +28,7 @@ Escolha o fantasma, a abóbora ou o gato-morcego. Jogue sozinho ou envie um cód
 | Multijogador | 2–6 jogadores, códigos de seis dígitos, confirmação de prontidão e revanche |
 | Voz | Agora RTC com microfone, silenciamento e reconexão |
 | Atualizações | Avisos do Agora RTM, com consultas periódicas como alternativa |
-| Dificuldade | Três níveis; no Difícil, Lily se vira mais rápido, sem fazer isso o tempo todo |
+| Um desafio para todos | Pausas aleatórias e avisos claros, com as mesmas regras para todos |
 | Ranking | Uma classificação única; você escolhe se publica seu nome e sua pontuação |
 | Compartilhamento | Links para resultados verificados e cartões de pontuação para baixar |
 | Celular | Controles por toque, layout adaptável e ícones para a tela inicial |
@@ -36,17 +36,13 @@ Escolha o fantasma, a abóbora ou o gato-morcego. Jogue sozinho ou envie um cód
 
 ## Como jogar
 
-1. Escolha um personagem e a dificuldade. No multijogador, crie uma sala ou entre em uma e espere todos ficarem prontos.
+1. Escolha um personagem. No multijogador, crie uma sala ou entre em uma e espere todos ficarem prontos.
 2. Segure o botão grande, a cena do jogo ou a tecla **Espaço**. Quanto mais tempo segurar, mais rápido você pega doces.
 3. Solte assim que Lily começar a se virar. Seu personagem imediatamente faz cara de inocente.
 4. Se for pego, sua contagem volta a zero. Depois de ficar atordoado por um instante, você pode tentar de novo.
 5. Quando o tempo acabar, os doces ainda nas mãos também contam. Vence quem tiver mais; pontuações iguais empatam.
 
-| Dificuldade | Tempo de reação | Ritmo |
-| --- | --- | --- |
-| Fácil | 1,50–2,10 segundos | Pausas longas e aviso generoso |
-| Médio | 0,90–1,35 segundo | Ritmo variado e equilibrado |
-| Difícil | 0,36–0,58 segundo | Frequência parecida com Médio, movimentos muito mais rápidos |
+Cada partida dura 60 segundos. Lily alterna pausas curtas e longas, com um aviso de 0,90–1,35 segundos antes de olhar. Não há seletor de dificuldade.
 
 Os tempos variam a cada rodada. O servidor não revela a próxima virada antes do início do aviso. A música fica desligada no multijogador para não atrapalhar a conversa.
 

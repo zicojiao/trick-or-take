@@ -28,7 +28,7 @@ Elige el fantasma, la calabaza o el gato murciélago. Juega a solas o comparte u
 | Multijugador | 2–6 jugadores, salas de seis dígitos, confirmación de preparación y revanchas |
 | Voz | Agora RTC con micrófono, silencio y reconexión |
 | Actualizaciones | Avisos de Agora RTM y consultas periódicas como alternativa |
-| Dificultad | Tres niveles; en Difícil, Lily se gira más rápido sin hacerlo constantemente |
+| Un solo reto | Pausas aleatorias y avisos claros, con las mismas reglas para todos |
 | Clasificación | Una tabla común; tú decides si publicas tu nombre y puntuación |
 | Compartir | Enlaces a resultados verificados y tarjetas descargables |
 | Móvil | Controles táctiles, diseño adaptable e iconos de pantalla de inicio |
@@ -36,17 +36,13 @@ Elige el fantasma, la calabaza o el gato murciélago. Juega a solas o comparte u
 
 ## Cómo jugar
 
-1. Elige personaje y dificultad. En multijugador, crea una sala o únete a una y espera a que todos estén listos.
+1. Elige un personaje. En multijugador, crea una sala o únete a una y espera a que todos estén listos.
 2. Mantén pulsado el botón grande, la escena o **Espacio**. Cuanto más tiempo mantengas pulsado, más rápido robas.
 3. Suelta cuando Lily empiece a girarse. Tu personaje pone cara de inocente inmediatamente.
 4. Si te descubre, tu cuenta vuelve a cero. Tras un breve aturdimiento, puedes volver a intentarlo.
 5. Al terminar, también cuentan los caramelos que aún tienes en las manos. Gana quien tenga más; los empates se mantienen.
 
-| Dificultad | Tiempo de reacción | Ritmo |
-| --- | --- | --- |
-| Fácil | 1,50–2,10 segundos | Pausas largas y aviso generoso |
-| Media | 0,90–1,35 segundos | Ritmo variado y equilibrado |
-| Difícil | 0,36–0,58 segundos | Frecuencia similar a Media, giros mucho más rápidos |
+Cada partida dura 60 segundos. Lily combina pausas cortas y largas y avisa durante 0,90–1,35 segundos antes de mirar. No hay selector de dificultad.
 
 Los tiempos cambian en cada ronda. El servidor no revela el siguiente giro antes de que empiece el aviso. La música permanece desactivada en multijugador para facilitar la conversación.
 

@@ -251,7 +251,7 @@ export async function handlePartyRequest(request, env, action) {
       const body = await readBody(request, action === 'solo-ticket' ? MAX_BODY_BYTES : 32768);
       objectWithKeys(body, action === 'solo-ticket' ? ['difficulty','rulesVersion'] : action==='share-result'?['runId','trace']:['runId','name','trace']);
       const db = requireDatabase(env.DB);
-      return json(action === 'solo-ticket' ? await createSoloTicket(db,body.difficulty,body.rulesVersion??GAME_VERSION)
+      return json(action === 'solo-ticket' ? await createSoloTicket(db,'medium',body.rulesVersion??GAME_VERSION)
         : action==='share-result'?await createSharedResult(db,body,bearer(request)):await submitScore(db,body,bearer(request)));
     }
     if (!['create', 'join', 'state', 'voice','signal'].includes(action)) fail('action_not_found');
@@ -260,7 +260,7 @@ export async function handlePartyRequest(request, env, action) {
     const allowed = { create: ['name', 'avatar', 'difficulty'], join: ['code', 'name', 'avatar'], state: ['code', 'playerId', 'command'], voice: ['code', 'playerId'],signal:['code','playerId'] };
     objectWithKeys(body, allowed[action]);
     const db = requireDatabase(env.DB);
-    if (action === 'create') return await create(db, validateProfile(body), body.difficulty);
+    if (action === 'create') return await create(db, validateProfile(body), 'medium');
     const code = normalizeCode(body.code);
     if (action === 'join') return await join(db, code, validateProfile(body));
     const token = bearer(request);

@@ -28,7 +28,7 @@ Choisis le fantôme, la citrouille ou le chat chauve-souris. Joue seul ou partag
 | Multijoueur | 2 à 6 joueurs, codes à six chiffres, confirmation des joueurs et revanche |
 | Voix | Agora RTC avec micro, mode muet et reconnexion |
 | Synchronisation | Notifications Agora RTM, avec interrogation périodique en secours |
-| Difficulté | Trois niveaux ; en Difficile, Lily se retourne plus vite, sans le faire constamment |
+| Un défi commun | Des pauses aléatoires et des avertissements clairs, avec les mêmes règles pour tous |
 | Classement | Un classement commun ; publication du nom et du score au choix |
 | Partage | Liens vers des résultats vérifiés et cartes de score téléchargeables |
 | Mobile | Commandes tactiles, mise en page adaptative et icônes d’écran d’accueil |
@@ -36,17 +36,13 @@ Choisis le fantôme, la citrouille ou le chat chauve-souris. Joue seul ou partag
 
 ## Comment jouer
 
-1. Choisis un personnage et une difficulté. En multijoueur, crée ou rejoins un salon, puis attends que tout le monde soit prêt.
+1. Choisis un personnage. En multijoueur, crée ou rejoins un salon, puis attends que tout le monde soit prêt.
 2. Maintiens le grand bouton, la scène ou la touche **Espace**. Plus tu maintiens longtemps, plus tu prends de bonbons rapidement.
 3. Relâche dès que Lily commence à se retourner. Ton personnage prend immédiatement un air innocent.
 4. Si elle te surprend, ton score revient à zéro. Après un court étourdissement, tu peux recommencer.
 5. À la fin, les bonbons encore dans tes mains comptent aussi. Le meilleur total gagne ; les égalités sont conservées.
 
-| Difficulté | Temps de réaction | Rythme |
-| --- | --- | --- |
-| Facile | 1,50–2,10 secondes | Pauses longues et avertissement généreux |
-| Moyen | 0,90–1,35 seconde | Rythme varié et équilibré |
-| Difficile | 0,36–0,58 seconde | Fréquence proche de Moyen, retournements bien plus rapides |
+Chaque partie dure 60 secondes. Lily alterne pauses courtes et longues et prévient 0,90–1,35 seconde avant de regarder. Aucun niveau de difficulté à choisir.
 
 Les délais varient à chaque partie. Le serveur ne révèle pas le prochain retournement avant le début de l’avertissement. La musique reste coupée en multijoueur pour laisser place aux conversations.
 

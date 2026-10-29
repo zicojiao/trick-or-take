@@ -28,7 +28,7 @@ The ghost, pumpkin and bat cat are all playable. Choose one, try a solo run, or 
 | Multiplayer | 2–6 players, six-digit rooms, ready checks, shared rounds and rematches |
 | Voice | Optional Agora RTC microphone chat with mute, disconnect and reconnect handling |
 | Room updates | Agora RTM notifications when configured, with polling as a fallback |
-| Three difficulties | Random pauses and turn speeds; Hard turns faster without constantly looking back |
+| One shared challenge | Random pauses and clear turn warnings, with the same rules for everyone |
 | Leaderboard | One shared ranking; submitting your name and score is always your choice |
 | Challenges | Share a verified result link or download a score card |
 | Mobile | Touch controls, responsive layout, home-screen icons and install manifest |
@@ -36,17 +36,13 @@ The ghost, pumpkin and bat cat are all playable. Choose one, try a solo run, or 
 
 ## How to play
 
-1. Pick a character and difficulty. For multiplayer, create or join a room and let everyone get ready.
+1. Pick a character. For multiplayer, create or join a room and let everyone get ready.
 2. Hold the big button, the game scene, or **Space** to take candy. Longer holds increase your stealing speed.
 3. Release when Lily starts turning. Your character immediately looks innocent, even if she is still busy.
 4. Get caught and your count returns to zero. After a short stun, you can try again.
 5. At the end, candy still in your hands counts too. Most candy wins; equal scores tie.
 
-| Difficulty | Time to react during a turn | Feel |
-| --- | --- | --- |
-| Easy | 1.50–2.10 seconds | Longer breaks and a generous warning |
-| Medium | 0.90–1.35 seconds | A balanced, varied rhythm |
-| Hard | 0.36–0.58 seconds | Similar look frequency to Medium, much faster turns |
+Every round lasts 60 seconds. Lily mixes short and long pauses, with 0.90–1.35 seconds of warning before she watches. There is no difficulty selector.
 
 Timing varies each round. Lily’s next look is not sent to other players before its warning begins. Multiplayer music stays off so it does not compete with voice chat.
 

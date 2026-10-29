@@ -26,6 +26,6 @@ export async function renderOgPng(env,origin,lang='en',result=null){
   const [base,fonts]=await Promise.all([templates.get(lang),fontsPromise]),pixels=new Uint8Array(base),score=result?String(result.score):'?';
   const glyphs=[...score].map(c=>fonts['score-'+c]),total=glyphs.reduce((n,g)=>n+g.width,0)+(glyphs.length-1)*9;let x=852-total/2;
   for(const g of glyphs){mask(pixels,g,x+g.width/2,332,[113,65,217]);x+=g.width+9;}
-  mask(pixels,fonts[result?lang+':'+result.difficulty+':'+result.mode:lang+':default'],852,440,[83,52,118]);
+  mask(pixels,fonts[lang+':default'],852,440,[83,52,118]);
   return encodePng(pixels);
 }

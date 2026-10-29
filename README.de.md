@@ -28,7 +28,7 @@ Wähle den Geist, den Kürbis oder die Fledermauskatze. Spiele allein oder teile
 | Mehrspieler | 2–6 Spieler, sechsstellige Codes, Bereitschaftsanzeige und Revanche |
 | Sprache | Agora RTC mit Mikrofon, Stummschaltung und Wiederverbindung |
 | Raumupdates | Agora-RTM-Hinweise, bei Bedarf regelmäßige Serverabfragen |
-| Schwierigkeit | Drei Stufen; auf Schwer dreht Lily sich schneller um, aber nicht ständig |
+| Eine gemeinsame Herausforderung | Zufällige Pausen und klare Warnungen, mit denselben Regeln für alle |
 | Bestenliste | Gemeinsame Rangliste; Name und Punktzahl werden nur auf Wunsch veröffentlicht |
 | Teilen | Links zu geprüften Ergebnissen und herunterladbare Ergebniskarten |
 | Mobilgeräte | Touch-Steuerung, anpassbares Layout und Startbildschirm-Symbole |
@@ -36,17 +36,13 @@ Wähle den Geist, den Kürbis oder die Fledermauskatze. Spiele allein oder teile
 
 ## So wird gespielt
 
-1. Wähle Figur und Schwierigkeit. Erstelle im Mehrspielermodus einen Raum oder tritt einem bei und warte, bis alle bereit sind.
+1. Wähle eine Figur. Erstelle im Mehrspielermodus einen Raum oder tritt einem bei und warte, bis alle bereit sind.
 2. Halte die große Taste, die Spielszene oder die **Leertaste** gedrückt. Je länger du hältst, desto schneller sammelst du.
 3. Lass los, sobald Lily sich umdreht. Deine Figur schaut sofort unschuldig.
 4. Wirst du erwischt, fällt dein Zähler auf null. Nach einer kurzen Betäubung kannst du weitermachen.
 5. Am Ende zählen auch die Süßigkeiten in deinen Händen. Die höchste Anzahl gewinnt; gleiche Ergebnisse bleiben unentschieden.
 
-| Schwierigkeit | Reaktionszeit | Spielgefühl |
-| --- | --- | --- |
-| Leicht | 1,50–2,10 Sekunden | Lange Pausen und großzügige Warnung |
-| Mittel | 0,90–1,35 Sekunden | Abwechslungsreich und ausgewogen |
-| Schwer | 0,36–0,58 Sekunden | Ähnliche Häufigkeit wie Mittel, deutlich schnellere Drehung |
+Jede Runde dauert 60 Sekunden. Lily wechselt zwischen kurzen und langen Pausen und warnt 0,90–1,35 Sekunden vor ihrem Blick. Es gibt keine Schwierigkeitsauswahl.
 
 Die Zeiten variieren pro Runde. Der Server verrät die nächste Drehung erst mit Beginn der Warnung. Im Mehrspielermodus bleibt die Musik aus, damit Gespräche gut hörbar sind.
 

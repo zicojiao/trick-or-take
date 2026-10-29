@@ -1,11 +1,10 @@
 /* One desktop setup row, directly below the preview. */
 @media(min-width:901px){
- body[data-view=home] .game-dock{grid-template-columns:minmax(330px,1.2fr) minmax(175px,.9fr) auto;gap:16px;padding:14px 16px;align-items:center}
- body[data-view=home] .game-dock>.character-select{grid-column:1;grid-row:1;grid-template-columns:auto auto;gap:18px;width:auto;padding:0;border:0}
+ body[data-view=home] .game-dock{grid-template-columns:max-content minmax(175px,1fr) auto;gap:16px;padding:14px 16px;align-items:center}
+ body[data-view=home] .game-dock>.character-select{grid-column:1;grid-row:1;grid-template-columns:auto;gap:18px;width:auto;padding:0;border:0}
  body[data-view=home] .game-dock>.action-wrap{grid-column:2;grid-row:1}
  body[data-view=home] .game-dock>.best-block{grid-column:3;grid-row:1}
  body[data-view=home] .game-dock .character-select h2{font-size:13px;white-space:nowrap}
- body[data-view=home] .game-dock .difficulty-button{padding:8px 10px;min-height:44px;font-size:11px}
  body[data-view=home] .game-dock .main-action{min-height:66px;padding:10px;gap:8px}
  body[data-view=home] .game-dock .main-action strong{font-size:18px}
  body[data-view=home] .game-dock .main-action small{white-space:normal;font-size:10px;line-height:1.4}

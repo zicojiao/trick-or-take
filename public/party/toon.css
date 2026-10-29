@@ -157,12 +157,6 @@ button:disabled svg {opacity:.55}
 footer {color:#927467}
 footer a {border-bottom:1px dashed #b18d75}
 .challenge-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-5px 3px 18px}
-.difficulty-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.difficulty-options{display:flex;gap:4px;background:#e9ddc9;border:1px solid #ad927c;padding:4px;border-radius:11px}
-.difficulty-button{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:800;color:#4c3a58}
-.difficulty-button[aria-checked=true]{background:#7141d9;color:#fff;box-shadow:0 2px 0 #432580}
-.difficulty-button[aria-checked=true]:disabled{background:#dac8f6!important;color:#432580!important;border:1px solid #7141d9!important}
-.difficulty-hint{font-size:11px;color:#746173;max-width:250px}
 .challenge-toolbar>.small-button{white-space:nowrap}
 .publish-card{margin:14px 0;padding:13px;background:#efe5f5;border:1px solid #ad91c5;border-radius:12px;text-align:left}
 .publish-card>strong{font-size:14px;color:#533476}
@@ -198,9 +192,6 @@ footer a {border-bottom:1px dashed #b18d75}
   body[data-view=home][data-mode=solo] .stage{height:clamp(285px,calc(100svh - 525px),350px)}
   .random-name{height:38px;width:42px}.random-name svg{width:23px;height:23px}
   .challenge-toolbar{margin:0 2px 13px;gap:8px;align-items:flex-start}
-  .difficulty-control{gap:6px;max-width:245px}.difficulty-control>.dock-label{display:none}
-  .difficulty-hint{font-size:9px;flex-basis:100%;min-height:14px}
-  .difficulty-button{padding:8px 10px;font-size:11px}
   .challenge-toolbar>.small-button{padding:8px 10px;font-size:10px;min-height:38px}
   .leaderboard-dialog{padding:25px 18px}.score-table{font-size:12px}
   .publish-card{padding:10px;margin:10px 0}.publish-card p{font-size:10px}.publish-card>strong{font-size:12px}

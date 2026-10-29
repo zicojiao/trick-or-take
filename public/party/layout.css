@@ -7,7 +7,6 @@
 /* Minimum type sizes for labels and gameplay copy. */
 .game-heading .eyebrow,#board-content>.eyebrow,.online-panel .eyebrow,.lobby-panel .eyebrow{font-size:11px}
 .mode-switch small{font-size:11px}
-.difficulty-control .difficulty-hint{font-size:12px}.difficulty-control .dock-label{font-size:11px}
 #board-content .score-table th{font-size:11px}
 .score-bubble small,.timer-bubble small{font-size:11px}
 .scene-badge{font-size:11px}
@@ -18,8 +17,8 @@
 footer{font-size:11px}
 footer a{display:inline-flex;align-items:center;min-height:32px;white-space:nowrap}
 
-/* Text colour animates with the fill, so a newly selected choice never shows white on a pale ground. */
-.difficulty-button,.choice-option{transition:background-color .12s,color .12s,border-color .12s,box-shadow .12s}
+/* Text colour follows the selected fill. */
+.choice-option{transition:background-color .12s,color .12s,border-color .12s,box-shadow .12s}
 
 /* Topbar music toggle sits with the other audio and help icons. */
 
@@ -118,7 +117,6 @@ footer a{display:inline-flex;align-items:center;min-height:32px;white-space:nowr
   .game-heading h1,html[lang=en] .game-heading h1{font-size:19px}
   .mode-switch button{flex:1;justify-content:center;padding:8px 6px}
   .challenge-toolbar{flex-wrap:wrap;gap:6px}
-  .difficulty-control .difficulty-hint{display:none}
   .game-dock{grid-template-columns:auto minmax(0,1fr);gap:12px;padding:8px 12px}
   .game-dock>.action-wrap{grid-column:2}
   body[data-view=home] .game-dock>:is(.best-block,.match-block){display:none}

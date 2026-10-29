@@ -22,20 +22,17 @@ English is the default language at https://trickortake.com. Chinese is at https:
 3. If you hold while she is watching, her broom catches you. Every candy — including pocketed candy — is confiscated. After a short stun you can steal again.
 4. When the 60-second timer hits zero, remaining candy counts. In a friends room, the highest total wins; equal scores tie.
 
-Difficulty choices:
-- Easy — longer breaks and more warning time
-- Medium — mixed timing
-- Hard — shorter warnings and more sudden turns
+One shared challenge: every new solo game and friends room uses the same balanced timing. There is no difficulty selector.
 
 Timing is randomized each round; watch Lily’s cues rather than a fixed rhythm.
 
 ## Modes
 
 ### Solo
-Local play for one person. Choose a character and difficulty, then start. Optional header music. Opening the how-to-play guide or leaving the tab pauses the solo clock.
+Local play for one person. Choose a character, then start. Optional music and pickup sounds, controlled from the header. Opening the how-to-play guide or leaving the tab pauses the solo clock.
 
 ### Play with friends (2–6)
-Create a room (alias + difficulty) or join with a six-digit code / invite link. When 2–6 players are ready, the host starts. Everyone faces the same Lily and shared timer. Solo music stays off so optional voice is easier to hear.
+Create a room (alias + character) or join with a six-digit code / invite link. When 2–6 players are ready, the host starts. Everyone faces the same Lily and shared timer. Solo music stays off so optional voice is easier to hear.
 
 ### Optional voice
 After joining a room, players may press Join voice. Microphone audio is sent to other room members through Agora after permission is granted. Voice is never required. Players can mute or disconnect. The game does not record audio.
@@ -44,9 +41,9 @@ After joining a room, players may press Join voice. Microphone audio is sent to 
 
 Nothing is posted automatically.
 
-- Keep private — score stays local (personal bests are stored in the browser per difficulty).
+- Keep private — score stays local (personal bests are stored in the browser for the current rules).
 - Submit score — publish a public display name and verified score to the shared top-20 leaderboard (solo and friends, all difficulties, one board).
-- Make a challenge link — create an anonymous snapshot of a verified score (score, mode, difficulty only; no name). Friends can open the link, see Open Graph preview art, and accept the challenge to play that difficulty. Copy link, native share, save PNG card, and Share on X all require explicit user actions.
+- Make a challenge link — create an anonymous snapshot of a verified score (score, mode, difficulty only; no name). Friends can open the link, see Open Graph preview art, and accept the challenge to play the shared challenge. Copy link, native share, save PNG card, and Share on X all require explicit user actions.
 
 ## Technical surface (for crawlers and engineers)
 
