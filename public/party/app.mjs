@@ -769,11 +769,6 @@ function render() {
   });
   if (phase === 'lobby') renderRoster();
   if (phase === 'finished') {renderResults(); renderPublication();}
-  show('music-button',mode==='solo'&&phase!=='finished');
-  const musicOn=soundEnabled&&musicEnabled;
-  $('music-button').setAttribute('aria-pressed',String(musicOn));
-  $('music-button').setAttribute('aria-label',musicOn?tr('Music on','音乐已开'):tr('Music off','音乐已关'));
-  $('music-button').setAttribute('title',tr('Music plays during solo rounds. Tap to change it.','仅在单人游戏中播放，点击开关音乐。'));
   renderVoice(); renderTimers(); resultSharing.refresh();syncMusic();syncSignaling();
 }
 
@@ -870,7 +865,6 @@ function applyLanguage() {
   document.querySelectorAll('[data-i18n]').forEach(element => {element.textContent = t(element.dataset.i18n);});
   document.querySelectorAll('[data-aria]').forEach(element => element.setAttribute('aria-label',t(element.dataset.aria)));
   document.querySelectorAll('[data-placeholder]').forEach(element => {element.placeholder = t(element.dataset.placeholder);});
-  setText('language-button', lang === 'en' ? '中文' : 'EN');
   $('sound-button').setAttribute('aria-label', soundEnabled ? tr('Mute music and effects', '关闭音乐与音效') : tr('Enable music and effects', '开启音乐与音效'));
   $('sound-button').setAttribute('title',tr('Playful Halloween music in solo. Music is off with friends.','单人模式有活泼的万圣节配乐，多人模式不播放背景音乐。'));
   $('sound-button').setAttribute('aria-pressed', String(soundEnabled));
@@ -999,9 +993,6 @@ function renderLanguageDialog() {
     grid.append(btn);
   }
 }
-$('language-button').addEventListener('click', () => {
-  switchLanguage(lang === 'en' ? 'zh' : 'en');
-});
 if ($('lang-picker-button')) {
   $('lang-picker-button').addEventListener('click', () => {
     renderLanguageDialog();
@@ -1035,7 +1026,6 @@ $('skip-score').addEventListener('click',()=>{track('leaderboard_skipped',{mode:
 $('leaderboard-button').addEventListener('click',openBoard);
 $('view-results-board').addEventListener('click',openBoard);
 $('signal-retry').addEventListener('click',()=>{if(session&&!localRoom)void signaling.connect(session.code+':'+session.playerId,true);});
-$('music-button').addEventListener('click',()=>{if(soundEnabled&&musicEnabled)musicEnabled=false;else{musicEnabled=true;soundEnabled=true;write(localStorage,'candy-sound','true');void music.unlock();}write(localStorage,'candy-music',String(musicEnabled));applyLanguage();});
 $('close-leaderboard').addEventListener('click',()=>{$('leaderboard-dialog').close();boardEpoch++;});
 desktopMedia?.addEventListener?.('change',placeBoard);
 placeBoard();
@@ -1046,7 +1036,11 @@ const resultSharing=createResultSharing({document,navigator,nav:navigator,track,
   onChallenge:result=>{difficulty=result.difficulty;write(localStorage,'candy-difficulty',difficulty);mode='solo';difficultyChoice.setValue(difficulty);void startSolo();},
 });
 $('sound-button').addEventListener('click', () => {
-  soundEnabled = !soundEnabled;if(soundEnabled)void music.unlock(); write(localStorage, 'candy-sound', String(soundEnabled)); applyLanguage(); sound('bank');
+  soundEnabled = !soundEnabled; musicEnabled = soundEnabled;
+  if(soundEnabled)void music.unlock();
+  write(localStorage, 'candy-sound', String(soundEnabled));
+  write(localStorage, 'candy-music', String(musicEnabled));
+  applyLanguage(); sound('bank');
 });
 $('retry-art').addEventListener('click', () => watchArt(scene.retryAssets()));
 $('voice-button').addEventListener('click', async () => {

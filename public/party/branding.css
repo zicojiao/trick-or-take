@@ -17,3 +17,11 @@
  .topbar .agora-credit img{width:44px;height:14px;transform:none}
  .topbar .agora-credit strong{display:inline;font-size:7px;letter-spacing:0}
 }
+
+/* Two clear header controls, with full-size touch targets on every screen. */
+.topbar .tools{gap:8px;margin-left:auto;flex:none}
+.topbar .tools .icon-button{width:44px;min-width:44px;height:44px;min-height:44px}
+.topbar .audio-toggle{font:800 23px/1 Fredoka,Nunito,sans-serif}
+.topbar .audio-toggle[aria-pressed=true]{background:#ffcf7a}
+.topbar .audio-toggle[aria-pressed=false]::after{content:"";position:absolute;width:23px;height:2px;background:currentColor;transform:rotate(-45deg);box-shadow:0 0 0 2px #fff8e8}
+.topbar .lang-picker-button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}

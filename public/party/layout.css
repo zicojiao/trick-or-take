@@ -24,8 +24,6 @@ body[data-attention=warning] .attention-pill,body[data-attention=watching] .atte
 .difficulty-button,.choice-option{transition:background-color .12s,color .12s,border-color .12s,box-shadow .12s}
 
 /* Topbar music toggle sits with the other audio and help icons. */
-.tools .music-button{font:800 17px/1 Fredoka,Nunito,sans-serif}
-.tools .music-button[aria-pressed=false]{opacity:.55;text-decoration:line-through}
 
 /* Leaving a match lives on the scene, opposite the mode badge. */
 #exit-match.stage-exit{position:absolute;z-index:5;right:14px;bottom:12px;min-height:32px;padding:6px 11px;border:1.5px solid var(--ink,#352b42);border-radius:8px;background:#fff8e5eb;color:var(--ink,#352b42);font:800 12px Nunito,sans-serif;box-shadow:1px 2px 0 #352b4238}

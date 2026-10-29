@@ -148,12 +148,18 @@ function harness({configFailures = 0, configured = true, restore = false, legacy
     async solo() {await flush(); await click('solo-start'); advance(3200); assert.equal(element('hold-button').hidden, false);},
   };
 }
+async function toggleLanguage(app) {
+  const next = app.document.documentElement.lang === 'en' ? 'zh' : 'en';
+  await app.click('lang-picker-button');
+  app.element('language-options-grid').children.find(option => option.dataset.code === next).dispatch('click');
+  await app.flush();
+}
+
 
 test('new visitors start in English and an explicit Chinese choice survives a reload', async () => {
   const fresh = harness({language: null}); await fresh.flush();
   assert.equal(fresh.document.documentElement.lang, 'en');
-  assert.equal(fresh.element('language-button').textContent, '中文');
-  await fresh.click('language-button');
+  await toggleLanguage(fresh);
   assert.equal(fresh.localStorage.getItem('pumpkin-language'), 'zh');
   const returning = harness({language: 'zh'}); await returning.flush();
   assert.equal(returning.document.documentElement.lang, 'zh-CN');
@@ -228,7 +234,7 @@ test('title, description and share-preview metadata follow the selected language
     assert.equal(app.element('meta-description').content,PAGE_META[language].description);
     assert.equal(app.element('meta-og-title').content,PAGE_META[language].title);
     assert.equal(app.element('meta-twitter-description').content,PAGE_META[language].description);
-    if(language==='en')await app.click('language-button');
+    if(language==='en')await toggleLanguage(app);
   }
   assert.equal(app.historyUrl,'/zh');
 });
@@ -407,10 +413,10 @@ test('room entry starts RTM once, actions announce changes, and leaving closes s
   await app.click('leave-button');assert.equal(app.element('leave-dialog').open,true);
   await app.click('leave-confirm');assert.ok(app.signalLeaves>0);assert.equal(app.element('signal-line').hidden,true);
 });
-test('solo music has a visible independent toggle and results can open the unfiltered board',async()=>{
-  const app=harness({language:'en'});await app.flush();assert.equal(app.element('music-button').attributes['aria-label'],'Music on');
-  await app.click('music-button');assert.equal(app.element('music-button').attributes['aria-label'],'Music off');assert.equal(app.element('music-button').attributes['aria-pressed'],'false');assert.equal(app.localStorage.getItem('candy-music'),'false');
-  await app.click('music-button');assert.equal(app.localStorage.getItem('candy-music'),'true');
+test('one audio toggle controls music and effects and results can open the unfiltered board',async()=>{
+  const app=harness({language:'en'});await app.flush();assert.equal(app.element('sound-button').attributes['aria-label'],'Mute music and effects');
+  await app.click('sound-button');assert.equal(app.element('sound-button').attributes['aria-label'],'Enable music and effects');assert.equal(app.element('sound-button').attributes['aria-pressed'],'false');assert.equal(app.localStorage.getItem('candy-music'),'false');assert.equal(app.localStorage.getItem('candy-sound'),'false');
+  await app.click('sound-button');assert.equal(app.localStorage.getItem('candy-music'),'true');assert.equal(app.localStorage.getItem('candy-sound'),'true');
   await app.solo();app.advance(63000);await app.click('view-results-board');assert.equal(app.element('leaderboard-dialog').open,true);assert.equal(app.boardRequests.at(-1),'leaderboard');
 });
 
@@ -477,7 +483,7 @@ test('asset failures and retries stay localized when switching languages', async
   assert.equal(app.document.body.dataset.assets,'error');
   assert.equal(app.element('loading-label').textContent,MESSAGES.en.artError);
   assert.equal(app.element('solo-start').disabled,true);
-  await app.click('language-button');
+  await toggleLanguage(app);
   assert.equal(app.element('loading-label').textContent,MESSAGES.zh.artError);
   assert.equal(app.element('loading-detail').textContent,MESSAGES.zh.artErrorDetail);
   await app.click('retry-art');
@@ -500,7 +506,7 @@ test('loading copy changes immediately while assets are still pending',async()=>
   const app=harness({language:'en',artResult:pending});await app.flush();
   assert.equal(app.document.body.dataset.assets,'loading');
   assert.equal(app.element('solo-start').disabled,true);
-  await app.click('language-button');
+  await toggleLanguage(app);
   assert.equal(app.element('loading-label').textContent,MESSAGES.zh.loadingTitle);
   resolve({ok:true});await app.flush();
   assert.equal(app.element('loading-overlay').hidden,true);
@@ -509,7 +515,7 @@ test('loading copy changes immediately while assets are still pending',async()=>
 test('leaderboard status follows language changes without another request',async()=>{
  const app=harness({language:'en'});await app.flush();await app.click('board-refresh');
  assert.equal(app.element('board-status').textContent,MESSAGES.en.boardEmpty);
- const requests=app.boardRequests.length;await app.click('language-button');
+ const requests=app.boardRequests.length;await toggleLanguage(app);
  assert.equal(app.element('board-status').textContent,MESSAGES.zh.boardEmpty);
  assert.equal(app.boardRequests.length,requests);
 });
@@ -536,7 +542,7 @@ test('privacy and terms are real localized navigation links',async()=>{
  const app=harness({language:'en'});await app.flush();
  assert.equal(app.element('home-link-privacy').attributes.href,'/privacy');
  assert.equal(app.element('home-link-privacy').events.click,undefined);
- await app.click('language-button');
+ await toggleLanguage(app);
  assert.equal(app.element('home-link-terms').attributes.href,'/zh/terms');
 });
 
@@ -548,15 +554,15 @@ test('public score name defaults to anonymous and dice creates an editable name'
  assert.notEqual(first,'Anonymous user');assert.ok(first.length<=20);
  await app.click('publish-random-name');assert.notEqual(app.element('publish-name').value,first);
  app.element('publish-name').value='My chosen name';app.element('publish-name').dispatch('input');
- await app.click('language-button');assert.equal(app.element('publish-name').value,'My chosen name');
+ await toggleLanguage(app);assert.equal(app.element('publish-name').value,'My chosen name');
  await app.click('submit-score');assert.equal(app.submissions[0].name,'My chosen name');
 });
 
 test('untouched anonymous name follows the selected language',async()=>{
  const app=harness({language:'en'});await app.solo();app.advance(60000);
  assert.equal(app.element('publish-name').value,'Anonymous user');
- await app.click('language-button');assert.equal(app.element('publish-name').value,'匿名玩家');
- await app.click('language-button');assert.equal(app.element('publish-name').value,'Anonymous user');
+ await toggleLanguage(app);assert.equal(app.element('publish-name').value,'匿名玩家');
+ await toggleLanguage(app);assert.equal(app.element('publish-name').value,'Anonymous user');
 });
 
 test('every translated page keeps its language after boot and sharing refresh',async()=>{

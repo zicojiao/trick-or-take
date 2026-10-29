@@ -71,7 +71,10 @@
   <header class="topbar">
     <div class="header-identity"><a class="brand" id="brand-link" href="/" aria-label="Trick or Take home" data-aria="brandHome"><span class="brand-icon"><img src="/party/assets/favicon.svg?v=3" width="44" height="44" alt=""></span><img class="brand-wordmark" src="/party/assets/wordmark-v3-ink.png" width="534" height="88" alt="Trick or Take"></a>
     <a class="agora-credit" href="https://www.agora.io/" target="_blank" rel="noopener noreferrer" aria-label="Powered by Agora RTC and RTM"><span>Powered by</span><img src="/party/assets/agora-logo-rgb-blue.svg" alt="Agora" width="88" height="30"><strong>RTC · RTM</strong></a></div>
-    <nav class="tools"><button type="button" class="icon-button music-button" id="music-button" aria-pressed="true" aria-label="Music on" data-aria="musicInitial">♫</button><button class="icon-button" id="sound-button" aria-label="Mute music and effects" data-aria="soundInitial" aria-pressed="false"><svg><use href="#i-sound"/></svg><span class="sound-off-dot"></span></button><button class="icon-button help-button" id="help-button" aria-label="How to play" data-aria="helpTitle">?</button><button class="icon-button language-button" id="language-button" aria-label="Switch to Chinese" data-aria="languageSwitchLabel" data-i18n="languageSwitch">中文</button><button type="button" class="icon-button lang-picker-button" id="lang-picker-button" data-aria="languagePickerTitle" aria-label="Select language" data-title="languagePickerTitle" title="Select language">🌐</button><button class="icon-button board-shortcut" id="leaderboard-button" aria-label="Leaderboard" data-aria="leaderboard"><svg aria-hidden="true"><use href="#i-star"/></svg></button></nav>
+    <nav class="tools">
+      <button type="button" class="icon-button audio-toggle" id="sound-button" aria-label="Mute music and effects" data-aria="soundInitial" aria-pressed="true"><span aria-hidden="true">♫</span></button>
+      <button type="button" class="icon-button lang-picker-button" id="lang-picker-button" data-aria="languagePickerTitle" aria-label="Select language" data-title="languagePickerTitle" title="Select language"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6.5h14M5 17.5h14"/></svg></button>
+    </nav>
   </header>
   <main class="desktop-layout">
     <div class="play-column"><div class="setup-panel">
@@ -136,7 +139,7 @@
 <details><summary data-i18n="faqQ9">What changes with difficulty?</summary><p data-i18n="faqA9">Easy gives long breaks and slow turns. Medium mixes the rhythm. Hard turns much faster, but looks back about as often as Medium. Every round lasts 60 seconds.</p></details>
 </section></section>
   <footer>
-    <nav aria-label="Game information" data-aria="infoLabel"><a href="/#home-how" id="home-link-home-how" data-i18n="helpTitle">How to play</a><a href="/#faq" id="home-link-faq" data-i18n="homeFaq">FAQ</a><a href="/privacy" id="home-link-privacy" data-i18n="homePrivacy">Privacy</a><a href="/terms" id="home-link-terms" data-i18n="homeTerms">Terms</a><button type="button" class="footer-lang-button" id="footer-lang-button" data-i18n="languagePickerTitle">Select language</button></nav>
+    <nav aria-label="Game information" data-aria="infoLabel"><a href="/#home-how" id="home-link-home-how" data-i18n="helpTitle">How to play</a><a href="/#faq" id="home-link-faq" data-i18n="homeFaq">FAQ</a><a href="/privacy" id="home-link-privacy" data-i18n="homePrivacy">Privacy</a><a href="/terms" id="home-link-terms" data-i18n="homeTerms">Terms</a><button type="button" class="footer-lang-button" id="leaderboard-button" data-i18n="leaderboard">Leaderboard</button><button type="button" class="footer-lang-button" id="footer-lang-button" data-i18n="languagePickerTitle">Select language</button></nav>
   </footer>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -157,7 +160,7 @@
  <p class="guide-consent"><svg aria-hidden="true"><use href="#i-star"/></svg><span data-i18n="guideConsent">After the round, you choose whether to publish your score or share a challenge. Nothing is posted automatically.</span></p>
  </div><div class="guide-bottom"><button class="primary-button" id="got-it" data-i18n="gotIt">Got it — back to the game</button></div>
 </dialog>
-<dialog id="pause-dialog" class="dialog pause-dialog" aria-labelledby="pause-title"><span class="pause-zzz">z<span>z</span><small>z</small></span><p class="eyebrow" data-i18n="pauseEyebrow">EVEN LITTLE RASCALS NEED A BREAK</p><h2 id="pause-title" data-i18n="pauseTitle">The candy can wait.</h2><p id="pause-copy" data-i18n="pauseCopy">Your local game clock is paused.</p><button class="primary-button" id="resume-button" data-i18n="resume">Back to sneaking →</button><button class="text-button" id="pause-exit" data-i18n="back">Back to the kitchen</button></dialog>
+<dialog id="pause-dialog" class="dialog pause-dialog" aria-labelledby="pause-title"><span class="pause-zzz">z<span>z</span><small>z</small></span><p class="eyebrow" data-i18n="pauseEyebrow">EVEN LITTLE RASCALS NEED A BREAK</p><h2 id="pause-title" data-i18n="pauseTitle">The candy can wait.</h2><p id="pause-copy" data-i18n="pauseCopy">Your local game clock is paused.</p><button class="primary-button" id="resume-button" data-i18n="resume">Back to sneaking →</button><button type="button" class="text-button" id="help-button" data-i18n="helpTitle">How to play</button><button class="text-button" id="pause-exit" data-i18n="back">Back to the kitchen</button></dialog>
 <dialog id="leave-dialog" class="dialog leave-dialog" aria-labelledby="leave-title">
   <p class="eyebrow" id="leave-eyebrow" data-i18n="leaveEyebrow">HOLD ON A SECOND</p>
   <h2 id="leave-title" data-i18n="leaveTitle">Leave this match?</h2>
