@@ -189,7 +189,16 @@ export const MESSAGES = {
     "voiceTitle": "Whisper your plans. Laugh out loud.",
     "waitingInitial": "Waiting for your friends.",
     "languagePickerTitle": "Select language",
-    "closeLanguage": "Close"
+    "closeLanguage": "Close",
+    "voiceLoading": "Loading voice…",
+    "voiceJoining": "Joining the voice room…",
+    "voiceMicrophone": "Opening your microphone… Allow access if prompted.",
+    "voicePublishing": "Sending microphone audio…",
+    "voiceLoadingTimeout": "Voice setup timed out. Please retry.",
+    "voiceNetworkTimeout": "Voice connection timed out. Check your network or VPN, then retry.",
+    "voiceMicTimeout": "The microphone did not open. Check browser and macOS microphone permissions, then retry.",
+    "voiceMicDenied": "Allow microphone access in your browser and system settings, then retry.",
+    "voiceRetry": "Retry voice"
   },
   "zh": {
     "again": "还没偷够，再来一次 →",
@@ -380,7 +389,16 @@ export const MESSAGES = {
     "voiceTitle": "小声密谋，大声笑。",
     "waitingInitial": "等待朋友加入。",
     "languagePickerTitle": "选择语言",
-    "closeLanguage": "关闭"
+    "closeLanguage": "关闭",
+    "voiceLoading": "正在加载语音服务……",
+    "voiceJoining": "正在加入语音房间……",
+    "voiceMicrophone": "正在打开麦克风……如出现权限提示，请允许访问。",
+    "voicePublishing": "正在发送麦克风音频……",
+    "voiceLoadingTimeout": "语音准备超时，请重试。",
+    "voiceNetworkTimeout": "语音连接超时，请检查网络或 VPN 后重试。",
+    "voiceMicTimeout": "麦克风未能打开，请检查浏览器及 macOS 的麦克风权限后重试。",
+    "voiceMicDenied": "请在浏览器及系统设置中允许麦克风访问后重试。",
+    "voiceRetry": "重试语音"
   },
   "zh-tw": {
     "again": "還沒偷夠，再來一次 →",
@@ -571,7 +589,16 @@ export const MESSAGES = {
     "voiceTitle": "小聲密謀，大聲笑。",
     "waitingInitial": "等待朋友加入。",
     "languagePickerTitle": "選擇語言",
-    "closeLanguage": "關閉"
+    "closeLanguage": "關閉",
+    "voiceLoading": "正在載入語音服務……",
+    "voiceJoining": "正在加入語音房間……",
+    "voiceMicrophone": "正在開啟麥克風……如出現權限提示，請允許存取。",
+    "voicePublishing": "正在傳送麥克風音訊……",
+    "voiceLoadingTimeout": "語音準備逾時，請重試。",
+    "voiceNetworkTimeout": "語音連線逾時，請檢查網路或 VPN 後重試。",
+    "voiceMicTimeout": "麥克風未能開啟，請檢查瀏覽器及 macOS 的麥克風權限後重試。",
+    "voiceMicDenied": "請在瀏覽器及系統設定中允許麥克風存取後重試。",
+    "voiceRetry": "重試語音"
   },
   "es": {
     "again": "Un atraco más →",
@@ -762,7 +789,16 @@ export const MESSAGES = {
     "voiceTitle": "Susurra tus planes. Ríanse a carcajadas.",
     "waitingInitial": "Esperando a tus amigos.",
     "languagePickerTitle": "Seleccionar idioma",
-    "closeLanguage": "Cerrar"
+    "closeLanguage": "Cerrar",
+    "voiceLoading": "Cargando voz…",
+    "voiceJoining": "Entrando en la sala de voz…",
+    "voiceMicrophone": "Abriendo el micrófono… Permite el acceso si se solicita.",
+    "voicePublishing": "Enviando audio del micrófono…",
+    "voiceLoadingTimeout": "La preparación de voz tardó demasiado. Reintenta.",
+    "voiceNetworkTimeout": "La conexión de voz tardó demasiado. Revisa tu red o VPN y reintenta.",
+    "voiceMicTimeout": "El micrófono no se abrió. Revisa los permisos del navegador y de macOS y reintenta.",
+    "voiceMicDenied": "Permite el micrófono en el navegador y en los ajustes del sistema y reintenta.",
+    "voiceRetry": "Reintentar voz"
   },
   "ja": {
     "again": "もう一回盗む！ →",
@@ -953,7 +989,16 @@ export const MESSAGES = {
     "voiceTitle": "こっそり作戦会議、みんなで大笑い。",
     "waitingInitial": "友達の参加を待っています。",
     "languagePickerTitle": "言語を選択",
-    "closeLanguage": "閉じる"
+    "closeLanguage": "閉じる",
+    "voiceLoading": "音声を読み込み中…",
+    "voiceJoining": "音声ルームに参加中…",
+    "voiceMicrophone": "マイクを開いています…確認が出たらアクセスを許可してください。",
+    "voicePublishing": "マイクの音声を送信中…",
+    "voiceLoadingTimeout": "音声の準備がタイムアウトしました。再試行してください。",
+    "voiceNetworkTimeout": "音声接続がタイムアウトしました。ネットワークやVPNを確認して再試行してください。",
+    "voiceMicTimeout": "マイクを開けませんでした。ブラウザとmacOSのマイク権限を確認して再試行してください。",
+    "voiceMicDenied": "ブラウザとシステム設定でマイクを許可して再試行してください。",
+    "voiceRetry": "音声を再試行"
   },
   "ko": {
     "again": "한 판 더 털기 →",
@@ -1144,7 +1189,16 @@ export const MESSAGES = {
     "voiceTitle": "소곤소곤 작전 회의, 신나는 웃음소리.",
     "waitingInitial": "친구들을 기다리는 중입니다.",
     "languagePickerTitle": "언어 선택",
-    "closeLanguage": "닫기"
+    "closeLanguage": "닫기",
+    "voiceLoading": "음성 불러오는 중…",
+    "voiceJoining": "음성방 참가 중…",
+    "voiceMicrophone": "마이크를 여는 중… 권한 요청이 나오면 허용해 주세요.",
+    "voicePublishing": "마이크 오디오 전송 중…",
+    "voiceLoadingTimeout": "음성 준비 시간이 초과되었습니다. 다시 시도하세요.",
+    "voiceNetworkTimeout": "음성 연결 시간이 초과되었습니다. 네트워크나 VPN을 확인하고 다시 시도하세요.",
+    "voiceMicTimeout": "마이크를 열지 못했습니다. 브라우저와 macOS의 마이크 권한을 확인하세요.",
+    "voiceMicDenied": "브라우저와 시스템 설정에서 마이크를 허용하고 다시 시도하세요.",
+    "voiceRetry": "음성 다시 연결"
   },
   "fr": {
     "again": "Un autre petit casse →",
@@ -1335,7 +1389,16 @@ export const MESSAGES = {
     "voiceTitle": "Chuchotez vos plans. Riez aux éclats.",
     "waitingInitial": "En attente de vos amis.",
     "languagePickerTitle": "Choisir la langue",
-    "closeLanguage": "Fermer"
+    "closeLanguage": "Fermer",
+    "voiceLoading": "Chargement de la voix…",
+    "voiceJoining": "Connexion au salon vocal…",
+    "voiceMicrophone": "Ouverture du micro… Autorisez l’accès si demandé.",
+    "voicePublishing": "Envoi du son du micro…",
+    "voiceLoadingTimeout": "La préparation vocale a expiré. Réessayez.",
+    "voiceNetworkTimeout": "La connexion vocale a expiré. Vérifiez le réseau ou le VPN et réessayez.",
+    "voiceMicTimeout": "Le micro ne s’est pas ouvert. Vérifiez les autorisations du navigateur et de macOS.",
+    "voiceMicDenied": "Autorisez le micro dans le navigateur et les réglages système, puis réessayez.",
+    "voiceRetry": "Réessayer la voix"
   },
   "de": {
     "again": "Noch ein kleiner Beutezug →",
@@ -1526,7 +1589,16 @@ export const MESSAGES = {
     "voiceTitle": "Pläne flüstern. Laut loslachen.",
     "waitingInitial": "Warten auf deine Freunde.",
     "languagePickerTitle": "Sprache wählen",
-    "closeLanguage": "Schließen"
+    "closeLanguage": "Schließen",
+    "voiceLoading": "Sprachfunktion wird geladen…",
+    "voiceJoining": "Sprachraum wird betreten…",
+    "voiceMicrophone": "Mikrofon wird geöffnet… Erlaube den Zugriff, falls gefragt.",
+    "voicePublishing": "Mikrofon-Audio wird gesendet…",
+    "voiceLoadingTimeout": "Die Sprachvorbereitung hat zu lange gedauert. Versuche es erneut.",
+    "voiceNetworkTimeout": "Die Sprachverbindung hat zu lange gedauert. Prüfe Netzwerk oder VPN.",
+    "voiceMicTimeout": "Das Mikrofon wurde nicht geöffnet. Prüfe die Mikrofonrechte im Browser und in macOS.",
+    "voiceMicDenied": "Erlaube das Mikrofon im Browser und in den Systemeinstellungen und versuche es erneut.",
+    "voiceRetry": "Sprache erneut verbinden"
   },
   "pt": {
     "again": "Mais um assaltozinho →",
@@ -1717,7 +1789,16 @@ export const MESSAGES = {
     "voiceTitle": "Sussurre seus planos. Ria à vontade.",
     "waitingInitial": "Aguardando seus amigos.",
     "languagePickerTitle": "Selecionar idioma",
-    "closeLanguage": "Fechar"
+    "closeLanguage": "Fechar",
+    "voiceLoading": "Carregando voz…",
+    "voiceJoining": "Entrando na sala de voz…",
+    "voiceMicrophone": "Abrindo o microfone… Permita o acesso se solicitado.",
+    "voicePublishing": "Enviando áudio do microfone…",
+    "voiceLoadingTimeout": "A preparação de voz demorou demais. Tente novamente.",
+    "voiceNetworkTimeout": "A conexão de voz demorou demais. Confira a rede ou VPN e tente novamente.",
+    "voiceMicTimeout": "O microfone não abriu. Confira as permissões do navegador e do macOS.",
+    "voiceMicDenied": "Permita o microfone no navegador e nas configurações do sistema e tente novamente.",
+    "voiceRetry": "Tentar voz novamente"
   },
   "ru": {
     "again": "Еще один набег →",
@@ -1908,7 +1989,16 @@ export const MESSAGES = {
     "voiceTitle": "Шепчите планы. Смейтесь во весь голос.",
     "waitingInitial": "Ждем твоих друзей.",
     "languagePickerTitle": "Выбрать язык",
-    "closeLanguage": "Закрыть"
+    "closeLanguage": "Закрыть",
+    "voiceLoading": "Загрузка голосовой связи…",
+    "voiceJoining": "Подключение к голосовой комнате…",
+    "voiceMicrophone": "Включаем микрофон… Разрешите доступ, если появится запрос.",
+    "voicePublishing": "Отправка звука с микрофона…",
+    "voiceLoadingTimeout": "Время подготовки голосовой связи истекло. Повторите попытку.",
+    "voiceNetworkTimeout": "Время подключения истекло. Проверьте сеть или VPN и повторите попытку.",
+    "voiceMicTimeout": "Микрофон не включился. Проверьте разрешения браузера и macOS.",
+    "voiceMicDenied": "Разрешите микрофон в браузере и настройках системы и повторите попытку.",
+    "voiceRetry": "Повторить подключение"
   },
   "it": {
     "again": "Un altro piccolo furto →",
@@ -2099,7 +2189,16 @@ export const MESSAGES = {
     "voiceTitle": "Sussurrate i piani. Ridete a crepapelle.",
     "waitingInitial": "In attesa dei tuoi amici.",
     "languagePickerTitle": "Scegli la lingua",
-    "closeLanguage": "Chiudi"
+    "closeLanguage": "Chiudi",
+    "voiceLoading": "Caricamento voce…",
+    "voiceJoining": "Accesso alla stanza vocale…",
+    "voiceMicrophone": "Apertura del microfono… Consenti l’accesso se richiesto.",
+    "voicePublishing": "Invio dell’audio del microfono…",
+    "voiceLoadingTimeout": "La preparazione vocale è scaduta. Riprova.",
+    "voiceNetworkTimeout": "La connessione vocale è scaduta. Controlla rete o VPN e riprova.",
+    "voiceMicTimeout": "Il microfono non si è aperto. Controlla i permessi del browser e di macOS.",
+    "voiceMicDenied": "Consenti il microfono nel browser e nelle impostazioni di sistema, poi riprova.",
+    "voiceRetry": "Riprova voce"
   },
   "id": {
     "again": "Curi permen lagi →",
@@ -2290,6 +2389,15 @@ export const MESSAGES = {
     "voiceTitle": "Bisikkan rencanamu. Tertawalah bersama.",
     "waitingInitial": "Menunggu teman-temanmu.",
     "languagePickerTitle": "Pilih bahasa",
-    "closeLanguage": "Tutup"
+    "closeLanguage": "Tutup",
+    "voiceLoading": "Memuat suara…",
+    "voiceJoining": "Bergabung ke ruang suara…",
+    "voiceMicrophone": "Membuka mikrofon… Izinkan akses jika diminta.",
+    "voicePublishing": "Mengirim audio mikrofon…",
+    "voiceLoadingTimeout": "Persiapan suara terlalu lama. Coba lagi.",
+    "voiceNetworkTimeout": "Koneksi suara terlalu lama. Periksa jaringan atau VPN, lalu coba lagi.",
+    "voiceMicTimeout": "Mikrofon tidak terbuka. Periksa izin mikrofon browser dan macOS.",
+    "voiceMicDenied": "Izinkan mikrofon di browser dan pengaturan sistem, lalu coba lagi.",
+    "voiceRetry": "Coba suara lagi"
   }
 };

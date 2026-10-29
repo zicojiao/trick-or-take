@@ -796,13 +796,22 @@ function renderVoice() {
       : tr('Voice is not configured. The game is ready to play.', '语音尚未配置，游戏可以正常玩。');
     if (configState === 'error') label = tr('Retry voice', '重试语音');
   }
-  if (voiceState.state === 'connecting') {status = tr('Connecting to your voice room…', '正在连接语音房间……'); label = tr('Connecting…', '连接中…');}
+  if (voiceState.state === 'connecting') {
+    const steps = {loading:'voiceLoading',joining:'voiceJoining',microphone:'voiceMicrophone',publishing:'voicePublishing'};
+    status = t(steps[voiceState.step] || 'voiceJoining'); label = tr('Connecting…', '连接中…');
+  }
   if (voiceState.state === 'connected') {status = voiceState.muted ? tr('Connected · microphone muted', '语音已连接 · 麦克风静音') : tr('Connected · your friends can hear you', '语音已连接 · 朋友能听见你'); label = voiceState.muted ? tr('Unmute', '打开麦克风') : tr('Mute', '静音');}
   if (voiceState.state === 'reconnecting') {status = tr('Voice is reconnecting…', '语音正在重连……'); label = voiceState.muted ? tr('Unmute', '打开麦克风') : tr('Mute', '静音');}
   if (voiceState.state === 'autoplay-blocked') {status = tr('Tap once more to enable voice sound.', '再点击一次，以开启语音声音。'); label = tr('Enable sound', '开启声音');}
-  if (voiceState.state === 'error') status = errorCopy({code: voiceState.errorCode});
+  if (voiceState.state === 'error') {
+    const errors = {voice_loading_timeout:'voiceLoadingTimeout',voice_joining_timeout:'voiceNetworkTimeout',voice_publishing_timeout:'voiceNetworkTimeout',voice_microphone_timeout:'voiceMicTimeout',PERMISSION_DENIED:'voiceMicDenied',NotAllowedError:'voiceMicDenied'};
+    status = errors[voiceState.errorCode] ? t(errors[voiceState.errorCode]) : errorCopy({code: voiceState.errorCode});
+    label = t('voiceRetry');
+  }
   setText('voice-status', status); setText('voice-button', label);
   $('voice-status').dataset.errorCode = voiceState.errorCode || '';
+  $('voice-status').dataset.step = voiceState.step || '';
+  $('voice-status').dataset.timings = JSON.stringify(voiceState.timings || {});
   $('voice-button').disabled = !room || !!localRoom || config.voiceConfigured === false || configState === 'loading' || voiceState.state === 'connecting';
   $('voice-button').dataset.active = String(joined);
   show('voice-leave', joined || voiceState.state === 'connecting');
@@ -1046,7 +1055,7 @@ $('voice-button').addEventListener('click', async () => {
     }
     if (['connected', 'reconnecting'].includes(voiceState.state)) await voice.mute(!voiceState.muted);
     else {effects.setVoiceActive(true);await voice.join();}
-  } catch (error) {toast(errorCopy(error));}
+  } catch (error) {if(voiceState.state !== 'error')toast(errorCopy(error));}
 });
 $('voice-leave').addEventListener('click', () => voice.leave());
 $('invite-button').addEventListener('click', async () => {

@@ -20,7 +20,7 @@ const appSource = readFileSync(new URL('../public/party/app.mjs', import.meta.ur
 // Execute the actual application against its HTML IDs and real game/input rules.
 // Only browser surfaces, image loading, transport and the audio device are mocked.
 function harness({touchDevice = false, configFailures = 0, configured = true, restore = false, legacyBest = null, language = 'zh', storedLanguage = language, artResult = {ok:true}, search = ''} = {}) {
-  const sounds=[];
+  const sounds=[];let sendVoiceStatus;
   let document, stamp = 0, wallTime = 1_000_000, nextFrame, timerId = 0;
   let configAttempts = 0, voiceJoins = 0, copiedInvite, historyUrl, submissions = [], ticketDifficulty, entryPayload, boardRequests=[],signalJoins=0,signalLeaves=0,signalPulses=[];
   class Element {
@@ -102,6 +102,7 @@ function harness({touchDevice = false, configFailures = 0, configured = true, re
     createScene: () => ({ready: Promise.resolve(artResult), update() {}, retryAssets: () => Promise.resolve({ok: true})}),
     createSignaling:({onStatus})=>{let key=null;return{connect:async(next,retry=false)=>{if(key!==next||retry){key=next;signalJoins++;onStatus({state:'connected'});}return true;},leave:async()=>{key=null;signalLeaves++;onStatus({state:'idle'});},pulse:version=>signalPulses.push(version)};},
     createVoice: ({onStatus, getCredentials}) => {
+      sendVoiceStatus=onStatus;
       onStatus({state: 'idle', muted: false});
       return {leave: async () => onStatus({state: 'idle', muted: false}), mute: async () => {},
         join: async () => {await getCredentials(); voiceJoins += 1; onStatus({state: 'connected', muted: false});}};
@@ -144,7 +145,7 @@ function harness({touchDevice = false, configFailures = 0, configured = true, re
     tick(0);
     while (milliseconds > 0) {const step = Math.min(100, milliseconds); tick(step); milliseconds -= step;}
   }
-  return {sounds, element, window, document, flush, click, advance, sessionStorage, localStorage,
+  return {voiceStatus:value=>sendVoiceStatus(value),sounds, element, window, document, flush, click, advance, sessionStorage, localStorage,
     get configAttempts() {return configAttempts;}, get voiceJoins() {return voiceJoins;},
     get copiedInvite() {return copiedInvite;},
     get historyUrl() {return historyUrl;},
@@ -654,4 +655,21 @@ test('failed pointer capture does not prevent holding or release outside the but
   assert.ok(Number(app.element('banked-score').textContent) > 0);
   app.window.dispatch('pointerup', {pointerId:17});
   assert.equal(button.dataset.held, 'false');
+});
+
+
+test('voice shows the pending step and an actionable retry after microphone timeout',async()=>{
+ const app=harness({language:'en'});await app.flush();await app.enter();
+ for(const [step,key] of [['loading','voiceLoading'],['joining','voiceJoining'],['microphone','voiceMicrophone'],['publishing','voicePublishing']]){
+  app.voiceStatus({state:'connecting',step,muted:false,timings:{joining:236}});
+  assert.equal(app.element('voice-status').textContent,MESSAGES.en[key]);
+  assert.equal(app.element('voice-status').dataset.step,step);
+  assert.equal(app.element('voice-button').disabled,true);
+  assert.equal(app.element('voice-leave').hidden,false);
+ }
+ app.voiceStatus({state:'error',errorCode:'voice_microphone_timeout',muted:false});
+ assert.equal(app.element('voice-status').textContent,MESSAGES.en.voiceMicTimeout);
+ assert.equal(app.element('voice-button').textContent,MESSAGES.en.voiceRetry);
+ assert.equal(app.element('voice-button').disabled,false);
+ assert.equal(app.element('voice-status').dataset.step,'');
 });

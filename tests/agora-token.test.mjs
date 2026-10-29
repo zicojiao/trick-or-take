@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import tokenTools from 'agora-token/src/AccessToken2.js';
 import {generateVoiceCredentials, voiceConfig} from '../server/agora-token.mjs';
-import {createVoice} from '../public/party/voice.mjs';
+import {createVoice, VOICE_TIMEOUTS} from '../public/party/voice.mjs';
 
 // Deliberately invented, public test fixtures. These are not Agora credentials.
 const fakeEnv = {
@@ -192,8 +192,9 @@ test('leaving while microphone creation is pending closes its late result withou
   void joining.catch(() => {});
   await new Promise(resolve => setImmediate(resolve));
   await voice.leave();
+  await joining; // Cancellation settles even while the browser permission request remains pending.
   pending.resolve(sdk.microphone);
-  await joining;
+  await new Promise(resolve => setImmediate(resolve));
   assert.equal(sdk.microphone.closed, true);
   assert.equal(sdk.operations.some(operation => operation[0] === 'publish'), false);
   assert.equal(statuses.some(status => status.state === 'connected'), false);
@@ -267,4 +268,51 @@ test('malformed diagnostic codes and raw messages stay out of voice status', asy
   await assert.rejects(voice.join());
   assert.equal(statuses.at(-1).errorCode, undefined);
   assert.equal(JSON.stringify(statuses).includes(sensitive), false);
+});
+
+test('voice reports each connection step and only timing data, not credentials', async t => {
+  installSdkFixture(t);const statuses=[];
+  const voice=createVoice({getCredentials:clientCredentials,onStatus:s=>statuses.push(s)});t.after(()=>voice.leave());
+  await voice.join();
+  assert.deepEqual(statuses.filter(s=>s.step).map(s=>s.step),['loading','joining','microphone','publishing']);
+  assert.equal(statuses.at(-1).state,'connected');
+  assert.deepEqual(Object.keys(statuses.at(-1).timings),['loading','joining','microphone','publishing']);
+  assert.ok(Object.values(statuses.at(-1).timings).every(n=>Number.isInteger(n)&&n>=0));
+  assert.equal(JSON.stringify(statuses).includes(clientCredentials().token),false);
+});
+
+for(const phase of ['loading','joining','microphone','publishing'])test(`a stalled ${phase} step times out with a specific error`,async t=>{
+  const pending=deferred();const sdk=installSdkFixture(t,phase==='microphone'?{microphonePromise:pending.promise}:{});
+  if(phase==='joining')sdk.client.join=()=>pending.promise;
+  if(phase==='publishing')sdk.client.publish=()=>pending.promise;
+  const statuses=[];const voice=createVoice({getCredentials:phase==='loading'?()=>pending.promise:clientCredentials,onStatus:s=>statuses.push(s),timeouts:{...VOICE_TIMEOUTS,[phase]:10,cleanup:10}});
+  t.after(()=>voice.leave());
+  await assert.rejects(voice.join(),error=>error.code==='voice_'+phase+'_timeout');
+  assert.equal(statuses.at(-1).state,'error');assert.equal(statuses.at(-1).errorCode,'voice_'+phase+'_timeout');
+  assert.equal(statuses.some(s=>s.state==='connected'),false);
+  if(phase!=='publishing')assert.equal(sdk.operations.some(op=>op[0]==='publish'),false);
+  if(phase==='microphone'){
+    pending.resolve(sdk.microphone);await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(sdk.microphone.closed,true);assert.equal(statuses.at(-1).state,'error');
+  }
+});
+
+test('a stalled cleanup cannot prevent Retry from creating a new attempt',async t=>{
+  const sdk=installSdkFixture(t);let attempts=0;
+  sdk.client.join=async()=>{if(++attempts===1)return new Promise(()=>{});sdk.client.connectionState='CONNECTED';return 71;};
+  sdk.client.leave=()=>new Promise(()=>{});
+  const statuses=[];const voice=createVoice({getCredentials:clientCredentials,onStatus:s=>statuses.push(s),timeouts:{...VOICE_TIMEOUTS,joining:10,cleanup:10}});
+  await assert.rejects(voice.join(),e=>e.code==='voice_joining_timeout');
+  await voice.join();assert.equal(attempts,2);assert.equal(statuses.at(-1).state,'connected');
+  await voice.leave();assert.equal(statuses.at(-1).state,'idle');assert.equal(sdk.microphone.closed,true);
+});
+
+test('a cancelled network join that resolves later leaves again and cannot open the mic',async t=>{
+  const sdk=installSdkFixture(t),pending=deferred();sdk.client.join=()=>pending.promise;
+  const voice=createVoice({getCredentials:clientCredentials});const joining=voice.join();
+  await new Promise(resolve=>setImmediate(resolve));await voice.leave();await joining;
+  const leaves=sdk.operations.filter(op=>op==='leave').length;
+  pending.resolve(71);await new Promise(resolve=>setImmediate(resolve));
+  assert.ok(sdk.operations.filter(op=>op==='leave').length>leaves);
+  assert.equal(sdk.operations.some(op=>op[0]==='publish'),false);
 });

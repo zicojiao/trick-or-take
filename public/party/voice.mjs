@@ -2,6 +2,9 @@
 // travels over this module: the authenticated room API remains authoritative.
 const SDK_URL = 'https://download.agora.io/sdk/release/AgoraRTC_N-4.24.8.js';
 let sdkLoading;
+export const VOICE_TIMEOUTS = Object.freeze({loading: 22000, joining: 15000, microphone: 30000, publishing: 15000, cleanup: 3000});
+const voiceNow = () => globalThis.performance?.now?.() ?? Date.now();
+const voiceError = code => Object.assign(new Error(code), {code});
 const ERROR_ENUM = /^[A-Za-z][A-Za-z0-9_]{1,60}$/;
 const SERVER_ERROR_CODES = new Set([
   'voice_unconfigured', 'voice_unavailable', 'invalid_voice_identity',
@@ -64,6 +67,12 @@ function friendlyError(error) {
     message = 'Voice needs a secure HTTPS connection.';
   } else if (code === 'voice_unconfigured' || error?.message === 'voice_unconfigured') {
     message = 'Voice is not configured yet. You can still play the game.';
+  } else if (code === 'voice_microphone_timeout') {
+    message = 'The microphone did not open. Check browser and macOS microphone permissions, then retry.';
+  } else if (['voice_joining_timeout', 'voice_publishing_timeout'].includes(code)) {
+    message = 'Voice connection timed out. Check your network or VPN, then retry.';
+  } else if (code === 'voice_loading_timeout') {
+    message = 'Voice setup timed out. Please retry.';
   } else if (code === 'voice_sdk_load') {
     message = 'The voice service could not load. Check your connection and try again.';
   } else if (code === 'voice_session_changed') {
@@ -86,7 +95,7 @@ function validateCredentials(value) {
 }
 
 /** onLevels receives a plain object of String(uid) -> level in [0, 1]. */
-export function createVoice({getCredentials, onStatus = () => {}, onLevels = () => {}} = {}) {
+export function createVoice({getCredentials, onStatus = () => {}, onLevels = () => {}, timeouts = VOICE_TIMEOUTS} = {}) {
   if (typeof getCredentials !== 'function') throw new TypeError('getCredentials is required');
   let active;
   let joining;
@@ -100,9 +109,27 @@ export function createVoice({getCredentials, onStatus = () => {}, onLevels = () 
     if (session && !current(session)) return;
     if (session) session.state = state;
     notify(onStatus, {
-      state, muted: session?.muted || false, ...(error ? {error} : {}),
+      state, muted: session?.muted || false, ...(session ? {timings:{...session.timings}} : {}), ...(['connecting','reconnecting'].includes(state) && session?.step ? {step:session.step} : {}), ...(error ? {error} : {}),
       ...(typeof errorCode === 'string' && ERROR_ENUM.test(errorCode) ? {errorCode} : {}),
     });
+  }
+  async function step(session, name, operation, onLate) {
+    if (!current(session)) throw voiceError('voice_cancelled');
+    session.step = name;
+    status(session, session.ready ? 'reconnecting' : 'connecting');
+    const started = voiceNow();
+    let settled = false, timer;
+    const work = Promise.resolve().then(() => {if(!current(session))throw voiceError('voice_cancelled');return operation();});
+    // A timed-out getUserMedia call may still resolve after a permission click.
+    // Its track must close even though the original join has already finished.
+    void work.then(value => {
+      if (settled || !current(session)) onLate?.(value);
+    }, () => {});
+    try {
+      return await Promise.race([work, session.cancelledPromise, new Promise((_, reject) => {
+        timer = setTimeout(() => reject(voiceError('voice_' + name + '_timeout')), timeouts[name]);
+      })]);
+    } finally {settled = true; clearTimeout(timer);session.timings[name]=Math.round(voiceNow()-started);}
   }
   function readyStatus(session) {
     const state = session.client.connectionState !== 'CONNECTED' ? 'reconnecting'
@@ -116,6 +143,7 @@ export function createVoice({getCredentials, onStatus = () => {}, onLevels = () 
   async function dispose(session) {
     if (!session) return;
     session.cancelled = true;
+    session.cancel?.(voiceError('voice_cancelled'));
     clearTimeout(session.renewTimer);
     clearInterval(session.levelTimer);
     if (session.autoplayHandler) {
@@ -129,7 +157,13 @@ export function createVoice({getCredentials, onStatus = () => {}, onLevels = () 
     closeTrack(session.microphone);
     session.microphone = undefined;
     // Repeatable on purpose: a pending SDK join may finish after an earlier leave.
-    try { await session.client?.leave(); } catch { /* The client may still be joining. */ }
+    if (session.client) {
+      let timer;
+      try {
+        await Promise.race([Promise.resolve().then(() => session.client.leave()), new Promise(resolve => {timer = setTimeout(resolve, timeouts.cleanup);})]);
+      } catch { /* The client may still be joining. */ }
+      finally {clearTimeout(timer);}
+    }
   }
   async function fail(session, error) {
     if (!current(session)) return dispose(session);
@@ -137,7 +171,7 @@ export function createVoice({getCredentials, onStatus = () => {}, onLevels = () 
     status(session, 'error', failure.message, diagnosticCode(error));
     active = undefined;
     notify(onLevels, {});
-    await dispose(session);
+    void dispose(session);
     return failure;
   }
   function blockedPlayback(session) {
@@ -190,13 +224,13 @@ export function createVoice({getCredentials, onStatus = () => {}, onLevels = () 
     session.rejoining = true;
     status(session, 'reconnecting');
     try {
-      await session.client.leave();
+      await step(session, 'joining', () => session.client.leave());
       if (!current(session)) return;
       session.remote.clear();
       session.indicated.clear();
-      await session.client.join(credentials.appId, credentials.channel, credentials.token, credentials.uid);
+      await step(session, 'joining', () => session.client.join(credentials.appId, credentials.channel, credentials.token, credentials.uid), () => {void dispose(session);});
       if (!current(session)) return dispose(session);
-      await session.client.publish([session.microphone]);
+      await step(session, 'publishing', () => session.client.publish([session.microphone]), () => {void dispose(session);});
       if (!current(session)) return dispose(session);
       session.client.enableAudioVolumeIndicator();
     } finally {
@@ -279,16 +313,18 @@ export function createVoice({getCredentials, onStatus = () => {}, onLevels = () 
       if (active.refreshing) return active.refreshing;
       return resumePlayback(active);
     }
-    if (joining) return joining;
+    if (joining && active) return joining;
     const session = {
       remote: new Map(), indicated: new Map(), revisions: new Map(),
-      muted: false, cancelled: false, ready: false, muteChain: Promise.resolve(),
+      muted: false, cancelled: false, ready: false, timings: {}, muteChain: Promise.resolve(),
     };
+    session.cancelledPromise = new Promise((_, reject) => {session.cancel = reject;});
+    void session.cancelledPromise.catch(() => {});
     active = session;
     status(session, 'connecting');
     const task = (async () => {
       try {
-        const [sdk, credentials] = await Promise.all([loadSdk(), Promise.resolve().then(getCredentials)]);
+        const [sdk, credentials] = await step(session, 'loading', () => Promise.all([loadSdk(), Promise.resolve().then(getCredentials)]));
         if (!current(session)) return;
         session.sdk = sdk;
         sdk.setLogLevel(4);
@@ -296,13 +332,13 @@ export function createVoice({getCredentials, onStatus = () => {}, onLevels = () 
         session.credentials = validateCredentials(credentials);
         session.client = sdk.createClient({mode: 'rtc', codec: 'vp8'});
         register(session);
-        await session.client.join(credentials.appId, credentials.channel, credentials.token, credentials.uid);
+        await step(session, 'joining', () => session.client.join(credentials.appId, credentials.channel, credentials.token, credentials.uid), () => {void dispose(session);});
         if (!current(session)) return dispose(session);
-        session.microphone = await sdk.createMicrophoneAudioTrack({
+        session.microphone = await step(session, 'microphone', () => sdk.createMicrophoneAudioTrack({
           encoderConfig: 'speech_standard', AEC: true, ANS: true, AGC: true,
-        });
+        }), closeTrack);
         if (!current(session)) return dispose(session);
-        await session.client.publish([session.microphone]);
+        await step(session, 'publishing', () => session.client.publish([session.microphone]), () => {void dispose(session);});
         if (!current(session)) return dispose(session);
         session.ready = true;
         session.client.enableAudioVolumeIndicator();
