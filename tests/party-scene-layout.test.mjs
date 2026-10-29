@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {sceneLayout,candySize,roomProjection} from '../public/party/scene-layout.mjs';
+import {sceneLayout,candySize,roomProjection,pickupPoint} from '../public/party/scene-layout.mjs';
 
 test('the camera and all feet share the painted floor, including wide short canvases',()=>{
   for(const [w,h] of [[1660,440],[1200,520],[840,440],[390,479],[320,154]])for(let n=1;n<=6;n++){
@@ -10,6 +10,35 @@ test('the camera and all feet share the painted floor, including wide short canv
     assert.ok(s.positions.every(p=>p.foot>s.floor));
     assert.ok(s.floor<=h*.57+.001,'camera must leave enough actual floor visible');
     const p=roomProjection(w,h);assert.ok(Math.abs(p.w/p.h-1672/941)<1e-9,'background aspect ratio is preserved');
+  }
+});
+
+test('pickup arcs clear both thieves and stay visible on short and tall mobile stages',()=>{
+  for(const [w,h] of [[381,318],[381,450],[320,180],[430,552],[1200,520]]){
+    const stage=sceneLayout(w,h,2),size=candySize(stage.bowl);
+    // Use an explicit painted-pile anchor, as the loaded artwork does.
+    stage.bowl.pile={x:stage.bowl.x+2,y:stage.bowl.y-stage.bowl.radius*.6};
+    const crests=stage.positions.map(loc=>{
+      assert.deepEqual(pickupPoint(stage,loc,0),stage.bowl.pile);
+      const peak=pickupPoint(stage,loc,.5);
+      assert.ok(peak.y+size<loc.foot-loc.height,'sweet rises completely above the character');
+      const end=pickupPoint(stage,loc,1);
+      assert.ok(Math.abs(end.x-loc.x)<loc.height*.2,'sweet lands at the inner hand');
+      return peak;
+    });
+    assert.ok(crests[1].x-crests[0].x>size*4,'simultaneous pickups use distinct left and right paths');
+  }
+});
+
+test('entire pickup flights fit on stage for one through six players',()=>{
+  for(const [w,h] of [[1200,520],[700,390],[430,552],[381,318],[390,479],[360,360],[320,154]]){
+    for(let n=1;n<=6;n++){
+      const stage=sceneLayout(w,h,n),size=candySize(stage.bowl);
+      for(const loc of stage.positions)for(let frame=0;frame<=80;frame++){
+        const p=pickupPoint(stage,loc,frame/80);
+        assert.ok(p.x-size>=0&&p.x+size<=w&&p.y-size>=0&&p.y+size<=h,'the complete candy stays inside the canvas');
+      }
+    }
   }
 });
 

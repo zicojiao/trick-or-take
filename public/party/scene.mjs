@@ -2,7 +2,7 @@
 // this module never decides a catch, awards candy, or mutates the room.
 import {CANDY_COLORS,createCandyPicker,createCandyTextures} from './candy-colors.mjs';
 import {stepThiefPose} from './motion.mjs';
-import {sceneLayout, candySize} from './scene-layout.mjs';
+import {sceneLayout, candySize, pickupPoint} from './scene-layout.mjs';
 
 const TAU = Math.PI * 2;
 const INK = '#352b42';
@@ -506,7 +506,7 @@ export function createScene(canvas) {
       }
       if (!reduced && active && stealing && gain > 0) {
         const count = Math.min(3, Math.ceil(gain / 2));
-        for (let i = 0; i < count; i++) spawn('candy', player.id, 1, {delay: i * .065, color: nextCandyColor()});
+        for (let i = 0; i < count; i++) spawn('candy', player.id, 1, {delay: i * .11, color: nextCandyColor()});
       }
       if (bank > 0 && active) spawn('bank', player.id, bank);
       actor.pending = Number(player.pending) || 0; actor.score = Number(player.score) || 0;
@@ -704,17 +704,22 @@ export function createScene(canvas) {
     const locations = new Map(players.map((player, i) => [player.id, stage.positions[i]]));
     for (let i = particles.length - 1; i >= 0; i--) {
       const particle = particles[i], age = clock - particle.at - (particle.delay || 0);
-      const duration = particle.type === 'bank' ? 1.25 : particle.type === 'confetti' ? 3.3 : particle.type === 'confiscate' ? .8 : .62;
+      const duration = particle.type === 'bank' ? 1.25 : particle.type === 'confetti' ? 3.3 : .8;
       if (age > duration) {particles.splice(i, 1); continue;}
       if (age < 0) continue;
       const loc = locations.get(particle.playerId);
       g.save();
       if (particle.type === 'candy' && loc && !reduced) {
-        const progress = clamp(age / duration), eased = smooth(progress);
-        const startX = stage.bowl.pile?.x ?? stage.bowl.x, startY = stage.bowl.pile?.y ?? stage.bowl.y - stage.bowl.radius * .4;
-        const endX = loc.x + (loc.x < width * .5 ? 1 : -1) * loc.height * .19, endY = loc.foot - loc.height * .44;
-        const x = mix(startX, endX, eased), y = mix(startY, endY, eased) - Math.sin(progress * Math.PI) * stage.bowl.radius * .85;
+        const progress = clamp(age / duration), {x,y}=pickupPoint(stage,loc,progress);
         g.globalAlpha = Math.min(1, (1 - progress) * 6);
+        // A short cream trail and halo separate the sweet from busy artwork.
+        g.beginPath();
+        for(let j=0;j<=5;j++){
+          const point=pickupPoint(stage,loc,Math.max(0,progress-.13+j*.026));
+          if(j===0)g.moveTo(point.x,point.y);else g.lineTo(point.x,point.y);
+        }
+        g.strokeStyle='#fff5d9b3';g.lineWidth=Math.max(2,candySize(stage.bowl)*.20);g.lineCap='round';g.stroke();
+        g.shadowColor='#fff5d9';g.shadowBlur=Math.max(2,candySize(stage.bowl)*.28);
         candy(x, y, candySize(stage.bowl), particle.color, progress * 4 + particle.seed % 3);
       } else if (particle.type === 'confiscate' && loc && !reduced) {
         const progress = clamp(age / duration), side = particle.index % 2 ? -1 : 1;
@@ -773,6 +778,7 @@ export function createScene(canvas) {
     const sorted = players.map((player, index) => ({player, index, location: stage.positions[index]})).sort((a, b) => a.location.foot - b.location.foot);
     for (const item of sorted) paintPlayer(item.player, item.index, item.location, room, viewerId, now, reduced, options.levels, dt, lang, stage);
     paintBonks(stage, players, hostess, reduced, now, room?.phase === 'playing');
+    // Pickup feedback stays above every body, name badge, and bowl sprite.
     paintParticles(stage, players, reduced);
     if (hostess.attention === 'warning') {
       const progress = hostess.warningProgress ?? 0;
