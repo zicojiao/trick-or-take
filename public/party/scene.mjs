@@ -1,7 +1,7 @@
 // Hand-inked, state-driven cartoon theatre. The application owns clock and input;
 // this module never decides a catch, awards candy, or mutates the room.
 import {CANDY_COLORS,createCandyPicker,createCandyTextures} from './candy-colors.mjs';
-import {stepThiefPose} from './motion.mjs';
+import {stepThiefPose,hostessTurnPose} from './motion.mjs';
 import {sceneLayout, candySize, pickupPoint} from './scene-layout.mjs';
 
 const TAU = Math.PI * 2;
@@ -313,8 +313,8 @@ export function createScene(canvas) {
     const activity = room?.activity || 'cooking';
     const lady = stage.hostess;
     const working = attention === 'away';
-    // Scale stop → listen → peek to each turn, including the quick surprises.
-    // A faster turn compresses the cue; it never skips straight to watching.
+    // Sharp turns skip the separate stop/listen poses. The first movement is
+    // the cue; catching still starts only at the authoritative lookAt deadline.
     const warningDuration = Math.max(1, Number(room?.warningMs) || 900);
     const warningProgress = attention === 'warning' ? clamp(1 - (lookAt - now) / warningDuration) : 0;
     const warningMs = warningProgress * warningDuration;
@@ -334,19 +334,17 @@ export function createScene(canvas) {
     const key = 'hostess';
     let frameIndex = (activity === 'cleaning' ? 2 : 0) + workDrawing;
     let cue = 'work';
+    const turn = hostessTurnPose(warningDuration,warningProgress,room?.gameVersion);
     if (attention === 'warning') {
-      // Fractions of the live warning: stop, listen, then peek over a shoulder.
-      cue = warningProgress < .18 ? 'stop' : warningProgress < .42 ? 'listen' : 'peek';
-      if (cue !== 'stop') {
-        frameIndex = cue === 'listen' ? 4 : 5;
-      }
+      cue = turn.cue;
+      if (turn.frameIndex !== null) frameIndex = turn.frameIndex;
     } else if (attention === 'watching') {
       cue = reaction ? 'caught' : 'inspect';
       frameIndex = reaction ? 7 : 6;
     }
     const targetPose = `${key}:${frameIndex}`;
     if (targetPose !== pose) {pose = targetPose; poseChangedAt = clock;}
-    const cueProgress = smooth((warningProgress - .18) / .82);
+    const cueProgress = smooth(turn.movement);
     const scan = reduced ? 0 : Math.sin(scanProgress * TAU) * .5;
     const direction = target ? clamp((target.x - lady.x) / (width * .5), -1, 1) : 0;
     let goal = working
@@ -358,7 +356,7 @@ export function createScene(canvas) {
     // No continuation of the work bob during the first stopped beat.
     if (reduced || inspectHold) hostessMotion = goal;
     else if (cue !== 'stop') {
-      const amount = 1 - Math.exp(-dt * 17);
+      const amount = 1 - Math.exp(-dt * (attention === 'warning' && turn.sharp ? 36 : 17));
       for (const axis of ['x', 'y', 'rotation']) hostessMotion[axis] = mix(hostessMotion[axis], goal[axis], amount);
     }
     const frame = frames[key]?.[frameIndex];
@@ -370,6 +368,7 @@ export function createScene(canvas) {
       ? clamp(1 - (reaction ? now - reaction.at : watchMs) / 260)
       : cue === 'peek' ? clamp(1 - (warningProgress - .42) / .22) : 0;
     const model = {key, frameIndex, cue, attention, activity, working, warningMs, warningProgress, watchProgress, scanProgress, watchMs, burst, target,
+      showAttentionBadge: room?.gameVersion >= 8 ? cue === 'caught' : attention === 'watching' || attention === 'warning' && warningMs >= 150,
       x: lady.x + hostessMotion.x, foot: lady.foot + hostessMotion.y, height: poseHeight,
       rotation: hostessMotion.rotation, stretch: 1 - settle, brow: null, broomOrigin: null};
     const worldPoint = point => {
@@ -417,7 +416,7 @@ export function createScene(canvas) {
         line(ragX + 8, ragY - 6, ragX + 14, ragY - 10, INK, 1.2);
       }
     }
-    if (attention === 'watching' || attention === 'warning' && model.warningMs >= 150) {
+    if (model.showAttentionBadge) {
       const badgeX = x - lady.height * .28, badgeY = lady.foot - lady.height * .89;
       const pulse = reduced ? 1 : 1 + Math.sin(clock * 9) * .06;
       g.save(); g.translate(badgeX, badgeY); g.rotate(-.10);

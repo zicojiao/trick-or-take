@@ -1,6 +1,18 @@
 const TAU = Math.PI * 2;
 const neutral = () => ({phase: 0, bob: 0, lean: 0, stretch: 1, frame: 0, frozen: false, hasMoved: false});
 
+/** Visual warning poses share the exact authoritative turn deadline. A sharp
+ * v8 turn starts moving immediately; there is no stop/listen or punctuation beat.
+ */
+export function hostessTurnPose(warningMs, progress, rulesVersion) {
+  const p = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
+  const sharp = rulesVersion >= 8 && warningMs <= 520;
+  if (sharp) return {cue:'snap',frameIndex:5,movement:p,sharp:true};
+  const cue = p < .18 ? 'stop' : p < .42 ? 'listen' : 'peek';
+  return {cue,frameIndex:cue === 'stop' ? null : cue === 'listen' ? 4 : 5,
+    movement:Math.max(0,Math.min(1,(p-.18)/.82)),sharp:false};
+}
+
 function priorPose(previous) {
   if (!previous || !['phase', 'bob', 'lean', 'stretch'].every(key => Number.isFinite(previous[key]))
       || previous.phase < 0 || previous.phase >= TAU || Math.abs(previous.bob) > .03

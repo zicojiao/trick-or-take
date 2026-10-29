@@ -3,8 +3,9 @@
 // v3: fixed clock. v4/v5: varied tempos. v6: difficulty changes turn speed
 // while Hard keeps roughly Medium's overall glance cadence.
 // v7: one shared challenge with shuffled turn speeds and varied watch durations.
-export const GAME_VERSION = 7;
-export const SUPPORTED_RULES_VERSIONS = Object.freeze([3, 4, 5, 6, 7]);
+// v8: a gentle opening, then mixed sharp turns without a staged warning pose.
+export const GAME_VERSION = 8;
+export const SUPPORTED_RULES_VERSIONS = Object.freeze([3, 4, 5, 6, 7, 8]);
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
 export const COUNTDOWN_MS = 3000;
@@ -24,13 +25,21 @@ export const DIFFICULTIES = Object.freeze({
   hard: Object.freeze({awayMin:1000,awayMax:2000,warning:550,watchMin:800,watchMax:1200}),
 });
 // Independent wait, turn and watch choices avoid a learnable fixed rhythm.
-export const SHARED_TURN_TIMING = Object.freeze({
+const sharedV7 = Object.freeze({
   firstWait: [3200, 4800],
   quick: [1700, 2500], normal: [3200, 5000], long: [5800, 8200],
   quickChance: .24, longChance: .22,
   turns: {fast: [550, 750], normal: [900, 1300], slow: [1450, 1900]},
   watches: {brief: [850, 1200], normal: [1300, 1850], long: [2100, 2700]},
 });
+export const SHARED_TURN_TIMINGS_BY_VERSION = Object.freeze({
+  7: sharedV7,
+  8: Object.freeze({...sharedV7,
+    turns: {fast: [380, 520], normal: [750, 1100], slow: [1400, 1850]},
+  }),
+});
+export const SHARED_TURN_TIMING = SHARED_TURN_TIMINGS_BY_VERSION[GAME_VERSION];
+const sharedProfile = room => SHARED_TURN_TIMINGS_BY_VERSION[room.gameVersion];
 // Immutable per-version profiles so older tickets and rooms keep their clock.
 export const TURN_TIMINGS_BY_VERSION = Object.freeze({
   4: Object.freeze({
@@ -117,6 +126,19 @@ function interval(room, minimum, maximum) {
 }
 function nextTurnSpeed(room) {
   if (!room.turnBag.length) {
+    if (room.gameVersion >= 8) {
+      // Two sharp turns per five, separated by breathing room. Choose valid
+      // positions directly so the end of a bag cannot leave an unavoidable pair.
+      const pairs = room.lastTurnSpeed === 'fast'
+        ? [[1,3],[1,4],[2,4]]
+        : [[0,2],[0,3],[0,4],[1,3],[1,4],[2,4]];
+      const pair = pairs[Math.floor(random(room) * pairs.length)];
+      room.turnBag = Array(5).fill('normal');
+      for (const index of pair) room.turnBag[index] = 'fast';
+      const gentle = room.turnBag.map((speed,index) => speed === 'normal' ? index : -1).filter(index => index >= 0);
+      room.turnBag[gentle[Math.floor(random(room) * gentle.length)]] = 'slow';
+      return room.turnBag.shift();
+    }
     room.turnBag = ['slow', 'normal', 'fast', 'normal'];
     // A shuffled bag guarantees contrast without unlucky streaks of fast turns.
     for (let i = room.turnBag.length - 1; i > 0; i--) {
@@ -131,14 +153,14 @@ function nextTurnSpeed(room) {
   return room.turnBag.shift();
 }
 function scheduleSharedLook(room, at) {
-  const p = SHARED_TURN_TIMING, opening = room.turnCount === 0;
+  const p = sharedProfile(room), opening = room.turnCount === 0;
   const roll = random(room);
   let tempo = opening ? 'normal' : roll < p.quickChance ? 'quick' : roll < p.quickChance + p.longChance ? 'long' : 'normal';
   if (tempo === 'quick' && room.quickStreak >= 2 || tempo === 'long' && room.lastTempo === 'long') tempo = 'normal';
   room.quickStreak = tempo === 'quick' ? room.quickStreak + 1 : 0;
   room.lastTempo = tempo;
   room.nextLookAt = at + interval(room, ...(opening ? p.firstWait : p[tempo]));
-  const speed = opening ? 'normal' : nextTurnSpeed(room);
+  const speed = opening ? room.gameVersion >= 8 ? 'slow' : 'normal' : nextTurnSpeed(room);
   room.lastTurnSpeed = speed;
   room.nextWarningMs = interval(room, ...p.turns[speed]);
   room.turnCount += 1;
@@ -148,7 +170,7 @@ function sharedWatchDuration(room) {
   let kind = room.turnCount === 1 ? 'normal' : roll < .30 ? 'brief' : roll < .75 ? 'normal' : 'long';
   if (kind === 'long' && room.lastWatch === 'long') kind = 'normal';
   room.lastWatch = kind;
-  return interval(room, ...SHARED_TURN_TIMING.watches[kind]);
+  return interval(room, ...sharedProfile(room).watches[kind]);
 }
 // Draw only at simulation boundaries, never per frame or per network request.
 // The next wait and turn speed stay private until their warning actually starts.

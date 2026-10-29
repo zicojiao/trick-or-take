@@ -114,16 +114,16 @@ test('challenge publication is explicit, authenticated, idempotent, anonymous an
   assert.equal((await api('shared-result?id=invalid')).status,404);
 });
 
-test('cached v3–v6 solo clients keep correct replay rules as new games use v7',async t=>{
+test('cached v3–v7 solo clients keep correct replay rules as new games use v8',async t=>{
   const {db,api}=await setup(t),trace=[{at:3500,held:true},{at:4000,held:false}];
-  const expected={3:3,4:0,5:3,6:3,7:3};
-  for(const rulesVersion of [3,4,5,6,7]){
+  const expected={3:3,4:0,5:3,6:3,7:3,8:3};
+  for(const rulesVersion of [3,4,5,6,7,8]){
     const ticket=(await api('solo-ticket',{difficulty:'medium',rulesVersion})).data;
     assert.equal(ticket.rulesVersion,rulesVersion);
     await db.prepare('UPDATE leaderboard_runs SET issued_at = ?,seed = ? WHERE id = ?').bind(Date.now()-64000,2,ticket.runId).run();
     const result=await api('share-result',{runId:ticket.runId,trace},ticket.token);
     assert.equal(result.status,200);assert.equal(result.data.result.score,expected[rulesVersion]);
   }
-  assert.equal((await api('solo-ticket',{difficulty:'medium'})).data.rulesVersion,7);
+  assert.equal((await api('solo-ticket',{difficulty:'medium'})).data.rulesVersion,8);
   assert.equal((await api('solo-ticket',{difficulty:'medium',rulesVersion:2})).status,400);
 });

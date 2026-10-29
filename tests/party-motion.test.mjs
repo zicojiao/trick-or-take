@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {stepThiefPose} from '../public/party/motion.mjs';
+import {stepThiefPose,hostessTurnPose} from '../public/party/motion.mjs';
 
 const neutral={phase:0,bob:0,lean:0,stretch:1,frame:0,frozen:false,hasMoved:false};
 const idle=(hasMoved=false)=>({...neutral,frame:3,frozen:true,hasMoved});
@@ -74,4 +74,20 @@ test('invalid or stalled frame times cannot poison or jump the visual pose',()=>
     for(const key of ['phase','bob','lean','stretch'])assert.equal(Number.isFinite(pose[key]),true);
     assert.ok(Math.abs(pose.bob)<=.03&&Math.abs(pose.lean)<=.1&&pose.stretch>.9&&pose.stretch<1.1);
   }
+});
+
+
+test('sharp v8 turns begin with the shoulder turn and skip stop/listen at every frame',()=>{
+ for(const duration of [380,450,520])for(let i=0;i<60;i++){
+  const pose=hostessTurnPose(duration,i/60,8);
+  assert.equal(pose.cue,'snap');assert.equal(pose.frameIndex,5);assert.equal(pose.sharp,true);
+ }
+ assert.ok(hostessTurnPose(380,.1,8).movement>0,'movement starts in the first part of the turn');
+});
+test('gentle v8 and historical turns retain their slower readable poses',()=>{
+ for(const [duration,version] of [[1400,8],[750,8],[550,7],[900,6]]){
+  assert.equal(hostessTurnPose(duration,0,version).cue,'stop');
+  assert.equal(hostessTurnPose(duration,.25,version).cue,'listen');
+  assert.equal(hostessTurnPose(duration,.7,version).cue,'peek');
+ }
 });

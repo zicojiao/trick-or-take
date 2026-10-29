@@ -43,7 +43,7 @@ test('short waits are capped at two in a row, and a long break can end with a fa
  }
  assert.equal(surprise,true);
 });
-test('v3–v6 rooms retain their clocks while new games use v7',()=>{
+test('v3–v7 rooms retain their clocks while new games use v8',()=>{
  const {turns,waits}=timeline(12,'medium',50,3);
  assert.ok(turns.every(t=>t.warning===900));assert.ok(waits.every(t=>t>=2400&&t<=4400));
  const v4=timeline(12,'hard',50,4),p4=TURN_TIMINGS_BY_VERSION[4].hard;
@@ -52,7 +52,7 @@ test('v3–v6 rooms retain their clocks while new games use v7',()=>{
  assert.ok(v5.turns.every(t=>t.warning>=p5.warning[0]&&t.warning<=p5.warning[1]));
  assert.throws(()=>createRoom({code:'123456',rulesVersion:2,player:{id:'p',name:'Player'}},0),/room_version_changed/);
  const room=createRoom({code:'123456',player:{id:'p',name:'Player'}},0);
- assert.equal(room.gameVersion,7);
+ assert.equal(room.gameVersion,8);
  assert.equal(publicRoom(room,'p',0).difficulty,'medium');
  assert.throws(()=>createRoom({code:'123456',difficulty:'impossible',player:{id:'p',name:'Player'}},0),/invalid_difficulty/);
 });
@@ -62,11 +62,11 @@ test('v6 seeded timing remains byte-for-byte stable for issued scores',()=>{
  assert.deepEqual(turns.map(t=>[t.at,t.warning,t.watch]),[[7713,1233,1245],[18008,1259,1333],[23080,1003,1382],[27251,972,1514],[33562,1135,1331],[40376,1028,1147],[47430,1209,1076],[52159,991,1544],[59689,1025,1571]]);
 });
 
-test('each shared round mixes fast and slow turns, with a safe opening and bounded streaks',()=>{
+test('historical v7 rounds keep their safe opening and bounded timing mix',()=>{
  let surprise=false,brief=0,long=0,totalTurns=0;
  const schedules=new Set();
  for(let seed=1;seed<=500;seed++){
-  const {turns,waits,room}=timeline(seed);totalTurns+=turns.length;schedules.add(JSON.stringify(turns));
+  const {turns,waits,room}=timeline(seed,'medium',50,7);totalTurns+=turns.length;schedules.add(JSON.stringify(turns));
   assert.equal(room.phase,'finished');
   assert.ok(waits[0]>=3200&&waits[0]<=4800);
   assert.ok(turns[0].warning>=900&&turns[0].warning<=1300);
@@ -97,13 +97,13 @@ test('one shared schedule ignores historical level names and survives JSON stora
  for(let t=24000;t<=63000;t+=250){applyCommand(room,'p',{type:'heartbeat'},t);applyCommand(restored,'p',{type:'heartbeat'},t);}
  assert.deepEqual(restored,room);
  applyCommand(room,'p',{type:'again'},63000);applyCommand(room,'p',{type:'ready',ready:true},63000);applyCommand(room,'p',{type:'start'},63000);
- assert.equal(room.turnCount,1);assert.deepEqual(room.turnBag,[]);assert.equal(room.lastTurnSpeed,'normal');
+ assert.equal(room.turnCount,1);assert.deepEqual(room.turnBag,[]);assert.equal(room.lastTurnSpeed,'slow');
  assert.notEqual(room.nextLookAt-room.startsAt,timeline(57).waits[0],'a rematch advances randomness instead of replaying the first schedule');
 });
 
-test('a 250ms observation interval plus 200ms reaction can safely release during every warning',()=>{
+test('historical v7 gives a 250ms observation interval plus 200ms reaction',()=>{
  for(let seed=1;seed<=100;seed++){
-  const room=createRoom({code:'TEST',seed,mode:'solo',player:{id:'p',name:'Player'}},0);
+  const room=createRoom({code:'TEST',seed,mode:'solo',rulesVersion:7,player:{id:'p',name:'Player'}},0);
   applyCommand(room,'p',{type:'ready',ready:true},0);applyCommand(room,'p',{type:'start'},0);
   let releaseAt=null,seq=0;
   for(let at=3000;at<=63000;at+=50){
@@ -118,4 +118,55 @@ test('a 250ms observation interval plus 200ms reaction can safely release during
   assert.equal(room.players[0].catches,0,`seed ${seed} must leave a usable reaction window`);
   assert.ok(room.players[0].score>0);
  }
+});
+
+
+test('v7 seeded timing remains stable for already issued scores',()=>{
+ const {turns}=timeline(712,'medium',50,7);
+ assert.deepEqual(turns.map(t=>[t.at,t.warning,t.watch]),[[7545,1125,1453],[17940,987,2295],[25276,1524,851],[35040,1129,1749],[39939,684,1491],[45565,1664,907],[51566,1103,1672],[58132,1178,1616]]);
+});
+
+test('v8 starts gently and mixes genuinely sharp turns with slower breathing room',()=>{
+ let turnsTotal=0,sharpTotal=0,slowerTotal=0,longSurprise=false;
+ for(let seed=1;seed<=500;seed++){
+  const {turns,waits}=timeline(seed);
+  assert.ok(turns[0].warning>=1400&&turns[0].warning<=1850);
+  assert.ok(waits[0]>=3200&&waits[0]<=4800);
+  assert.ok(turns.some(t=>t.warning<=520),'every complete round includes a sharp turn');
+  assert.ok(turns.slice(1).some(t=>t.warning>=750),'easy moments still return after the opening');
+  let quickStreak=0;
+  for(let i=0;i<turns.length;i++){
+   const t=turns[i];turnsTotal++;
+   assert.ok(t.warning>=380&&t.warning<=1850);
+   assert.ok(t.watch>=850&&t.watch<=2700);
+   if(t.warning<=520)sharpTotal++;if(t.warning>=1400)slowerTotal++;
+   if(i){assert.ok(!(t.warning<=520&&turns[i-1].warning<=520));assert.ok(!(t.watch>=2100&&turns[i-1].watch>=2100));assert.ok(!(waits[i]>=5800&&waits[i-1]>=5800));}
+   quickStreak=waits[i]<=2500?quickStreak+1:0;assert.ok(quickStreak<=2);
+   if(i&&waits[i]>=5800&&t.warning<=520)longSurprise=true;
+  }
+ }
+ assert.ok(sharpTotal/turnsTotal>.25&&sharpTotal/turnsTotal<.45);
+ assert.ok(slowerTotal/turnsTotal>.18);
+ assert.ok(turnsTotal/500>=7&&turnsTotal/500<=11,'challenge comes from speed, not constant returns');
+ assert.equal(longSurprise,true);
+});
+
+test('a quick observer can react to v8 while a slow observer now misses sharp turns',()=>{
+ function play(seed,observation,reaction){
+  const room=createRoom({code:'TEST',seed,mode:'solo',player:{id:'p',name:'Player'}},0);
+  applyCommand(room,'p',{type:'ready',ready:true},0);applyCommand(room,'p',{type:'start'},0);
+  let releaseAt=null,seq=0;
+  for(let at=3000;at<=63000;at+=10){
+   applyCommand(room,'p',{type:'heartbeat'},at);if(room.phase!=='playing')continue;
+   if(releaseAt!==null&&at>=releaseAt){applyCommand(room,'p',{type:'hold',held:false,seq:seq++,roundIndex:0},at);releaseAt=null;}
+   if(at%observation===0){
+    if(room.attention==='away'&&!room.players[0].holding)applyCommand(room,'p',{type:'hold',held:true,seq:seq++,roundIndex:0},at);
+    if(room.attention==='warning'&&room.players[0].holding&&releaseAt===null)releaseAt=at+reaction;
+   }
+  }
+  return room.players[0].catches;
+ }
+ let slowCatches=0;
+ for(let seed=1;seed<=100;seed++){assert.equal(play(seed,50,200),0);slowCatches+=play(seed,250,300);}
+ assert.ok(slowCatches>=100,'sharp turns test reaction instead of always waiting through a long cue');
 });
