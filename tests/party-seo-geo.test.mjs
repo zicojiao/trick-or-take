@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {gameJsonLd, ogImageUrl, stringifyJsonLd} from '../public/party/seo.mjs';
+import {renderSitemap} from '../scripts/generate-sitemap.mjs';
+import {SUPPORTED_LANGS, PAGE_META, publicUrl} from '../public/party/locale.mjs';
 import {renderPolicyPage} from '../server/policy-page.mjs';
 
 const root = new URL('..', import.meta.url);
@@ -20,17 +22,36 @@ test('GEO text briefs describe the live game and point at each other', () => {
   assert.equal(read('public/full.txt'), read('public/llms-full.txt'));
 });
 
-test('robots and sitemap cover languages, policies, OG art and LLM briefs', () => {
+test('robots allow rendering resources and sitemap covers canonical pages', () => {
   const robots = read('public/robots.txt');
   assert.match(robots, /Sitemap: https:\/\/trickortake\.com\/sitemap\.xml/);
   assert.match(robots, /Allow: \/llms\.txt/);
   assert.match(robots, /GPTBot/);
+  assert.doesNotMatch(robots, /Disallow: \/party\//);
   const sitemap = read('public/sitemap.xml');
-  for (const path of ['<loc>https://trickortake.com</loc>', '<loc>https://trickortake.com/zh</loc>', '/zh/privacy', '/zh/terms', '<loc>https://trickortake.com/privacy</loc>', '<loc>https://trickortake.com/terms</loc>', '/llms.txt', '/llms-full.txt', '/full.txt', '/og/default.png?lang=en']) {
+  for (const path of ['<loc>https://trickortake.com</loc>', '<loc>https://trickortake.com/zh</loc>', '/zh/privacy', '/zh/terms', '<loc>https://trickortake.com/privacy</loc>', '<loc>https://trickortake.com/terms</loc>', '/og/default.png?lang=en']) {
     assert.match(sitemap, new RegExp(path.replace(/[?./]/g, '\\$&')));
   }
   assert.doesNotMatch(sitemap, /<loc>[^<]*\?lang=/);
   assert.match(sitemap, /hreflang="x-default"/);
+});
+
+test('generated sitemap has complete reciprocal language groups without private or duplicate URLs', () => {
+  const sitemap = read('public/sitemap.xml');
+  assert.equal(sitemap, renderSitemap(), 'Run npm run sitemap after changing the locale registry');
+  const entries = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(match => match[1]);
+  assert.equal(entries.length, SUPPORTED_LANGS.length * 3);
+  const urls = new Set();
+  for (const entry of entries) {
+    const url = entry.match(/<loc>([^<]+)<\/loc>/)[1];
+    assert.ok(!urls.has(url), url); urls.add(url);
+    assert.doesNotMatch(url, /[?]|\.txt$|\/api\//);
+    const page = url.endsWith('/privacy') ? 'privacy' : url.endsWith('/terms') ? 'terms' : '';
+    for (const lang of SUPPORTED_LANGS) {
+      assert.ok(entry.includes(`hreflang="${PAGE_META[lang].htmlLang}" href="${publicUrl('https://trickortake.com', lang, page)}"`), url + ' -> ' + lang);
+    }
+    assert.ok(entry.includes(`hreflang="x-default" href="${publicUrl('https://trickortake.com', 'en', page)}"`));
+  }
 });
 
 test('home metadata includes hreflang, OG image, JSON-LD and LLM discovery links', () => {

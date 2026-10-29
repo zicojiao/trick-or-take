@@ -10,7 +10,6 @@ Allow: /og/
 Allow: /privacy
 Allow: /terms
 Disallow: /api/
-Disallow: /party/vendor/
 
 User-agent: GPTBot
 User-agent: ChatGPT-User
@@ -30,6 +29,5 @@ Allow: /og/
 Allow: /privacy
 Allow: /terms
 Disallow: /api/
-Disallow: /party/vendor/
 
 Sitemap: https://trickortake.com/sitemap.xml

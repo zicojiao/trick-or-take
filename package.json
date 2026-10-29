@@ -16,7 +16,8 @@
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
     "test": "node --test --test-concurrency=1 --test-reporter=spec tests/*.test.mjs",
     "icons": "node scripts/render-pwa-icons.mjs",
-    "test:smoke": "node scripts/smoke.mjs"
+    "test:smoke": "node scripts/smoke.mjs",
+    "sitemap": "node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
     "agora-token": "2.0.7"
