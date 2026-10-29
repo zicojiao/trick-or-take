@@ -36,7 +36,12 @@ function harness({touchDevice = false, configFailures = 0, configured = true, re
       for (const listener of this.events[type] || []) listener(event);
     }
     setAttribute(name, value) {(this.attributes ??= {})[name] = value;}
-    append(...children) {this.children.push(...children);}
+    append(...children) {
+      for(const child of children){
+        if(child.parentElement)child.parentElement.children=child.parentElement.children.filter(item=>item!==child);
+        child.parentElement=this;this.children.push(child);
+      }
+    }
     replaceChildren(...children) {this.children = children;}
     focus() {document.activeElement = this;}
     showModal() {this.open = true;}
@@ -70,6 +75,7 @@ function harness({touchDevice = false, configFailures = 0, configured = true, re
   document.cookie = language ? 'candy-language=' + language : '';
   document.querySelectorAll = selector => {
     if (selector === '[data-aria]') return [];
+    if (selector === '#faq details') return Array.from({length:9},(_,i)=>element('faq-'+(i+1)));
     if (selector === '[data-i18n]') return translated;
     if (selector === '.avatar-choice') return element('avatar-picker').children;
     if (selector === '[data-placeholder]') return ['name-input', 'code-input'].map(id => {
@@ -421,17 +427,22 @@ test('one audio toggle controls music and effects and results can open the unfil
   await app.solo();app.advance(63000);await app.click('view-results-board');assert.equal(app.element('leaderboard-dialog').open,true);assert.equal(app.boardRequests.at(-1),'leaderboard');
 });
 
-test('home information is available before play and returns after leaving a solo round', async()=>{
+test('mobile homepage keeps scores inline, then restores scores and guide after a round', async()=>{
   const app=harness({language:'en'});await app.flush();
   assert.equal(app.element('home-info').hidden,false);
+  assert.equal(app.element('board-content').parentElement,app.element('desktop-board'));
+  assert.ok(app.boardRequests.length>0);
   await app.click('home-guide-button');assert.equal(app.element('help-dialog').open,true);
   await app.click('got-it');await app.solo();
   assert.equal(app.element('home-info').hidden,true);
+  assert.equal(app.element('board-content').parentElement,app.element('board-modal-slot'));
   await app.click('exit-match');assert.equal(app.element('leave-dialog').open,true);
   assert.match(app.element('leave-title').textContent,/Leave this match/);
   await app.click('leave-stay');assert.equal(app.element('leave-dialog').open,false);assert.equal(app.element('home-info').hidden,true);
   await app.click('exit-match');await app.click('leave-confirm');
   assert.equal(app.element('home-info').hidden,false);
+  assert.equal(app.element('board-content').parentElement,app.element('desktop-board'));
+  assert.ok(app.boardRequests.length>0);
 });
 
 test('finishing a round scatters flowers and candy, then clears them on exit', async()=>{

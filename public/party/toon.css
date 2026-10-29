@@ -52,16 +52,6 @@ body {
 }
 .score-icon {background:#ffcc84;border:1px solid #b58663;color:#80503b;border-radius:9px}
 .score-bubble small,.timer-bubble small {color:#80665c}
-.attention-pill {
-  background:#e5eab8;border:1.5px solid #4b553b;color:#4b553b;
-  box-shadow:1px 3px 0 #352b4240;border-radius:11px;
-}
-body[data-attention=warning] .attention-pill {background:#ffd188;border-color:#80552c;color:#79502d}
-body[data-attention=watching] .attention-pill {background:#edae93;border-color:#683d43;color:#66343c;box-shadow:2px 3px 0 #683d4359}
-.attention-expression {display:none;width:23px;height:17px;flex:none;overflow:visible}
-body[data-attention=watching] .attention-expression {display:block}
-body[data-attention=watching] .attention-pill>.status-dot {display:none}
-.attention-pill::after {height:3px;background:#80552c}
 .stage-tool {background:#fff2d7;border:1.5px solid var(--ink);color:var(--ink);box-shadow:1px 2px 0 #352b4238}
 .hostess-bubble {
   background:#fff8df;border:1.5px solid #705343;color:#705343;box-shadow:2px 3px 0 #352b4229;
@@ -220,8 +210,6 @@ footer a {border-bottom:1px dashed #b18d75}
   .game-card {border-radius:19px;border-width:2px;box-shadow:0 5px 0 var(--ink)}
   .brand-icon {border-radius:11px;box-shadow:2px 2px 0 var(--ink)}
   .score-bubble,.timer-bubble {border-radius:11px}
-  .attention-pill {border-radius:9px}
-  .attention-expression {width:17px;height:13px}
   .hostess-bubble {left:38%;top:22%;max-width:55%;padding:7px 10px}
   .welcome-sticker {padding:10px 12px;top:30%}
   .welcome-sticker strong {font-size:13px}

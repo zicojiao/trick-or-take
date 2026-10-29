@@ -17,8 +17,6 @@
 .best-block small,.match-block small{font-size:12px}
 footer{font-size:11px}
 footer a{display:inline-flex;align-items:center;min-height:32px;white-space:nowrap}
-.attention-pill{font-size:15px}
-body[data-attention=warning] .attention-pill,body[data-attention=watching] .attention-pill{transform:translateX(-50%) scale(1.08)}
 
 /* Text colour animates with the fill, so a newly selected choice never shows white on a pale ground. */
 .difficulty-button,.choice-option{transition:background-color .12s,color .12s,border-color .12s,box-shadow .12s}
@@ -87,7 +85,6 @@ body[data-attention=warning] .attention-pill,body[data-attention=watching] .atte
   footer a{min-height:44px}
   .challenge-toolbar>.small-button{min-height:50px;align-self:flex-start}
   /* The warning pill gets its own row under the score and timer. */
-  .attention-pill{top:54px;font-size:13px;max-width:calc(100% - 96px);padding:7px 12px;white-space:nowrap}
   #exit-match.stage-exit{right:10px;bottom:10px;min-height:36px;font-size:11px}
   /* Picker: three labelled cards in one row under the scene. */
   .game-dock>.character-select{grid-column:1/-1;grid-row:1;align-items:stretch}
@@ -140,7 +137,6 @@ body[data-attention=warning] .attention-pill,body[data-attention=watching] .atte
   .hud{inset:10px 12px auto}
   .score-bubble{padding:6px 10px 6px 7px;min-width:0}.score-bubble strong{font-size:23px}
   .timer-bubble{padding:8px 10px}.timer-bubble strong{font-size:22px}
-  .attention-pill{top:52px;font-size:13px;padding:7px 12px}
   .hostess-bubble{display:none!important}
   body[data-view=finished] .result-panel{grid-template-columns:1fr;width:min(440px,calc(100% - 24px))}
 }

@@ -681,25 +681,26 @@ async function refreshBoard() {
 }
 const desktopMedia=window.matchMedia?.('(min-width:1100px)');
 const boardOnDesktop=()=>!!desktopMedia?.matches;
+const boardInline=()=>!room || boardOnDesktop();
+let boardPlacement=null;
 function placeBoard(){
-  const target=$(boardOnDesktop()?'desktop-board':'board-modal-slot');
+  const inline=boardInline(), target=$(inline?'desktop-board':'board-modal-slot');
+  const changed=boardPlacement!==target;
   if($('board-content').parentElement!==target)target.append($('board-content'));
-  if(boardOnDesktop()&&$('leaderboard-dialog').open)$('leaderboard-dialog').close();
-  if(boardOnDesktop())void refreshBoard();
+  boardPlacement=target;
+  if(inline&&$('leaderboard-dialog').open)$('leaderboard-dialog').close();
+  if(changed&&inline)void refreshBoard();
 }
 function openBoard() {
   clearHold();
   if(localRoom && active())pauseLocal();
-  if(boardOnDesktop())$('desktop-board').scrollIntoView({block:'nearest'});
+  if(boardInline())$('desktop-board').scrollIntoView({block:'nearest'});
   else $('leaderboard-dialog').showModal();
   void refreshBoard();
 }
 function renderTimers() {
   const time = now(), player = mine(), phase = room?.phase;
   const stunned = (player?.stunnedUntil || 0) > time, lag = lagging();
-  const warningLeft = phase === 'playing' && room.attention === 'warning'
-    ? Math.max(0, Math.min(1, (room.lookAt - time) / (room.warningMs || 900))) : 0;
-  $('attention-pill').style.setProperty('--warning-left', warningLeft.toFixed(3));
   setText('banked-score', score(player));
   const secondsLeft = phase === 'playing' ? Math.max(0, Math.ceil((room.endsAt - time) / 1000)) : phase === 'finished' ? 0 : 60;
   setText('time-left', secondsLeft);
@@ -738,7 +739,7 @@ function render() {
   const phase = room?.phase || 'home', playing = phase === 'playing', inMatch = active();
   const previousView=document.body.dataset.view;
   document.body.dataset.view = phase; document.body.dataset.mode = mode;
-  if(previousView!==phase)window.scrollTo?.(0,0);
+  if(previousView!==phase){window.scrollTo?.(0,0);placeBoard();}
   const joinCode = $('code-input').value.trim().toUpperCase();
   const invited = /^[A-Z0-9]{6}$/.test(joinCode);
   document.body.dataset.entry = invited ? 'join' : 'create';
@@ -785,10 +786,6 @@ function render() {
   setText('scene-badge-text', localRoom || mode === 'solo' ? tr('SOLO · LOCAL PLAY', '单人 · 本地开玩')
     : room ? tr('ROOM ', '房间 ') + room.code + ' · ' + room.players.filter(player => !player.left).length + tr(' rascals', ' 只小坏蛋')
     : tr('2–6 FRIENDS · ONE KITCHEN', '2–6 位朋友 · 同一间厨房'));
-  const attention = room?.attention || 'away';
-  setText('attention-label', attention === 'warning' ? tr("She's turning! Let go!", '她要回头！快松手')
-    : attention === 'watching' ? tr("Don't. Move.", '她盯着呢！别动')
-    : tr("She's busy. Hehe.", '她正忙着呢，嘿嘿。'));
   document.querySelectorAll('.avatar-choice').forEach((button, index) => {
     const selected = index === avatar;
     button.disabled = !!room || entryBusy || soloStarting; button.setAttribute('aria-pressed', String(selected));
@@ -1055,6 +1052,11 @@ $('leaderboard-button').addEventListener('click',openBoard);
 $('view-results-board').addEventListener('click',openBoard);
 $('signal-retry').addEventListener('click',()=>{if(session&&!localRoom)void signaling.connect(session.code+':'+session.playerId,true);});
 $('close-leaderboard').addEventListener('click',()=>{$('leaderboard-dialog').close();boardEpoch++;});
+// The shared name enables a native accordion; toggle also supports older browsers.
+const faqItems=Array.from(document.querySelectorAll('#faq details'));
+for(const item of faqItems)item.addEventListener('toggle',()=>{
+  if(item.open)for(const other of faqItems)if(other!==item)other.open=false;
+});
 desktopMedia?.addEventListener?.('change',placeBoard);
 placeBoard();
 $('board-refresh').addEventListener('click',refreshBoard);
