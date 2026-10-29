@@ -19,7 +19,7 @@ const appSource = readFileSync(new URL('../public/party/app.mjs', import.meta.ur
 
 // Execute the actual application against its HTML IDs and real game/input rules.
 // Only browser surfaces, image loading, transport and the audio device are mocked.
-function harness({configFailures = 0, configured = true, restore = false, legacyBest = null, language = 'zh', storedLanguage = language, artResult = {ok:true}, search = ''} = {}) {
+function harness({touchDevice = false, configFailures = 0, configured = true, restore = false, legacyBest = null, language = 'zh', storedLanguage = language, artResult = {ok:true}, search = ''} = {}) {
   let document, stamp = 0, wallTime = 1_000_000, nextFrame, timerId = 0;
   let configAttempts = 0, voiceJoins = 0, copiedInvite, historyUrl, submissions = [], ticketDifficulty, entryPayload, boardRequests=[],signalJoins=0,signalLeaves=0,signalPulses=[];
   class Element {
@@ -62,6 +62,7 @@ function harness({configFailures = 0, configured = true, restore = false, legacy
       item.dataset.i18n = match[3]; item.textContent = match[4]; return item;
     });
   const window = new Element('window');
+  if (touchDevice) window.ontouchstart = null;
   document = new Element('document');
   Object.assign(document, {body: new Element('body'), documentElement: new Element('html'), hidden: false,
     getElementById: element, createElement: tag => new Element(tag)});
@@ -584,4 +585,50 @@ test('the language picker keeps invitation links and uses the shared language re
   assert.equal(app.historyUrl,'/ja?room=001234');
   assert.equal(app.document.title,PAGE_META.ja.title);
   assert.equal(app.element('language-dialog').open,false);
+});
+
+
+test('native touch holds collect candy and only the owning finger can release', async () => {
+  const app = harness({touchDevice:true}); await app.solo();
+  const button = app.element('hold-button'), finger = {identifier:42};
+  button.dispatch('pointerdown', {pointerType:'touch',pointerId:9});
+  button.dispatch('touchstart', {touches:[finger],changedTouches:[finger]});
+  app.advance(300);
+  assert.equal(button.dataset.held, 'true');
+  assert.ok(Number(app.element('banked-score').textContent) > 0);
+  app.window.dispatch('touchend', {changedTouches:[{identifier:43}]});
+  assert.equal(button.dataset.held, 'true');
+  button.dispatch('pointerup', {pointerType:'touch',pointerId:9});
+  assert.equal(button.dataset.held, 'true', 'duplicate pointer stream cannot release the native touch');
+  app.window.dispatch('touchend', {changedTouches:[finger]});
+  assert.equal(button.dataset.held, 'false');
+  const banked = app.element('banked-score').textContent;app.advance(100);
+  assert.equal(app.element('banked-score').textContent, banked);
+});
+
+test('touch-only canvas input releases on cancellation and focus loss', async () => {
+  const app = harness({touchDevice:true}); await app.solo();
+  const canvas = app.element('party-canvas'), button = app.element('hold-button'), finger = {identifier:7};
+  canvas.dispatch('touchstart', {touches:[finger],changedTouches:[finger]});
+  assert.equal(button.dataset.held, 'true');
+  app.window.dispatch('touchcancel', {changedTouches:[finger]});
+  assert.equal(button.dataset.held, 'false');
+  canvas.dispatch('touchstart', {touches:[finger],changedTouches:[finger]});
+  assert.equal(button.dataset.held, 'true');
+  app.window.dispatch('blur');assert.equal(button.dataset.held, 'false');
+  await app.click('resume-button');
+  canvas.dispatch('touchstart', {touches:[finger],changedTouches:[finger]});
+  assert.equal(button.dataset.held, 'true');
+  app.window.dispatch('touchend', {changedTouches:[finger]});
+  assert.equal(button.dataset.held, 'false');
+});
+
+test('failed pointer capture does not prevent holding or release outside the button', async () => {
+  const app = harness(); await app.solo();const button=app.element('hold-button');
+  button.setPointerCapture = () => {throw new Error('NotFoundError');};
+  button.dispatch('pointerdown', {pointerId:17});
+  assert.equal(button.dataset.held, 'true');app.advance(300);
+  assert.ok(Number(app.element('banked-score').textContent) > 0);
+  app.window.dispatch('pointerup', {pointerId:17});
+  assert.equal(button.dataset.held, 'false');
 });

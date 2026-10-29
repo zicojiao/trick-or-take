@@ -31,6 +31,7 @@ let lang = requestLanguage(location.origin + location.pathname + location.search
 let difficulty = Object.hasOwn(DIFFICULTIES,read(localStorage,'candy-difficulty')) ? read(localStorage,'candy-difficulty') : 'medium';
 let avatar = Math.abs(Number(read(localStorage, 'pumpkin-avatar')) || 0) % 3;
 let mode = 'solo', room = null, session = null, localRoom = null;
+let activeTouchId = null;
 let holding = false, seq = 0, epoch = 0, offset = 0, lastSuccess = 0, online = true;
 let lastEvent = 0, lastUi = 0, lastLocalTick = 0, pollTimer, pollFlight;
 let entryBusy = false, roomBusy = false, artReady = false, artFailed = false;
@@ -503,24 +504,51 @@ function updateHold() {
   if (room?.phase === 'playing') void command({type: 'hold', held: holding, seq, roundIndex: room.roundIndex}, {silent: !holding, keepalive: !holding});
 }
 function clearHold(send = true) {
-  input.clear();
+  activeTouchId = null; input.clear();
   if (!holding) return;
   holding = false; seq += 1; saveSession();
   if (send && room?.phase === 'playing') void command({type: 'hold', held: false, seq, roundIndex: room.roundIndex}, {silent: true, keepalive: true});
   renderTimers();
 }
+// Touch has its own stream on iOS/WKWebView. Do not depend on pointer capture
+// or process the compatibility pointer events a second time.
+const nativeTouch = 'ontouchstart' in window;
 for (const target of [$('hold-button'), $('party-canvas')]) {
   target.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || !canHold()) return;
+    if ((nativeTouch && event.pointerType === 'touch') || event.button !== 0 || !canHold()) return;
     if (!input.pressPointer(event.pointerId, event.isPrimary)) return;
-    event.preventDefault(); target.setPointerCapture?.(event.pointerId); updateHold();
+    event.preventDefault(); updateHold();
+    // Window-level release listeners remain available when capture is rejected.
+    try {target.setPointerCapture?.(event.pointerId);} catch {}
   });
   for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) target.addEventListener(type, event => {
+    if (nativeTouch && event.pointerType === 'touch') return;
     if (input.releasePointer(event.pointerId)) {event.preventDefault(); updateHold();}
   });
+  if (nativeTouch) target.addEventListener('touchstart', event => {
+    if (activeTouchId !== null || event.touches.length !== 1 || !canHold()) return;
+    const finger = event.changedTouches[0];
+    if (!finger || !input.pressPointer(finger.identifier)) return;
+    activeTouchId = finger.identifier;
+    event.preventDefault(); updateHold();
+  }, {passive:false});
 }
-window.addEventListener('pointerup', event => {if (input.releasePointer(event.pointerId)) updateHold();});
-window.addEventListener('pointercancel', event => {if (input.releasePointer(event.pointerId)) updateHold();});
+const releasePointer = event => {
+  if (nativeTouch && event.pointerType === 'touch') return;
+  if (input.releasePointer(event.pointerId)) updateHold();
+};
+window.addEventListener('pointerup', releasePointer);
+window.addEventListener('pointercancel', releasePointer);
+if (nativeTouch) {
+  const releaseTouch = event => {
+    if (activeTouchId === null || !Array.from(event.changedTouches).some(finger => finger.identifier === activeTouchId)) return;
+    const id = activeTouchId; activeTouchId = null;
+    event.preventDefault();
+    if (input.releasePointer(id)) updateHold();
+  };
+  window.addEventListener('touchend', releaseTouch, {passive:false});
+  window.addEventListener('touchcancel', releaseTouch, {passive:false});
+}
 window.addEventListener('keydown', event => {
   if (event.code !== 'Space' || event.repeat) return;
   const element = document.activeElement;

@@ -139,3 +139,11 @@ body[data-entry=join] .join-row .small-button{background:#ffc247;border-color:#3
   #board-refresh{min-height:44px}
   footer{font-size:8px;line-height:1.5}
 }
+
+/* A fixed control must stay outside ancestor clipping for iOS hit testing.
+   Clip the artwork itself, not the card containing the floating input dock. */
+@media(max-width:700px){
+  body:is([data-view=playing],[data-view=countdown]) .game-card{overflow:visible}
+  body:is([data-view=playing],[data-view=countdown]) .stage{border-radius:17px 17px 0 0}
+  body:is([data-view=playing],[data-view=countdown]) .game-dock{border-radius:0 0 17px 17px}
+}
