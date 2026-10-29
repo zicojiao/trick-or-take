@@ -43,7 +43,7 @@ test('short waits are capped at two in a row, and a long break can end with a fa
  }
  assert.equal(surprise,true);
 });
-test('v3–v7 rooms retain their clocks while new games use v8',()=>{
+test('v3–v8 rooms retain their clocks while new games use v9',()=>{
  const {turns,waits}=timeline(12,'medium',50,3);
  assert.ok(turns.every(t=>t.warning===900));assert.ok(waits.every(t=>t>=2400&&t<=4400));
  const v4=timeline(12,'hard',50,4),p4=TURN_TIMINGS_BY_VERSION[4].hard;
@@ -52,7 +52,7 @@ test('v3–v7 rooms retain their clocks while new games use v8',()=>{
  assert.ok(v5.turns.every(t=>t.warning>=p5.warning[0]&&t.warning<=p5.warning[1]));
  assert.throws(()=>createRoom({code:'123456',rulesVersion:2,player:{id:'p',name:'Player'}},0),/room_version_changed/);
  const room=createRoom({code:'123456',player:{id:'p',name:'Player'}},0);
- assert.equal(room.gameVersion,8);
+ assert.equal(room.gameVersion,9);
  assert.equal(publicRoom(room,'p',0).difficulty,'medium');
  assert.throws(()=>createRoom({code:'123456',difficulty:'impossible',player:{id:'p',name:'Player'}},0),/invalid_difficulty/);
 });
@@ -92,13 +92,14 @@ test('one shared schedule ignores historical level names and survives JSON stora
  assert.deepEqual(timeline(57,'easy').turns,timeline(57,'hard').turns);
  const room=createRoom({code:'TEST',seed:57,mode:'solo',player:{id:'p',name:'Player'}},0);
  applyCommand(room,'p',{type:'ready',ready:true},0);applyCommand(room,'p',{type:'start'},0);
+ const firstOpeningState=room.npcState;
  for(let t=3000;t<24000;t+=250)applyCommand(room,'p',{type:'heartbeat'},t);
  const restored=JSON.parse(JSON.stringify(room));
  for(let t=24000;t<=63000;t+=250){applyCommand(room,'p',{type:'heartbeat'},t);applyCommand(restored,'p',{type:'heartbeat'},t);}
  assert.deepEqual(restored,room);
  applyCommand(room,'p',{type:'again'},63000);applyCommand(room,'p',{type:'ready',ready:true},63000);applyCommand(room,'p',{type:'start'},63000);
  assert.equal(room.turnCount,1);assert.deepEqual(room.turnBag,[]);assert.equal(room.lastTurnSpeed,'slow');
- assert.notEqual(room.nextLookAt-room.startsAt,timeline(57).waits[0],'a rematch advances randomness instead of replaying the first schedule');
+ assert.notEqual(room.npcState,firstOpeningState,'a rematch continues the generator instead of reseeding the opening');
 });
 
 test('historical v7 gives a 250ms observation interval plus 200ms reaction',()=>{
@@ -126,10 +127,10 @@ test('v7 seeded timing remains stable for already issued scores',()=>{
  assert.deepEqual(turns.map(t=>[t.at,t.warning,t.watch]),[[7545,1125,1453],[17940,987,2295],[25276,1524,851],[35040,1129,1749],[39939,684,1491],[45565,1664,907],[51566,1103,1672],[58132,1178,1616]]);
 });
 
-test('v8 starts gently and mixes genuinely sharp turns with slower breathing room',()=>{
+test('historical v8 starts gently and mixes genuinely sharp turns with slower breathing room',()=>{
  let turnsTotal=0,sharpTotal=0,slowerTotal=0,longSurprise=false;
  for(let seed=1;seed<=500;seed++){
-  const {turns,waits}=timeline(seed);
+  const {turns,waits}=timeline(seed,'medium',50,8);
   assert.ok(turns[0].warning>=1400&&turns[0].warning<=1850);
   assert.ok(waits[0]>=3200&&waits[0]<=4800);
   assert.ok(turns.some(t=>t.warning<=520),'every complete round includes a sharp turn');
@@ -151,7 +152,7 @@ test('v8 starts gently and mixes genuinely sharp turns with slower breathing roo
  assert.equal(longSurprise,true);
 });
 
-test('a quick observer can react to v8 while a slow observer now misses sharp turns',()=>{
+test('a quick observer can react to v9 while a slow observer misses sharp turns',()=>{
  function play(seed,observation,reaction){
   const room=createRoom({code:'TEST',seed,mode:'solo',player:{id:'p',name:'Player'}},0);
   applyCommand(room,'p',{type:'ready',ready:true},0);applyCommand(room,'p',{type:'start'},0);
@@ -169,4 +170,37 @@ test('a quick observer can react to v8 while a slow observer now misses sharp tu
  let slowCatches=0;
  for(let seed=1;seed<=100;seed++){assert.equal(play(seed,50,200),0);slowCatches+=play(seed,250,300);}
  assert.ok(slowCatches>=100,'sharp turns test reaction instead of always waiting through a long cue');
+});
+
+
+test('historical v8 timing stays unchanged for existing rooms and score tickets',()=>{
+ const {turns}=timeline(712,'medium',50,8);
+ assert.deepEqual(turns.map(t=>[t.at,t.warning,t.watch]),[[7545,1653,1453],[18468,891,1191],[24782,446,887],[28137,1698,1491],[34892,436,1651],[44484,798,1813],[51153,511,1027],[57108,1849,1682]]);
+});
+
+test('v9 returns substantially more often and mixes bounded rapid bursts with recovery',()=>{
+ let total=0,previous=0,burstRounds=0,tripleRounds=0,longBreaks=0;
+ for(let seed=1;seed<=500;seed++){
+  const {turns,waits,room}=timeline(seed),old=timeline(seed,'medium',50,8);
+  total+=turns.length;previous+=old.turns.length;
+  assert.equal(room.phase,'finished');assert.ok(waits[0]>=3200&&waits[0]<=4000);
+  assert.ok(turns[0].warning>=1400&&turns[0].warning<=1850,'the opening remains gentle');
+  let streak=0,burst=false,triple=false;
+  for(let i=1;i<waits.length;i++){
+   const wait=waits[i];assert.ok(wait>=600&&wait<=4300);
+   assert.ok(wait<=1100||wait>=1600&&wait<=2600||wait>=3300,'waits use the intended timing bands');
+   streak=wait<=1100?streak+1:0;
+   assert.ok(streak<=3,'a rapid burst must end');
+   if(streak>=2)burst=true;if(streak===3)triple=true;
+   if(i>=4&&waits[i-1]<=1100&&waits[i-2]<=1100&&waits[i-3]<=1100)assert.ok(wait>=1600,'three rapid returns force a recovery break');
+   assert.ok(!(turns[i].warning<=520&&turns[i-1].warning<=520),'rapid cadence does not stack sharp turns');
+   if(wait>=3300)longBreaks++;
+  }
+  if(burst)burstRounds++;if(triple)tripleRounds++;
+  for(const field of ['quickStreak','lastTempo','turnBag','nextWarningMs'])assert.equal(field in publicRoom(room,'p',63000),false);
+ }
+ assert.ok(total>previous*1.45&&total<previous*1.75,'frequency rises noticeably without doubling');
+ assert.ok(total/500>=12&&total/500<=16);
+ assert.ok(burstRounds>350&&tripleRounds>200,'frequent bursts actually occur across different rounds');
+ assert.ok(longBreaks>100,'occasional longer stealing windows remain');
 });

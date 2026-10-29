@@ -4,7 +4,30 @@ English lives at https://trickortake.com. Chinese lives at /zh, including
 /zh/privacy and /zh/terms. The language button switches that path. The HTML
 response follows the path, so the English canonical stays the bare domain.
 
-## v8 shared challenge (current)
+## v9 shared challenge (current)
+
+Lily returns more often while retaining v8's mix of sharp, normal and gentle
+turns. The opening offers 3.2–4.0 seconds to steal and a gentle first turn.
+After that, stealing windows use three timing bands:
+
+| Break | Time |
+| --- | --- |
+| Quick return | 0.60–1.10 seconds |
+| Normal break | 1.60–2.60 seconds |
+| Occasional longer break | 3.30–4.30 seconds |
+
+A quick return has a 68% chance to continue a rapid burst, capped at three
+quick returns in a row. Three quick returns force a normal recovery break.
+Long breaks cannot repeat consecutively. Turn speed is drawn independently:
+the existing five-turn bag still prevents consecutive sharp turns, including
+across bag boundaries. Watch durations and reaction windows stay as in v8.
+
+A 500-seed rules simulation observed 11–17 turns per minute, averaging 14.06,
+compared with v8's 8.868. These are seeded simulation counts, not measurements
+of human reaction. Existing v3–v8 rooms and tickets retain their replay clocks;
+new rooms and solo tickets use v9, with a separate local-best key.
+
+## Historical v8 shared challenge
 
 The opening always has a 3.2–4.8 second stealing window and a gentle
 1.40–1.85 second turn. Later turns mix three reaction windows:
@@ -35,7 +58,7 @@ protects short animations from ordinary polling and delivery delay; it cannot
 guarantee fair reaction time on a stalled connection. Future turns beyond that
 small presentation window remain private.
 
-New games and bests use v8. Existing v3–v7 rooms and issued solo score tickets
+Games and bests issued under v8 use the v8 key. Existing v3–v7 rooms and issued solo score tickets
 retain their exact schedules; the v7 seeded replay is covered by a regression
 fixture. Timing sweeps and simulated reactions are tests of the rules, not
 measurements of human reaction or network latency.

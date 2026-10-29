@@ -5,8 +5,9 @@
 // while Hard keeps roughly Medium's overall glance cadence.
 // v7: one shared challenge with shuffled turn speeds and varied watch durations.
 // v8: a gentle opening, then mixed sharp turns without a staged warning pose.
-export const GAME_VERSION = 8;
-export const SUPPORTED_RULES_VERSIONS = Object.freeze([3, 4, 5, 6, 7, 8]);
+// v9: shorter stealing windows with occasional two/three-return bursts.
+export const GAME_VERSION = 9;
+export const SUPPORTED_RULES_VERSIONS = Object.freeze([3, 4, 5, 6, 7, 8, 9]);
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
 export const COUNTDOWN_MS = 3000;
@@ -33,10 +34,17 @@ const sharedV7 = Object.freeze({
   turns: {fast: [550, 750], normal: [900, 1300], slow: [1450, 1900]},
   watches: {brief: [850, 1200], normal: [1300, 1850], long: [2100, 2700]},
 });
+const sharedV8 = Object.freeze({...sharedV7,
+  turns: {fast: [380, 520], normal: [750, 1100], slow: [1400, 1850]},
+});
 export const SHARED_TURN_TIMINGS_BY_VERSION = Object.freeze({
   7: sharedV7,
-  8: Object.freeze({...sharedV7,
-    turns: {fast: [380, 520], normal: [750, 1100], slow: [1400, 1850]},
+  8: sharedV8,
+  9: Object.freeze({...sharedV8,
+    firstWait: [3200, 4000],
+    quick: [600, 1100], normal: [1600, 2600], long: [3300, 4300],
+    quickChance: .36, longChance: .10,
+    maxQuickStreak: 3, burstContinueChance: .68,
   }),
 });
 export const SHARED_TURN_TIMING = SHARED_TURN_TIMINGS_BY_VERSION[GAME_VERSION];
@@ -157,7 +165,10 @@ function scheduleSharedLook(room, at) {
   const p = sharedProfile(room), opening = room.turnCount === 0;
   const roll = random(room);
   let tempo = opening ? 'normal' : roll < p.quickChance ? 'quick' : roll < p.quickChance + p.longChance ? 'long' : 'normal';
-  if (tempo === 'quick' && room.quickStreak >= 2 || tempo === 'long' && room.lastTempo === 'long') tempo = 'normal';
+  // A short return can start a burst. After three, force a normal break;
+  // turn speed remains independent, so a burst is not a string of sharp snaps.
+  if (!opening && p.burstContinueChance && room.lastTempo === 'quick' && roll < p.burstContinueChance) tempo = 'quick';
+  if (tempo === 'quick' && room.quickStreak >= (p.maxQuickStreak || 2) || tempo === 'long' && room.lastTempo === 'long') tempo = 'normal';
   room.quickStreak = tempo === 'quick' ? room.quickStreak + 1 : 0;
   room.lastTempo = tempo;
   room.nextLookAt = at + interval(room, ...(opening ? p.firstWait : p[tempo]));

@@ -254,8 +254,8 @@ test('one shared challenge ignores old difficulty preferences and keeps the stan
  assert.doesNotMatch(html,/id="difficulty-/);
  await app.solo();assert.equal(app.ticketDifficulty,'medium');
  app.element('hold-button').dispatch('pointerdown');app.advance(500);app.element('hold-button').dispatch('pointerup');app.advance(60000);
- assert.equal(app.localStorage.getItem('candy-local-best-v8'),'3');
- assert.equal(app.localStorage.getItem('candy-local-best-v8-hard'),null);
+ assert.equal(app.localStorage.getItem('candy-local-best-v9'),'3');
+ assert.equal(app.localStorage.getItem('candy-local-best-v9-hard'),null);
 });
 
 test('pickup sounds follow earned candy while holding and stop on release',async()=>{
@@ -416,13 +416,14 @@ test('the visible total includes held candy, stays stable on release, and become
 });
 
 test('the new-rule result saves its own best without importing or erasing the previous rule record', async () => {
-  const app = harness({legacyBest: 99}); app.localStorage.setItem('candy-local-best-v7','88'); await app.solo();
+  const app = harness({legacyBest: 99}); app.localStorage.setItem('candy-local-best-v7','88'); app.localStorage.setItem('candy-local-best-v8','77'); await app.solo();
   app.element('hold-button').dispatch('pointerdown'); app.advance(500);
   app.element('hold-button').dispatch('pointerup');
   app.advance(60000);
   assert.equal(app.element('result-score').textContent, '3');
-  assert.equal(app.localStorage.getItem('candy-local-best-v8'), '3');
+  assert.equal(app.localStorage.getItem('candy-local-best-v9'), '3');
   assert.equal(app.localStorage.getItem('candy-local-best-v7'), '88', 'v7 bests remain intact');
+  assert.equal(app.localStorage.getItem('candy-local-best-v8'), '77', 'v8 bests remain intact');
   assert.equal(app.localStorage.getItem('candy-local-best'), '99', 'older-rule scores remain intact and separate');
 });
 

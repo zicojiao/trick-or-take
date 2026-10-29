@@ -43,7 +43,7 @@ test('create and join persist real D1 state with unique room-scoped capabilities
   assert.equal(joined.response.status, 201);
   const friend = joined.data;
   assert.equal(friend.room.players.length, 2);
-  assert.equal(friend.room.gameVersion, 8);
+  assert.equal(friend.room.gameVersion, 9);
   assert.equal(friend.room.mode, 'online');
   assert.notEqual(owner.playerId, friend.playerId);
   assert.notEqual(owner.token, friend.token);
