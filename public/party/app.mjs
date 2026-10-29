@@ -137,7 +137,7 @@ function unlockAudio(){
   if(!soundEnabled)return;
   effects.unlock();void music.unlock();
 }
-function syncMusic(){music.sync({enabled:soundEnabled&&musicEnabled,solo:!!localRoom,active:active(),paused:clockPaused(),hidden:document.hidden,attention:room?.attention});}
+function syncMusic(){music.sync({enabled:soundEnabled&&musicEnabled,solo:!!localRoom,active:active(),paused:clockPaused(),hidden:document.hidden,attention:room?.attention,remaining:room?.phase==='playing'?Math.max(0,(room.endsAt-now())/1000):null});}
 function sound(kind){if(soundEnabled&&!document.hidden)effects.play(kind);}
 function clearFinale() {
   clearTimeout(finaleTimer); finaleTimer = null;
@@ -676,6 +676,7 @@ function renderTimers() {
   const secondsLeft = phase === 'playing' ? Math.max(0, Math.ceil((room.endsAt - time) / 1000)) : phase === 'finished' ? 0 : 60;
   setText('time-left', secondsLeft);
   const urgent = phase === 'playing' && secondsLeft > 0 && secondsLeft <= 10;
+  syncMusic();
   $('match-timer').dataset.urgency = urgent ? secondsLeft <= 5 ? 'final' : 'soon' : 'normal';
   $('match-timer').dataset.paused = String(!!localRoom && clock.paused);
   setText('timer-alert',urgent ? tr('Final ten seconds!', '最后十秒！') : '');
@@ -866,7 +867,7 @@ function applyLanguage() {
   document.querySelectorAll('[data-aria]').forEach(element => element.setAttribute('aria-label',t(element.dataset.aria)));
   document.querySelectorAll('[data-placeholder]').forEach(element => {element.placeholder = t(element.dataset.placeholder);});
   $('sound-button').setAttribute('aria-label', soundEnabled ? tr('Mute music and effects', '关闭音乐与音效') : tr('Enable music and effects', '开启音乐与音效'));
-  $('sound-button').setAttribute('title',tr('Playful Halloween music in solo. Music is off with friends.','单人模式有活泼的万圣节配乐，多人模式不播放背景音乐。'));
+  $('sound-button').setAttribute('title',t('musicDescription'));
   $('sound-button').setAttribute('aria-pressed', String(soundEnabled));
   $('help-button').setAttribute('aria-label', tr('How to play', '游戏说明'));
   $('pause-button').setAttribute('aria-label', tr('Pause local game', '暂停本地游戏'));
