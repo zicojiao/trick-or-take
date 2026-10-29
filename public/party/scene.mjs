@@ -1,7 +1,7 @@
 // Hand-inked, state-driven cartoon theatre. The application owns clock and input;
 // this module never decides a catch, awards candy, or mutates the room.
 import {CANDY_COLORS,createCandyPicker,createCandyTextures} from './candy-colors.mjs';
-import {stepThiefPose,hostessTurnPose} from './motion.mjs';
+import {stepThiefPose,hostessTurnPose,hostessVisualState} from './motion.mjs';
 import {sceneLayout, candySize, pickupPoint} from './scene-layout.mjs';
 
 const TAU = Math.PI * 2;
@@ -302,9 +302,10 @@ export function createScene(canvas) {
 
   function prepareHostess(room, stage, players, viewerId, now, reduced, dt) {
     const phase = room?.phase, active = phase === 'playing';
-    const lookAt = Number(room?.lookAt) || 0;
+    const visible = hostessVisualState(room,now);
+    const lookAt = Number(visible.lookAt) || 0;
     const watchUntil = Number(room?.watchUntil) || 0;
-    let attention = active ? room.attention : 'away';
+    let attention = active ? visible.attention : 'away';
     // Public warning/inspection deadlines also apply between snapshots. This
     // advances only the illustration, without predicting a private next look.
     if (active && attention !== 'away' && lookAt > 0 && now >= lookAt) {
@@ -315,7 +316,7 @@ export function createScene(canvas) {
     const working = attention === 'away';
     // Sharp turns skip the separate stop/listen poses. The first movement is
     // the cue; catching still starts only at the authoritative lookAt deadline.
-    const warningDuration = Math.max(1, Number(room?.warningMs) || 900);
+    const warningDuration = Math.max(1, Number(visible.warningMs) || 900);
     const warningProgress = attention === 'warning' ? clamp(1 - (lookAt - now) / warningDuration) : 0;
     const warningMs = warningProgress * warningDuration;
     const watchProgress = attention === 'watching' ? clamp((now - lookAt) / Math.max(1, watchUntil - lookAt)) : 0;

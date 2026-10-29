@@ -1,6 +1,18 @@
 const TAU = Math.PI * 2;
 const neutral = () => ({phase: 0, bob: 0, lean: 0, stretch: 1, frame: 0, frozen: false, hasMoved: false});
 
+// Online snapshots can carry an imminent turn before its first visible frame.
+// Render on the shared clock, rather than waiting for another HTTP response.
+export function hostessVisualState(room, now) {
+  const upcoming = room?.gameVersion >= 8 && room.phase === 'playing'
+    && room.attention === 'away' && room.upcomingTurn;
+  if (upcoming && now >= upcoming.at) return {
+    attention:now < upcoming.lookAt ? 'warning' : 'watching',
+    lookAt:upcoming.lookAt, warningMs:upcoming.warningMs,
+  };
+  return {attention:room?.attention,lookAt:room?.lookAt,warningMs:room?.warningMs};
+}
+
 /** Visual warning poses share the exact authoritative turn deadline. A sharp
  * v8 turn starts moving immediately; there is no stop/listen or punctuation beat.
  */

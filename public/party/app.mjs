@@ -1,6 +1,7 @@
 import {track} from './analytics.mjs';
 import {MESSAGES} from './messages.mjs';
 import {createRoom, applyCommand, publicRoom, GAME_VERSION} from './engine.mjs';
+import {hostessVisualState} from './motion.mjs';
 import {SUPPORTED_LANGS, LANGUAGES_INFO, PAGE_META, requestLanguage, languagePath} from './locale.mjs';
 import {randomNickname} from './profile.mjs';
 import {createScene} from './scene.mjs';
@@ -33,6 +34,7 @@ let avatar = Math.abs(Number(read(localStorage, 'pumpkin-avatar')) || 0) % 3;
 let mode = 'solo', room = null, session = null, localRoom = null;
 let activeTouchId = null;
 let holding = false, seq = 0, epoch = 0, offset = 0, lastSuccess = 0, online = true;
+let warningSoundAt = 0;
 let lastEvent = 0, lastUi = 0, lastLocalTick = 0, pollTimer, pollFlight;
 let entryBusy = false, roomBusy = false, artReady = false, artFailed = false;
 let rosterSignature = '', resultSignature = '', toastTimer, feedbackTimer, finaleTimer;
@@ -137,7 +139,7 @@ function unlockAudio(){
   if(!soundEnabled)return;
   effects.unlock();void music.unlock();
 }
-function syncMusic(){music.sync({enabled:soundEnabled&&musicEnabled,solo:!!localRoom,active:active(),paused:clockPaused(),hidden:document.hidden,attention:room?.attention,remaining:room?.phase==='playing'?Math.max(0,(room.endsAt-now())/1000):null});}
+function syncMusic(){music.sync({enabled:soundEnabled&&musicEnabled,solo:!!localRoom,active:active(),paused:clockPaused(),hidden:document.hidden,attention:hostessVisualState(room,now()).attention,remaining:room?.phase==='playing'?Math.max(0,(room.endsAt-now())/1000):null});}
 function sound(kind){if(soundEnabled&&!document.hidden)effects.play(kind);}
 function clearFinale() {
   clearTimeout(finaleTimer); finaleTimer = null;
@@ -226,6 +228,7 @@ function accept(data) {
   const next = data?.room;
   if (!next || (room?.code === next.code && next.version < room.version)) return;
   const previousPhase = room?.phase, previousRound = room?.roundIndex, previousScore = score(mine());
+  if(previousRound!==next.roundIndex)warningSoundAt=0;
   room = next; lastSuccess = Date.now(); online = true;
   if(data.resultId && session) resultIdentity = {runId:data.resultId,token:session.token,published:data.resultPublished};
   seq = Math.max(seq, mine()?.inputSeq ?? 0);
@@ -246,7 +249,7 @@ function accept(data) {
       feedback(lost > 0 ? tr('BONK! All ' + lost + ' treats confiscated.', '啪！' + lost + ' 颗糖，全部没收！')
         : tr('BONK! Caught red-handed.', '啪！抓到你了，糖果清零！'));
       sound('catch');
-    } else if (event.type === 'warning') sound('warning');
+    } else if (event.type === 'warning' && room.gameVersion<8) sound('warning');
   }
   if (previousPhase === 'playing' && room.phase === 'playing' && score(mine()) > previousScore) {
     if(holding && mine()?.holding && room.attention==='away')sound('pickup');
@@ -671,6 +674,8 @@ function openBoard() {
 }
 function renderTimers() {
   const time = now(), player = mine(), phase = room?.phase;
+  const visual=hostessVisualState(room,time),attention=visual.attention;
+  if(room?.gameVersion>=8&&phase==='playing'&&attention==='warning'&&visual.lookAt!==warningSoundAt){warningSoundAt=visual.lookAt;sound('warning');}
   const stunned = (player?.stunnedUntil || 0) > time, lag = lagging();
   setText('banked-score', score(player));
   const secondsLeft = phase === 'playing' ? Math.max(0, Math.ceil((room.endsAt - time) / 1000)) : phase === 'finished' ? 0 : 60;
@@ -688,16 +693,16 @@ function renderTimers() {
   setText('pending-label', tr(heldCandy + ' in your hands · included above. Get caught, lose everything.', '手里 ' + heldCandy + ' 颗，已计入总数。被抓全部清零！'));
   $('hold-button').disabled = !canHold();
   $('hold-button').dataset.held = String(holding);
-  $('hold-button').dataset.danger = String(room?.attention === 'watching' && !stunned);
+  $('hold-button').dataset.danger = String(attention === 'watching' && !stunned);
   $('hold-button').setAttribute('aria-pressed', String(holding));
   setText('hold-label', lag ? tr('Reconnecting…', '正在重连…')
     : stunned ? tr('Caught! Back in ' + Math.ceil((player.stunnedUntil - time) / 1000) + 's', '被抓包 · ' + Math.ceil((player.stunnedUntil - time) / 1000) + ' 秒')
-    : room?.attention === 'watching' ? tr('Stay still', '别动')
+    : attention === 'watching' ? tr('Stay still', '别动')
     : holding ? tr('Release to hide', '松手装乖')
     : tr('Hold to steal', '按住偷糖'));
   setText('hold-copy', stunned ? tr('Candy lost. Try again soon.', '糖果全部没收，稍后再试')
-    : room?.attention === 'watching' ? tr('Hold now = caught', '现在按住就会被抓')
-    : room?.attention === 'warning' ? tr("She’s turning. Release!", '她要回头啦，快松手装乖！')
+    : attention === 'watching' ? tr('Hold now = caught', '现在按住就会被抓')
+    : attention === 'warning' ? tr("She’s turning. Release!", '她要回头啦，快松手装乖！')
     : holding ? tr('Watch for her turn', '注意回头预警')
     : tr('Release to hide', '松手装乖'));
   show('network-note', lag);

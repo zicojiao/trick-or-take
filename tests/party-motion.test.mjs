@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {stepThiefPose,hostessTurnPose} from '../public/party/motion.mjs';
+import {stepThiefPose,hostessTurnPose,hostessVisualState} from '../public/party/motion.mjs';
 
 const neutral={phase:0,bob:0,lean:0,stretch:1,frame:0,frozen:false,hasMoved:false};
 const idle=(hasMoved=false)=>({...neutral,frame:3,frozen:true,hasMoved});
@@ -90,4 +90,19 @@ test('gentle v8 and historical turns retain their slower readable poses',()=>{
   assert.equal(hostessTurnPose(duration,.25,version).cue,'listen');
   assert.equal(hostessTurnPose(duration,.7,version).cue,'peek');
  }
+});
+
+
+test('a delivered online deadline renders the full sharp turn without an early visual cue',()=>{
+ const room={gameVersion:8,phase:'playing',attention:'away',lookAt:0,warningMs:900,upcomingTurn:{at:2000,lookAt:2400,warningMs:400}};
+ const saved=structuredClone(room);
+ assert.equal(hostessVisualState(room,1999).attention,'away');
+ for(let now=2000;now<2400;now+=16){
+  const visible=hostessVisualState(room,now);
+  assert.equal(visible.attention,'warning');assert.equal(visible.lookAt,2400);
+  assert.equal(hostessTurnPose(visible.warningMs,(now-2000)/400,8).cue,'snap');
+ }
+ assert.equal(hostessVisualState(room,2400).attention,'watching');assert.deepEqual(room,saved);
+ assert.equal(hostessVisualState({...room,gameVersion:7},2100).attention,'away');
+ assert.equal(hostessVisualState({...room,phase:'finished'},2100).attention,'away');
 });

@@ -361,3 +361,16 @@ test('only the lobby owner can remove another offline seat and let remaining pla
   applyCommand(room, 'p0', {type: 'start'}, 6001); assert.equal(room.phase, 'countdown');
   assert.throws(() => applyCommand(room, 'p0', {type: 'remove', playerId: 'p1'}, 13000), /lobby_only/);
 });
+
+
+test('online v8 announces only the imminent animation, keeping the shared catch deadline',()=>{
+ const room=playing(2),start=room.nextLookAt,lookAt=start+room.nextWarningMs;
+ let view=publicRoom(room,'p0',start-1501);assert.equal('upcomingTurn' in view,false);
+ view=publicRoom(room,'p0',start-1500);assert.deepEqual(view.upcomingTurn,{at:start,lookAt,warningMs:room.nextWarningMs});
+ assert.equal(view.attention,'away');assert.equal(room.nextLookAt,start);
+ heartbeatAll(room,start);assert.equal(room.lookAt,lookAt);
+ hold(room,'p0',true,1,start);hold(room,'p0',false,2,lookAt-1);
+ heartbeatAll(room,lookAt);assert.equal(room.players[0].catches,0);
+ const old=playing(2,{rulesVersion:7});assert.equal('upcomingTurn' in publicRoom(old,'p0',old.nextLookAt-500),false);
+ const solo=playing(1,{mode:'solo'});assert.equal('upcomingTurn' in publicRoom(solo,'p0',solo.nextLookAt-500),false);
+});

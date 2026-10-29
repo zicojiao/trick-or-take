@@ -1,5 +1,6 @@
 // Shared deterministic rules for the server and the one-person local game.
-// NPC state is private to the authoritative room; publicRoom omits its future plan.
+// NPC randomness and the full schedule stay private. Online clients receive
+// only an imminent animation deadline so network delivery cannot erase its cue.
 // v3: fixed clock. v4/v5: varied tempos. v6: difficulty changes turn speed
 // while Hard keeps roughly Medium's overall glance cadence.
 // v7: one shared challenge with shuffled turn speeds and varied watch durations.
@@ -419,12 +420,21 @@ export function publicRoom(room, viewerId, now) {
     stunnedUntil: player.stunnedUntil, viewMasked: false,
     ...(player.id === viewerId ? {inputSeq: player.inputSeq} : {}),
   }));
+  // Send only the imminent online animation deadline early enough to survive
+  // polling + network delivery. Clients show nothing before at. The remaining
+  // random schedule stays private; catches still use the same server clock.
+  const upcomingTurn = room.gameVersion >= 8 && room.mode === 'online'
+    && room.phase === 'playing' && room.attention === 'away'
+    && room.nextLookAt - room.lastTick <= 1500
+    ? {at:room.nextLookAt, lookAt:room.nextLookAt + room.nextWarningMs, warningMs:room.nextWarningMs}
+    : null;
   return {
     gameVersion: room.gameVersion, mode: room.mode, difficulty: room.difficulty || 'medium', warningMs: room.warningMs||timing(room).warning,
     code: room.code, ownerId: room.ownerId, players,
     phase: room.phase, roundIndex: room.roundIndex, guardianId: room.guardianId,
     startsAt: room.startsAt, endsAt: room.endsAt, nextAt: room.nextAt, lastTick: room.lastTick,
     attention: room.attention, activity: room.activity, lookAt: room.lookAt, watchUntil: room.watchUntil,
+    ...(upcomingTurn ? {upcomingTurn} : {}),
     events: room.events.map(item => ({...item})), version: room.version,
     createdAt: room.createdAt, expiresAt: room.expiresAt, message: room.message,
     serverNow: room.lastTick, viewMasked: false,

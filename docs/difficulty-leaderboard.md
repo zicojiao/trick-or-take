@@ -28,6 +28,13 @@ for an actual catch. Holding still becomes punishable at the published lookAt
 boundary, never earlier because the sprite changes. All members share the same
 server schedule; releasing during a warning remains valid.
 
+Online snapshots announce only the imminent turn up to 1.5 seconds before its
+first movement. The renderer shows no cue before that shared start time, then
+plays the turn locally instead of waiting for another state response. This
+protects short animations from ordinary polling and delivery delay; it cannot
+guarantee fair reaction time on a stalled connection. Future turns beyond that
+small presentation window remain private.
+
 New games and bests use v8. Existing v3–v7 rooms and issued solo score tickets
 retain their exact schedules; the v7 seeded replay is covered by a regression
 fixture. Timing sweeps and simulated reactions are tests of the rules, not

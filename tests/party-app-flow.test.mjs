@@ -1,3 +1,4 @@
+import {hostessVisualState} from '../public/party/motion.mjs';
 import {MESSAGES} from '../public/party/messages.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -97,7 +98,7 @@ function harness({touchDevice = false, configFailures = 0, configured = true, re
     location: {pathname: languagePath(language), search, origin: 'https://game.test'}, history: {replaceState(_state, _title, url) {historyUrl = url;}},
     navigator: {clipboard: {writeText: async value => {copiedInvite = value;}}}, AbortController, URLSearchParams, Uint32Array,
     crypto: {getRandomValues(array) {array[0] = 1; return array;}}, Date: {now: () => wallTime},
-    createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION, PAGE_META, requestLanguage, SUPPORTED_LANGS, LANGUAGES_INFO, languagePath, randomNickname, createGameAudio:options=>({...createGameAudio({...options,host:{}}),play:kind=>sounds.push(kind)}), createHoldInput, createLocalClock, pollCommand, installInteractions, createResultSharing, createSoloMusic,
+    createRoom, applyCommand, publicRoom, DIFFICULTIES, GAME_VERSION, hostessVisualState, PAGE_META, requestLanguage, SUPPORTED_LANGS, LANGUAGES_INFO, languagePath, randomNickname, createGameAudio:options=>({...createGameAudio({...options,host:{}}),play:kind=>sounds.push(kind)}), createHoldInput, createLocalClock, pollCommand, installInteractions, createResultSharing, createSoloMusic,
     setTimeout: () => ++timerId, clearTimeout() {}, requestAnimationFrame: callback => {nextFrame = callback;},
     createScene: () => ({ready: Promise.resolve(artResult), update() {}, retryAssets: () => Promise.resolve({ok: true})}),
     createSignaling:({onStatus})=>{let key=null;return{connect:async(next,retry=false)=>{if(key!==next||retry){key=next;signalJoins++;onStatus({state:'connected'});}return true;},leave:async()=>{key=null;signalLeaves++;onStatus({state:'idle'});},pulse:version=>signalPulses.push(version)};},
