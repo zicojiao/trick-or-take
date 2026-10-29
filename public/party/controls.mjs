@@ -8,7 +8,9 @@ export function createHoldInput() {
     get held() {return pointer !== null || space;},
     get pointerId() {return pointer;},
     pressPointer(id, isPrimary = true) {
-      if (isPrimary !== true || pointer !== null || !Number.isSafeInteger(id) || id < 0) return false;
+      // Touch.identifier is signed. Safari's randomized 32-bit IDs can be
+      // negative; null alone means that no pointer/touch owns this action.
+      if (isPrimary !== true || pointer !== null || !Number.isSafeInteger(id)) return false;
       pointer = id;
       return true;
     },

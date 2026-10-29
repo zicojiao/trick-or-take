@@ -601,9 +601,9 @@ test('the language picker keeps invitation links and uses the shared language re
 });
 
 
-test('native touch holds collect candy and only the owning finger can release', async () => {
+for (const touchId of [0,42,-1,-2147483648,2147483647]) test(`native touch ${touchId} collects candy and only its owner can release`, async () => {
   const app = harness({touchDevice:true}); await app.solo();
-  const button = app.element('hold-button'), finger = {identifier:42};
+  const button = app.element('hold-button'), finger = {identifier:touchId};
   button.dispatch('pointerdown', {pointerType:'touch',pointerId:9});
   button.dispatch('touchstart', {touches:[finger],changedTouches:[finger]});
   app.advance(300);
@@ -619,9 +619,9 @@ test('native touch holds collect candy and only the owning finger can release', 
   assert.equal(app.element('banked-score').textContent, banked);
 });
 
-test('touch-only canvas input releases on cancellation and focus loss', async () => {
+for (const touchId of [7,-2147483648]) test(`touch-only canvas ${touchId} releases on cancellation and focus loss`, async () => {
   const app = harness({touchDevice:true}); await app.solo();
-  const canvas = app.element('party-canvas'), button = app.element('hold-button'), finger = {identifier:7};
+  const canvas = app.element('party-canvas'), button = app.element('hold-button'), finger = {identifier:touchId};
   canvas.dispatch('touchstart', {touches:[finger],changedTouches:[finger]});
   assert.equal(button.dataset.held, 'true');
   app.window.dispatch('touchcancel', {changedTouches:[finger]});

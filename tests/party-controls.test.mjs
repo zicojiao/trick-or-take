@@ -51,9 +51,22 @@ test('clearing on blur releases both owners and stale releases cannot affect a n
   input.clear(); input.clear(); assert.equal(input.held, false);
 });
 
+test('signed touch IDs keep ownership until that same finger releases', () => {
+  const input = createHoldInput();
+  assert.equal(input.pressPointer(-2147483648), true);
+  assert.equal(input.held, true);
+  assert.equal(input.releasePointer(2147483648), false);
+  assert.equal(input.pressPointer(-1), false);
+  assert.equal(input.releasePointer(-2147483648), true);
+  assert.equal(input.held, false);
+  assert.equal(input.pressPointer(-1), true);
+  input.clear();
+  assert.equal(input.held, false);
+});
+
 test('invalid pointer identifiers do not acquire input ownership', () => {
   const input = createHoldInput();
-  for (const id of [null, undefined, NaN, Infinity, -Infinity, -1, 1.5, '1']) {
+  for (const id of [null, undefined, NaN, Infinity, -Infinity, Number.MAX_SAFE_INTEGER + 1, Number.MIN_SAFE_INTEGER - 1, 1.5, '1']) {
     assert.equal(input.pressPointer(id), false);
     assert.equal(input.releasePointer(id), false);
   }
