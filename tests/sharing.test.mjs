@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {inflateSync} from 'node:zlib';
 import {createResultSharing} from '../public/party/sharing.mjs';
 import {renderOgPng,encodePng} from '../server/og-image.mjs';
-import {shareMeta} from '../public/party/share-meta.mjs';
+import {shareMeta,sharePost} from '../public/party/share-meta.mjs';
 import {shareDestinations,SOCIAL_PLATFORMS} from '../public/party/share-destinations.mjs';
 import {sharingCopy} from '../public/party/sharing-copy.mjs';
 import {SUPPORTED_LANGS} from '../public/party/locale.mjs';
@@ -28,9 +28,9 @@ test('sharing requires a click, prepares a verified link and opens native share 
 });
 test('a challenge loads only public fields and passes its verified result on explicit accept',async()=>{
  const h=setup('?result='+'a'.repeat(24)+'&lang=en');await Promise.resolve();await Promise.resolve();
- assert.equal(h.chosen,undefined);assert.equal(h.el('challenge-banner').hidden,false);assert.match(h.doc.title,/3 treats/);
+ assert.equal(h.chosen,undefined);assert.equal(h.el('challenge-banner').hidden,false);assert.match(h.doc.title,/3 candies stolen/);
  h.el('challenge-accept').events.click();assert.equal(h.chosen.difficulty,'hard');
- h.doc.title='generic';h.controller.refresh();assert.match(h.doc.title,/3 treats/);
+ h.doc.title='generic';h.controller.refresh();assert.match(h.doc.title,/3 candies stolen/);
  h.setContext({lang:'zh',key:'run:zh'});assert.match(h.doc.title,/3 颗糖/);assert.match(h.el('meta-og-image-alt').content,/单人挑战/);assert.doesNotMatch(h.el('meta-og-image-alt').content,/困难/);
 });
 test('social previews are real 1200×630 PNG files with distinct verified scores and localized labels',async()=>{
@@ -120,4 +120,18 @@ test('social URLs encode localized challenge text and never contain game credent
 test('native cancellation is quiet and never reports a completed share',async()=>{
  const h=setup('',{nav:{share:()=>Promise.reject(Object.assign(new Error(),{name:'AbortError'}))}});await h.controller.prepare();h.el('share-native').events.click();await flush();
  assert.match(h.el('share-status').textContent,/cancelled/);assert.equal(h.tracked.some(t=>t.event==='native_share_completed'),false);
+});
+
+test('share captions explain the Halloween candy game and keep a score, invitation and hashtags',()=>{
+ const result={score:123,mode:'solo'};
+ for(const lang of SUPPORTED_LANGS){
+  const meta=shareMeta(lang,result),post=sharePost(lang,result),links=shareDestinations(result,'https://trickortake.com/?result='+'a'.repeat(24),lang);
+  assert.match(meta.title,/123/);assert.match(meta.description,/60/);assert.match(post,/123/);assert.match(post,/Trick or Take/);assert.match(post,/#Halloween #HalloweenGame #TrickOrTake/);
+  assert.equal(new URL(links.x).searchParams.get('text'),post);assert.equal(new URL(links.telegram).searchParams.get('text'),post);
+  assert.match(new URL(links.whatsapp).searchParams.get('text'),/#Halloween/);
+ }
+ assert.match(shareMeta('en',result).description,/free Halloween candy-stealing game/);
+ assert.match(sharePost('en',result),/I stole 123 candies/);
+ assert.match(sharePost('zh',result),/万圣节偷糖小游戏/);
+ assert.ok([...sharePost('en',{score:999,mode:'online'})].length+24<280,'English caption leaves room for the shortened X link');
 });

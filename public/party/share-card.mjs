@@ -26,14 +26,14 @@ export async function drawShareCard(canvas,{result=null,lang='en',origin='https:
   // TRICK OR TAKE uses the same approved wordmark as the header.
   const [logo,icon]=await Promise.all([image(doc,new URL('./assets/wordmark-v3-ink.png',import.meta.url).href),image(doc,new URL('./assets/favicon.svg?v=3',import.meta.url).href)]);
   g.drawImage(icon,66,55,56,56);g.drawImage(logo,138,55,356,59);
-  text(lang==='zh'?'60 秒，按住偷糖，松手装乖。':'60 seconds. Hold, steal, look innocent.',68,137,25,'#746173');
+  text(lang==='zh'?'免费万圣节偷糖小游戏 · 60 秒挑战':'FREE HALLOWEEN CANDY GAME · 60 SECONDS',68,137,25,'#746173');
   box(572,183,560,305,30,'#e8ddf5');
   text(lang==='zh'?'偷偷到手的糖果':'TREATS SNEAKED',852,225,21,'#746173','Nunito','center');
   const heights=[239,263,243],xs=[137,292,445],feet=[490,494,499];
   for(let i=0;i<3;i++){const h=heights[i],w=h*f[i].w/f[i].h;g.beginPath();g.ellipse(xs[i],feet[i]-1,w*.34,9,0,0,Math.PI*2);g.fillStyle='#352b4225';g.fill();g.drawImage(img,f[i].x,f[i].y,f[i].w,f[i].h,xs[i]-w/2,feet[i]-h,w,h);}
   if(!blank){text(result?String(result.score):'?',852,335,152,'#7141d9','Fredoka','center');text(shareLabel(result,lang),852,440,28,'#533476','Nunito','center');}
   box(64,530,1072,56,14,'#9be0bb',true);
-  text(lang==='zh'?'你能超过这个成绩吗？':'Can you beat this?',88,558,28,'#193f2f');
+  text(lang==='zh'?'万圣节偷糖挑战，轮到你了！':'Your turn. Steal more candy!',88,558,28,'#193f2f');
   text(new URL(origin).host,1112,559,24,'#193f2f','Nunito','right');
   return canvas;
 }

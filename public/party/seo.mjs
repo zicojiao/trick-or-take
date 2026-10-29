@@ -4,11 +4,12 @@ import {shareMeta, challengeUrl} from './share-meta.mjs';
 
 export const SITE_ORIGIN = 'https://trickortake.com';
 export const OG_VERSION = '3';
+const RESULT_OG_VERSION = '4';
 
 export function ogImageUrl(origin = SITE_ORIGIN, lang = 'en', resultId = 'default') {
   const url = new URL(`/og/${resultId || 'default'}.png`, origin);
   url.searchParams.set('lang', lang === 'zh' ? 'zh' : 'en');
-  url.searchParams.set('v', OG_VERSION);
+  url.searchParams.set('v', resultId === 'default' ? OG_VERSION : RESULT_OG_VERSION);
   return url.href;
 }
 

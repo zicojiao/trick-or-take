@@ -1,7 +1,7 @@
 import {publicUrl, SUPPORTED_LANGS} from './locale.mjs';
 import {ogImageUrl} from './seo.mjs';
 import {shareCardBlob} from './share-card.mjs';
-import {shareMeta,shareLabel,challengeUrl} from './share-meta.mjs';
+import {shareMeta,shareLabel,sharePost,challengeUrl} from './share-meta.mjs';
 import {sharingCopy} from './sharing-copy.mjs';
 import {SOCIAL_PLATFORMS,shareDestinations} from './share-destinations.mjs';
 
@@ -120,7 +120,7 @@ export function createResultSharing({document:doc,nav,origin,search,getContext,r
   });
   $('share-native').addEventListener('click',()=>{
     const s=state;if(!s.result||!nav.share)return;
-    const m=shareMeta(lang(),s.result),payload={title:m.title,text:m.title,url:s.url};
+    const m=shareMeta(lang(),s.result),payload={title:m.title,text:sharePost(lang(),s.result),url:s.url};
     try{if(s.file&&nav.canShare?.({files:[s.file]}))payload.files=[s.file];}catch{}
     // Call directly in the click: no await before Safari's native share sheet.
     try{
