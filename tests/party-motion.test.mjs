@@ -1,0 +1,77 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {stepThiefPose} from '../public/party/motion.mjs';
+
+const neutral={phase:0,bob:0,lean:0,stretch:1,frame:0,frozen:false,hasMoved:false};
+const idle=(hasMoved=false)=>({...neutral,frame:3,frozen:true,hasMoved});
+const move=(previous,options={})=>stepThiefPose(previous,{active:true,stealing:true,dt:.04,speed:8,...options});
+
+test('every release returns to innocent artwork immediately, regardless of the homeowner',()=>{
+  for(const attention of ['away','warning','watching']){
+    let moving=move(null);for(let i=0;i<8;i++)moving=move(moving);
+    const original=structuredClone(moving);Object.freeze(moving);
+    let stopped=stepThiefPose(moving,{active:true,stealing:false,attention,dt:.016});
+    assert.deepEqual(stopped,idle(true));assert.deepEqual(moving,original);
+    for(const dt of [.016,.05,10,0])stopped=stepThiefPose(stopped,{active:true,stealing:false,attention,dt});
+    assert.deepEqual(stopped,idle(true),'idle cannot keep a candy-holding drawing or moving transform');
+  }
+});
+
+test('a player who has not stolen anything also uses the innocent pose',()=>{
+  assert.deepEqual(stepThiefPose(null,{active:true,stealing:false}),idle());
+  assert.deepEqual(stepThiefPose({phase:NaN},{active:true,stealing:false}),idle());
+});
+
+test('each thief owns independent motion state',()=>{
+  const first=move(null,{dt:.02}),second=move(null,{dt:.04}),saved=structuredClone(second);
+  assert.deepEqual(stepThiefPose(first,{active:true,stealing:false}),idle(true));
+  const advanced=move(second);assert.deepEqual(second,saved);assert.ok(advanced.phase>second.phase);
+});
+
+test('pressing again leaves the innocent pose and restarts stealing, including while watched',()=>{
+  const released=stepThiefPose(move(null),{active:true,stealing:false});
+  assert.deepEqual(move(released,{dt:0}),{...neutral,frame:1,hasMoved:true});
+  assert.equal(move(released,{attention:'watching'}).frame,1,'the expression never locks player input');
+});
+
+test('both stealing drawings turn innocent on release',()=>{
+  let pose=null;const drawings=new Set();
+  for(let i=0;i<20;i++){
+    pose=move(pose,{dt:.05,speed:8});drawings.add(pose.frame);
+    assert.deepEqual(stepThiefPose(pose,{active:true,stealing:false}),idle(true));
+  }
+  assert.deepEqual(drawings,new Set([1,2]));
+});
+
+test('a catch takes priority; recovering without an input returns to innocent',()=>{
+  for(const previous of [move(null),idle(true)]){
+    const caught=move(previous,{caught:true});assert.deepEqual(caught,neutral);
+    assert.deepEqual(stepThiefPose(caught,{active:true,stealing:false,caught:true}),neutral);
+    assert.deepEqual(stepThiefPose(caught,{active:true,stealing:false}),idle());
+  }
+});
+
+test('leaving a round clears pose history before the next idle or steal',()=>{
+  const ended=move(move(null),{active:false});assert.deepEqual(ended,neutral);
+  assert.deepEqual(stepThiefPose(ended,{active:true,stealing:false}),idle());
+  assert.deepEqual(move(ended),move(undefined));
+});
+
+test('reduced motion changes artwork on press and release without bob, lean or stretch',()=>{
+  let pose=move(null,{reduced:true});for(let i=0;i<20;i++)pose=move(pose,{reduced:true});
+  assert.deepEqual(pose,{...neutral,frame:1,hasMoved:true});
+  assert.deepEqual(stepThiefPose(pose,{active:true,stealing:false,reduced:true,dt:50}),idle(true));
+  const changed=move(move(null),{reduced:true});
+  assert.equal(changed.bob,0);assert.equal(changed.lean,0);assert.equal(changed.stretch,1);
+});
+
+test('invalid or stalled frame times cannot poison or jump the visual pose',()=>{
+  const previous=move(null);
+  for(const dt of [-1,NaN,Infinity,-Infinity,'1'])assert.deepEqual(move(previous,{dt}),previous);
+  assert.deepEqual(move(previous,{dt:1e300}),move(previous,{dt:.05}));
+  for(const speed of [-1,NaN,Infinity,-Infinity,1e300]){
+    const pose=move(previous,{speed});
+    for(const key of ['phase','bob','lean','stretch'])assert.equal(Number.isFinite(pose[key]),true);
+    assert.ok(Math.abs(pose.bob)<=.03&&Math.abs(pose.lean)<=.1&&pose.stretch>.9&&pose.stretch<1.1);
+  }
+});
