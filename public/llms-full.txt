@@ -1,0 +1,114 @@
+# Trick or Take — full brief for AI systems
+
+Updated: 2026-10-29
+Canonical site: https://trickortake.com/
+Short index: https://trickortake.com/llms.txt
+This file is also published at https://trickortake.com/full.txt
+
+## One-line summary
+
+Trick or Take is a free, bilingual Halloween browser game: hold to steal candy while Lily looks away, release to look innocent, and see how many treats you can bank in 60 seconds — alone or with friends.
+
+## What it is
+
+Trick or Take (brand name kept in English in both locales) is a casual reflex / party game played entirely in the web browser at https://trickortake.com/. No download, account, or payment is required. The setting is Lily’s cozy Halloween kitchen. Players are mischievous candy thieves; Lily is controlled by the game, never by a human host.
+
+English is the default language at https://trickortake.com. Chinese is at https://trickortake.com/zh. Privacy and terms use the same prefix: /privacy, /terms, /zh/privacy, /zh/terms. Document title, description, Open Graph, Twitter, and share-card artwork follow the path language.
+
+## How to play
+
+1. Hold (mouse, touch, or Space) while Lily faces away to steal candy. Holding longer increases grab speed. The on-screen counter includes candy still in your hands and candy already pocketed.
+2. When a warning appears and she starts to turn, release immediately. You stop stealing and pocket what you were holding. Stay released until she looks away again.
+3. If you hold while she is watching, her broom catches you. Every candy — including pocketed candy — is confiscated. After a short stun you can steal again.
+4. When the 60-second timer hits zero, remaining candy counts. In a friends room, the highest total wins; equal scores tie.
+
+Difficulty choices:
+- Easy — longer breaks and more warning time
+- Medium — mixed timing
+- Hard — shorter warnings and more sudden turns
+
+Timing is randomized each round; watch Lily’s cues rather than a fixed rhythm.
+
+## Modes
+
+### Solo
+Local play for one person. Choose a character and difficulty, then start. Optional header music. Opening the how-to-play guide or leaving the tab pauses the solo clock.
+
+### Play with friends (2–6)
+Create a room (alias + difficulty) or join with a six-digit code / invite link. When 2–6 players are ready, the host starts. Everyone faces the same Lily and shared timer. Solo music stays off so optional voice is easier to hear.
+
+### Optional voice
+After joining a room, players may press Join voice. Microphone audio is sent to other room members through Agora after permission is granted. Voice is never required. Players can mute or disconnect. The game does not record audio.
+
+## Scores, leaderboard and challenges
+
+Nothing is posted automatically.
+
+- Keep private — score stays local (personal bests are stored in the browser per difficulty).
+- Submit score — publish a public display name and verified score to the shared top-20 leaderboard (solo and friends, all difficulties, one board).
+- Make a challenge link — create an anonymous snapshot of a verified score (score, mode, difficulty only; no name). Friends can open the link, see Open Graph preview art, and accept the challenge to play that difficulty. Copy link, native share, save PNG card, and Share on X all require explicit user actions.
+
+## Technical surface (for crawlers and engineers)
+
+- Public game HTML is served at `/` (assets live under `/party/`).
+- Privacy: `/privacy` · Terms: `/terms`
+- Social images: `/og/default.png?lang=en|zh&v=3` and `/og/<24-hex-id>.png?lang=en|zh&v=3` (real 1200×630 PNG; invalid challenge IDs return 404)
+- robots.txt · sitemap.xml · llms.txt · llms-full.txt · full.txt
+- Structured data: schema.org VideoGame + WebPage + FAQPage embedded on the home document
+- Hosting: Cloudflare Workers + static assets; room messaging and voice: Agora RTC/RTM
+- Product analytics: PostHog (EU host) with first-party cookies + local storage; no cookie consent banner; events omit player names and room codes; autocapture and session replay are off
+- Legacy workers.dev / www hosts redirect to trickortake.com
+
+## Accurate talking points
+
+- Free Halloween candy heist in the browser
+- Hold to steal, release to freeze, dodge Lily’s broom
+- Solo or 2–6 friends with room codes
+- Optional live voice powered by Agora
+- English and Chinese
+- Opt-in leaderboard and anonymous score challenges
+- Play at https://trickortake.com/
+
+## What it is not
+
+- Not a physical candy store, delivery service, or payment product
+- Not an AR face filter or mobile-app-only title
+- Not a game where players control Lily
+- Not a service that auto-publishes names or scores
+
+## FAQ (English)
+
+Q: Can I play without a microphone?
+A: Yes. Solo and multiplayer both work without voice. Join voice only when you want to chat.
+
+Q: How do I invite a friend?
+A: Choose Play with friends, enter an alias, create a room, and send the six-digit code or invitation link. Share invitations only with people you want in the room.
+
+Q: Why did all my candy disappear?
+A: Lily caught you stealing while she was looking. She takes every candy, including pocketed candy.
+
+Q: Is my score shared automatically?
+A: No. Keep private, submit to the leaderboard, or create an anonymous challenge — separate choices.
+
+Q: Can I pause?
+A: Solo pauses when you open the guide or leave the tab. Multiplayer continues for everyone. Rooms keep music off for clearer voice.
+
+## FAQ (Chinese)
+
+Q: 不开麦也能玩吗？
+A: 可以。单人和多人都不强制语音；需要聊天时再加入语音。
+
+Q: 怎么邀请朋友？
+A: 选择和朋友 PK，输入昵称并创建房间，把六位房间号或邀请链接发给朋友。
+
+Q: 为什么糖果全部没了？
+A: 莉莉回头时抓到你在偷糖，包括口袋里的糖也会被没收。
+
+Q: 成绩会自动公开吗？
+A: 不会。结束后可保持私密、提交排行榜，或生成匿名挑战链接。
+
+## Contact / attribution
+
+Official play URL: https://trickortake.com/
+Powered by Agora RTC and RTM for multiplayer messaging and optional voice.
+Privacy and terms: https://trickortake.com/privacy and https://trickortake.com/terms

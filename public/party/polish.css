@@ -1,0 +1,74 @@
+/* Both setup choices share a label baseline and a 52px control row. */
+.game-dock .character-select .character-options,.game-dock .character-select .difficulty-control{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;max-width:none}
+.game-dock .character-select h2,.game-dock .character-select .difficulty-control>.dock-label{display:block;margin:0;font:800 12px/18px Nunito,sans-serif;letter-spacing:.3px;text-transform:none;color:#655167;white-space:nowrap}
+.game-dock .character-select .difficulty-options{height:52px;padding:3px;align-items:stretch}
+.game-dock .character-select .difficulty-button{min-height:0;padding:6px 12px;font-size:12px}
+.game-dock .character-select .avatar-choice,.game-dock .character-select .avatar-placeholder{height:52px}
+@media(min-width:901px){
+ body[data-view=home] .game-dock{grid-template-columns:max-content minmax(180px,1fr) max-content;gap:24px}
+ body[data-view=home] .game-dock>.character-select{display:grid;grid-template-columns:max-content max-content;align-items:start;gap:24px}
+ body[data-view=home] .game-dock .main-action{width:100%;max-width:430px;margin-inline:auto}
+}
+@media(max-width:900px) and (min-width:701px){.game-dock>.character-select{gap:12px}}
+@media(max-width:700px){
+ .game-dock>.character-select{gap:14px}
+ .game-dock .character-select .difficulty-control{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;gap:8px}
+ .game-dock .character-select .difficulty-button{flex:1;padding:6px 8px}
+ .game-dock .character-select .difficulty-options{min-width:0}
+}
+/* Keep urgency local to the timer; never flash or shake the whole game. */
+#match-timer{min-width:100px;transform-origin:top right;transition:background .25s,border-color .25s,color .25s}
+#match-timer strong{font-variant-numeric:tabular-nums;min-width:2ch;text-align:center}
+#match-timer[data-urgency=soon],#match-timer[data-urgency=final]{background:#ffdf95;border-color:#ab551c;color:#81370f;box-shadow:0 0 0 4px #ffc05b44,2px 3px 0 #352b4259}
+#match-timer[data-urgency=final]{background:#ffe1cb;border-color:#b03931;color:#a1262c;box-shadow:0 0 0 5px #e7866f55,2px 3px 0 #352b4259}
+#match-timer:not([data-urgency=normal]) strong{animation:timer-heartbeat 1s ease-in-out infinite}
+#match-timer[data-urgency=final] strong{animation-duration:.65s}
+#match-timer[data-paused=true] strong{animation-play-state:paused}
+#match-timer:not([data-urgency=normal]) small{color:inherit}
+@keyframes timer-heartbeat{0%,100%{transform:scale(1.12)}35%{transform:scale(1.32)}}
+@media(max-width:700px){#match-timer{min-width:78px}}
+/* iPhone portrait, including 15 Pro at 393px: logo left, Agora credit on the same row. */
+@media(max-width:700px){
+ .app-shell{width:calc(100% - 8px - env(safe-area-inset-left) - env(safe-area-inset-right));padding-top:env(safe-area-inset-top)}
+ .topbar{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;height:auto;min-height:44px;gap:4px;padding-block:6px}
+ .header-identity{display:flex;flex:1 1 auto;flex-direction:row;align-items:center;justify-content:flex-start;min-width:0;gap:4px}
+ .topbar .brand{flex:none;min-width:max-content;gap:4px}
+ .topbar .brand-icon{width:26px;height:26px;border-width:1.5px;border-radius:8px;box-shadow:none}
+ .topbar .brand-icon svg{width:16px;height:16px}
+ .topbar .brand strong,html[lang=en] .topbar .brand strong{font-size:13px;letter-spacing:-.6px;white-space:nowrap}
+ .topbar .agora-credit{margin-left:auto;flex:none;gap:3px;font-size:10px;line-height:1}
+ .topbar .agora-credit img{width:44px;height:16px}
+ .topbar .agora-credit strong{font-size:9px;letter-spacing:-.3px}
+ .topbar .tools{flex:none;margin-left:2px;gap:2px}
+ .topbar .tools .icon-button{width:24px;min-width:24px;height:30px;min-height:30px}
+ .topbar .language-button{width:auto;min-width:28px;padding:0 4px;font-size:10px}
+}
+@media(max-width:380px){
+ .topbar .agora-credit strong{display:none}
+ .topbar .agora-credit img{width:58px;height:20px}
+}
+@media(prefers-reduced-motion:reduce){#match-timer:not([data-urgency=normal]) strong{animation:none;transform:scale(1.16)}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+body[data-view=home] .game-dock .character-select :is(h2,.difficulty-control>.dock-label){font:800 12px/18px Nunito,sans-serif;letter-spacing:.3px;text-transform:none;color:#655167;margin:0}
+
+/* Keep the public name editable while giving the dice a clear tap target. */
+.publish-card .publish-name-row{display:flex;align-items:center;gap:9px}
+.publish-card .publish-name-row input{width:0;min-width:0;flex:1}
+.publish-card .publish-name-row .random-name{width:46px;height:46px;flex:none}
+
+/* One-shot finale: flowers and candy burst over the kitchen, never block taps. */
+.finale{position:absolute;inset:0;z-index:12;overflow:hidden;pointer-events:none}
+.finale span{position:absolute;left:50%;top:38%;font-size:18px;line-height:1;animation:finale-scatter 3.3s cubic-bezier(.12,.72,.28,1) forwards;will-change:transform,opacity}
+@keyframes finale-scatter{
+  0%{transform:translate(-50%,-50%) scale(.35) rotate(0deg);opacity:0}
+  14%{opacity:1}
+  100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--spin)) scale(1);opacity:0}
+}
+body[data-view=finished] .result-medal{animation:finale-medal .62s cubic-bezier(.18,1.35,.32,1) both}
+body[data-view=finished] .result-score strong{display:inline-block;animation:finale-score .48s .1s cubic-bezier(.2,1.45,.36,1) both}
+@keyframes finale-medal{0%{transform:scale(.25) rotate(-16deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes finale-score{0%{transform:scale(.62)}58%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){
+  .finale{display:none!important}
+  body[data-view=finished] .result-medal,body[data-view=finished] .result-score strong{animation:none}
+}

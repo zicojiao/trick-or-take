@@ -1,0 +1,141 @@
+/* Mobile-first room flow and explicit, keyboard-accessible choice styling. */
+.choice-group{display:flex;gap:5px;min-width:0;padding:4px;background:#f0e8da;border:1px solid #d2c4b0;border-radius:11px}
+.choice-option,.difficulty-button{appearance:none;-webkit-appearance:none;background:transparent;border:1px solid transparent;border-radius:7px;min-height:40px;padding:9px 12px;font:800 12px Nunito,sans-serif;color:#625668;transition:background .12s,border-color .12s,box-shadow .12s}
+.choice-option{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.choice-option::before{content:"";display:block;width:13px;height:13px;border:1.5px solid #b6a6be;border-radius:50%;background:#fffdf6;flex:none;box-sizing:border-box}
+.choice-option[aria-checked=true]{background:#fffaf0;border-color:#b29aca;color:#533476;box-shadow:0 1px 3px #352b421a}
+.choice-option[aria-checked=true]::before{border:4px solid #7141d9}
+.choice-option:hover:not(:disabled){background:#fffaf0}
+.choice-option:focus-visible,.difficulty-button:focus-visible{outline:3px solid #9e77ed;outline-offset:2px}
+.mode-switch button[aria-pressed=false]{background:transparent;box-shadow:none}
+.difficulty-options.choice-group{gap:3px}
+.difficulty-button[aria-checked=true]{background:#7141d9;color:white;border-color:#6538c9;box-shadow:0 1px 3px #43258040}
+.board-filters{display:flex;flex-direction:column;gap:16px}
+.board-filter>span{display:block;font-size:10px;letter-spacing:.6px;font-weight:800;color:#746173;margin-bottom:7px}
+.board-filter .choice-option{min-height:44px;font-size:12px}
+.invite-link{width:100%;margin:0 0 6px;gap:8px}
+.invite-link svg{width:17px;height:17px}
+.invite-status{font-size:11px;line-height:1.5;min-height:0;margin:4px 0 10px;color:#386a4e}
+.invite-status:empty{display:none}
+.join-label{margin-top:17px}
+.room-invite .icon-button{width:40px;height:40px}
+body[data-entry=join] .create-button{background:#fff8e5;color:#67516c;box-shadow:none;border-color:#c4b29a}
+body[data-entry=join] .join-row .small-button{background:#ffc247;border-color:#352b42;color:#352b42;box-shadow:0 3px 0 #352b42}
+
+@media(max-width:700px){
+  html{scroll-padding-bottom:110px}
+  button,a,input{ -webkit-tap-highlight-color:transparent }
+  input,textarea{font-size:16px!important}
+  .topbar{height:61px}
+  .tools .icon-button{width:36px;min-height:36px}
+  .game-heading{gap:12px;padding-bottom:12px}
+  .game-heading .eyebrow{font-size:7px}
+  html[lang=en] .game-heading h1{font-size:25px}
+  .mode-switch button{min-height:44px}
+  .choice-option,.difficulty-button{min-height:40px;font-size:11px;padding:8px 10px}
+  .challenge-toolbar>.small-button{min-height:44px}
+  .character-select{box-shadow:none;border:1px solid #d2c4b0}
+  body[data-mode=online][data-view=home] .character-select{padding:11px 10px 13px}
+  body[data-mode=online][data-view=home] .character-select h2{font-size:16px}
+  body[data-mode=online][data-view=home] .character-select .avatar-choice{height:94px}
+  body[data-mode=online][data-view=home] .character-select .avatar-sprite{width:46px;height:46px}
+  body[data-mode=online][data-view=home][data-entry=join] .game-heading,
+  body[data-mode=online][data-view=home][data-entry=join] .challenge-toolbar,
+  body[data-mode=online][data-view=home][data-entry=join] .create-button{display:none}
+  body[data-mode=online][data-view=home][data-entry=join] .character-select{margin-top:14px}
+  body[data-mode=online][data-view=home] .stage,
+  body[data-view=lobby] .stage,body[data-view=finished] .stage{height:auto!important;min-height:0!important;max-height:none;display:flex;flex-direction:column;background:#fff8e5}
+  body[data-mode=online][data-view=home] .stage>:not(#online-panel):not(#loading-overlay),
+  body[data-view=lobby] .stage>:not(#lobby-panel):not(#loading-overlay),
+  body[data-view=finished] .stage>:not(#result-panel):not(#finale){display:none!important}
+  body[data-mode=online][data-view=home] .online-panel,
+  body[data-view=lobby] .lobby-panel,body[data-view=finished] .result-panel{position:static;inset:auto;transform:none;width:100%;max-width:none;max-height:none;overflow:visible;box-sizing:border-box;padding:20px 18px;border:0;border-radius:0;box-shadow:none;background:#fffaf0}
+  body[data-mode=online][data-view=home] .loading-overlay,
+  body[data-view=lobby] .loading-overlay{position:static;inset:auto;min-height:0;padding:12px;gap:7px;background:#fff8e5;flex-direction:row}
+  body[data-mode=online][data-view=home] .loading-overlay strong,
+  body[data-view=lobby] .loading-overlay strong{font-size:11px}
+  body[data-mode=online][data-view=home] .loader-candy,
+  body[data-view=lobby] .loader-candy{width:25px;height:25px}
+  .online-panel .panel-copy{font-size:12px;line-height:1.55;max-width:none;margin-bottom:18px;color:#746173}
+  .online-panel h2,.lobby-panel h2{font-size:25px!important;margin-bottom:10px}
+  .online-panel label{font-size:10px;color:#625668;margin-bottom:8px;letter-spacing:.5px}
+  .online-panel input{height:48px;padding:12px;border:1px solid #c5b7a6;border-radius:9px;background:#fffdf7;box-shadow:0 1px 2px #352b420a}
+  .random-name{width:48px;height:48px;border-width:1.5px;box-shadow:0 2px 0 #352b42}
+  .name-input-row{gap:8px}
+  .create-button{min-height:48px;margin-top:15px;font-size:14px;box-shadow:0 3px 0 #352b42}
+  .join-row{display:grid;grid-template-columns:minmax(0,1fr) 111px;gap:9px;margin-top:0}
+  .join-row .small-button{font-size:12px;min-height:48px;padding:10px;white-space:nowrap}
+  #code-input{letter-spacing:4px;font-weight:800}
+  .entry-error{font-size:12px;margin-top:14px}
+  body[data-mode=online][data-view=home] .game-dock,
+  body[data-mode=online][data-view=home] .under-stage,
+  body[data-view=lobby] .game-dock,body[data-view=lobby] .under-stage,
+  body[data-view=finished] .game-dock,body[data-view=finished] .under-stage{display:none}
+  body[data-view=lobby] .game-heading,body[data-view=lobby] .challenge-toolbar,
+  body[data-view=finished] .game-heading,body[data-view=finished] .challenge-toolbar{display:none}
+  .lobby-title-row{align-items:flex-start}
+  .room-count{font-size:17px;padding:8px 10px;color:#533476}
+  .room-invite{padding:14px;margin:6px 0 11px;gap:10px;border:1px solid #d2c4b0;background:#f5eedf}
+  .room-invite>div{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+  .room-invite small{font-size:10px;color:#746173}
+  .room-invite strong{font-size:31px;letter-spacing:5px;color:#533476;font-variant-numeric:tabular-nums}
+  .room-invite .icon-button{width:44px;height:44px;border:1px solid #c4b29a;flex-shrink:0}
+  .invite-link{min-height:44px;font-size:12px;margin-bottom:13px}
+  .invite-status{font-size:12px;margin:7px 0 12px}
+  .roster{grid-template-columns:1fr;gap:8px}
+  .roster-row{min-height:56px;padding:8px 10px;gap:10px;border:1px solid #e3d8c7;background:#fffdf6}
+  .roster-row .avatar-sprite{width:38px;height:38px}
+  .roster-name{font-size:13px;flex:1}
+  .roster-name small{font-size:10px;margin-top:3px}
+  .roster-state{font-size:11px;padding:4px 7px;border-radius:5px;background:#efe8dd;color:#746173;white-space:nowrap}
+  .roster-state[data-ready=true]{background:#def1e6;color:#245d46}
+  .remove-seat{font-size:11px;min-width:44px;min-height:44px}
+  .lobby-note{font-size:12px;line-height:1.6;margin:14px 0;color:#746173}
+  body[data-view=lobby]{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+  .lobby-actions{position:fixed;z-index:30;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));padding:10px;background:#fffaf0;border:1px solid #d2c4b0;border-radius:14px;box-shadow:0 -3px 24px #352b421a;gap:10px}
+  .lobby-actions>button{min-height:48px;font-size:13px}
+  .lobby-panel>#leave-button{min-height:44px;font-size:12px;margin:6px auto 0}
+  body[data-view=playing],body[data-view=countdown]{padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+  body[data-view=playing] .game-heading,body[data-view=countdown] .game-heading,
+  body[data-view=playing] .challenge-toolbar,body[data-view=countdown] .challenge-toolbar{display:none}
+  body[data-view=playing] .topbar,body[data-view=countdown] .topbar{height:55px}
+  body[data-view=playing] .stage,body[data-view=countdown] .stage{height:clamp(150px,calc(100dvh - 380px - env(safe-area-inset-bottom)),600px);min-height:0}
+  body[data-view=playing] .game-dock,body[data-view=countdown] .game-dock{padding:10px 13px 8px;gap:8px;grid-template-columns:minmax(0,1fr) auto}
+  body[data-view=playing] .game-dock .progress-block,body[data-view=countdown] .game-dock .progress-block{grid-column:1;grid-row:1}
+  body[data-view=playing] .game-dock .match-block,body[data-view=countdown] .game-dock .match-block,
+  body[data-view=playing] .game-dock .best-block,body[data-view=countdown] .game-dock .best-block{grid-column:2;grid-row:1}
+  body[data-view=playing] .action-wrap,body[data-view=countdown] .action-wrap{position:fixed;z-index:35;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));padding:0;border-radius:14px;background:#fff8e5;box-shadow:0 -4px 22px #352b421a}
+  .hold-action{min-height:70px;user-select:none;-webkit-user-select:none}
+  .hold-action strong{font-size:17px!important}
+  .hold-action small{font-size:11px!important;opacity:1}
+  .hold-action .button-candy{flex:none}
+  .hold-action kbd{display:none}
+  .progress-block .dock-label{font-size:9px}.progress-block p{font-size:10px;line-height:1.4}
+  .game-dock .dock-label{font-size:9px}
+  body[data-view=playing] .under-stage p,body[data-view=countdown] .under-stage p{display:none}
+  body[data-view=playing] .under-stage,body[data-view=countdown] .under-stage{justify-content:flex-end;padding:0 12px 4px;min-height:31px}
+  #exit-match{font-size:11px;min-height:36px}
+  .voice-bar{padding:12px;margin-top:12px;gap:9px;border-radius:12px;background:#f1e9f7;border:1px solid #c9b6da;box-shadow:0 2px 4px #352b420a}
+  .voice-copy strong{font-size:11px}.voice-copy>span{font-size:11px;line-height:1.5}
+  .voice-button{min-height:44px;font-size:12px;padding:9px 13px}
+  #voice-leave{min-height:44px;font-size:11px}
+  body[data-view=playing] .voice-copy strong,body[data-view=countdown] .voice-copy strong{display:none}
+  .result-panel h2{font-size:26px}.result-copy{font-size:12px;line-height:1.6}
+  .result-panel .result-medal{width:40px;height:40px}
+  .final-scores{grid-template-columns:1fr;gap:7px}
+  .final-row{min-height:44px;font-size:12px;padding:7px 10px}
+  .final-row .avatar-sprite{width:30px;height:30px}.final-row b{font-size:14px}
+  .publish-card{padding:14px;border:1px solid #c9b6da;background:#f1e9f7}
+  .publish-card>strong{font-size:14px}.publish-card p{font-size:12px;line-height:1.55}
+  .publish-card label{font-size:10px}.publish-card input{min-height:46px}
+  .publish-actions{gap:12px}.publish-actions .small-button,.publish-actions .text-button{min-height:44px;font-size:12px}
+  #again-button{min-height:48px;font-size:14px}#result-exit{min-height:44px;font-size:12px}
+  .leaderboard-dialog{max-height:calc(100dvh - 24px);padding:26px 18px 20px;border-radius:18px;border-width:1.5px;box-shadow:0 16px 64px #352b4240}
+  .leaderboard-dialog .close-button{min-width:36px;min-height:36px;font-size:23px}
+  .board-filters{gap:15px;margin:18px 0}
+  .board-filter .choice-option{padding:10px 7px;min-height:46px;font-size:12px}
+  .board-filter>span{font-size:10px}
+  .score-table{font-size:13px}.score-table th,.score-table td{padding:12px 7px}
+  #board-refresh{min-height:44px}
+  footer{font-size:8px;line-height:1.5}
+}

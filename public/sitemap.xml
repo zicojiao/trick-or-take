@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Trick or Take — canonical public pages for search and generative engines -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://trickortake.com</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://trickortake.com"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://trickortake.com/zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://trickortake.com"/>
+    <image:image>
+      <image:loc>https://trickortake.com/og/default.png?lang=en&amp;v=3</image:loc>
+      <image:title>Trick or Take · Halloween candy game</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trickortake.com/zh</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://trickortake.com"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://trickortake.com/zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://trickortake.com"/>
+    <image:image>
+      <image:loc>https://trickortake.com/og/default.png?lang=zh&amp;v=3</image:loc>
+      <image:title>Trick or Take · 万圣节偷糖挑战</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trickortake.com/privacy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://trickortake.com/privacy"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://trickortake.com/zh/privacy"/>
+  </url>
+  <url>
+    <loc>https://trickortake.com/zh/privacy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://trickortake.com/privacy"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://trickortake.com/zh/privacy"/>
+  </url>
+  <url>
+    <loc>https://trickortake.com/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://trickortake.com/terms"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://trickortake.com/zh/terms"/>
+  </url>
+  <url>
+    <loc>https://trickortake.com/zh/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://trickortake.com/terms"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://trickortake.com/zh/terms"/>
+  </url>
+  <url>
+    <loc>https://trickortake.com/llms.txt</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://trickortake.com/llms-full.txt</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://trickortake.com/full.txt</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+</urlset>

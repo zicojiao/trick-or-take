@@ -1,0 +1,60 @@
+.play-column{min-width:0}
+.desktop-board{display:none}
+@media(min-width:701px){
+  .app-shell{max-width:1400px;width:calc(100% - 48px)}
+  .topbar{height:66px}
+  .setup-panel{padding:12px 0 14px}
+  .game-heading{padding:0 2px 12px;gap:14px;align-items:center}
+  .game-heading h1,html[lang=en] .game-heading h1{font-size:26px;letter-spacing:-.6px}
+  .game-heading .eyebrow{font-size:8px;margin-bottom:5px;letter-spacing:.8px}
+  .mode-switch button{padding:11px 12px;font-size:11px}
+  .challenge-toolbar{justify-content:flex-start;margin:0 2px 12px;gap:12px}
+  .difficulty-control{gap:10px}.difficulty-hint{font-size:10px}
+  .difficulty-button{min-height:36px;padding:7px 12px}
+  .character-select{padding:10px 12px;border-radius:13px;margin:0;box-shadow:none;border-width:1px}
+  .character-select h2{font-size:13px;margin:0 0 7px}
+  .character-select .avatar-picker{gap:8px}
+  .character-select .avatar-choice{height:64px;min-height:0;padding:6px 12px;grid-template-columns:44px 1fr;grid-template-rows:1fr 1fr;column-gap:9px;border-radius:9px;box-shadow:0 2px 0 #bfa98e}
+  .character-select .avatar-sprite{width:42px;height:46px;grid-row:1/3}
+  .character-select .avatar-name{font-size:12px}.character-select .avatar-state{font-size:9px;padding:2px 5px}
+  .stage,body[data-mode=solo][data-view=home] .stage{height:clamp(280px,calc(100dvh - 455px),500px);min-height:0}
+  .game-dock{padding:12px 16px 10px;gap:16px;grid-template-columns:minmax(0,1fr) minmax(240px,330px) auto}
+  .game-dock .main-action{min-height:60px;gap:12px}.main-action strong{font-size:17px}
+  .under-stage{min-height:30px;padding:0 16px 7px;font-size:9px}
+  .voice-bar{margin-top:12px;padding:10px 14px}
+  footer{min-height:34px;padding:12px 3px;font-size:9px}
+  body[data-view=playing] .setup-panel,body[data-view=countdown] .setup-panel{display:none}
+  body[data-view=playing] .stage,body[data-view=countdown] .stage{height:clamp(340px,calc(100dvh - 255px),660px)}
+}
+@media(min-width:1100px){
+  .desktop-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+  .desktop-board{display:block;position:sticky;top:16px;margin-top:12px;padding:18px;background:#fffaf0;border:1.5px solid #ad947e;border-radius:16px;box-shadow:0 3px 0 #d1bda2;max-height:calc(100dvh - 100px);overflow:auto;scrollbar-width:thin}
+  #board-content>.eyebrow{font-size:8px;letter-spacing:.6px;margin-bottom:7px}
+  #board-content>h2{font:600 25px Fredoka,sans-serif;margin:0 0 10px;letter-spacing:-.5px}
+  #board-content .board-note{font-size:11px;line-height:1.6;margin:0;color:#746173}
+  #board-content .board-filters{gap:11px;margin:17px 0 12px}
+  #board-content .board-filter>span{font-size:9px;margin-bottom:5px}
+  #board-content .choice-group{gap:2px;padding:3px}
+  #board-content .choice-option{min-height:36px;padding:7px 5px;font-size:10px;gap:5px}
+  #board-content .choice-option:before{width:11px;height:11px}
+  #board-content .score-table{font-size:12px;width:100%;margin:10px 0}
+  #board-content .score-table td,#board-content .score-table th{padding:10px 5px}
+  #board-content #board-status{font-size:11px;line-height:1.6;color:#746173}
+  #board-content #board-refresh{min-height:38px;font-size:11px;width:100%}
+  #leaderboard-button{display:none}
+  .difficulty-hint{max-width:230px}
+}
+
+@media(min-width:701px){
+  body[data-view=finished] .setup-panel{display:none}
+  body[data-view=finished] .game-dock,body[data-view=finished] .under-stage{display:none}
+}
+.welcome-sticker{display:none!important}
+@media(min-width:1100px){
+  #board-content .score-table{table-layout:fixed}
+  #board-content .score-table th:first-child{width:42px}
+  #board-content .score-table th:last-child{width:58px}
+  #board-content .score-table td:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+/* Incoming challenges belong to setup; keep the live scene and controls clear. */
+body[data-view=playing] .setup-panel,body[data-view=countdown] .setup-panel,body[data-view=finished] .setup-panel{display:none}

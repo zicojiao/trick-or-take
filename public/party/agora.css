@@ -1,0 +1,37 @@
+.header-identity{display:flex;align-items:center;gap:24px;min-width:0}
+.agora-credit{display:inline-flex;align-items:center;gap:8px;color:#746173;font:700 14px Nunito,sans-serif;text-decoration:none;white-space:nowrap;border-radius:4px}
+.agora-credit img{display:block;width:88px;height:30px;object-fit:contain;transform:translateY(2px)}
+.agora-credit strong{font-size:13px;font-weight:800;color:#087bc1;letter-spacing:.2px}
+.agora-credit:hover{color:#432580}.agora-credit:focus-visible{outline:2px solid #7141d9;outline-offset:4px}
+@media(max-width:900px){.header-identity{flex-direction:row;align-items:center;gap:10px;min-width:0}}
+@media(max-width:700px){
+ .header-identity .brand-spark{display:none}
+ .agora-credit{gap:4px;font-size:11px}.agora-credit img{width:58px;height:20px;transform:translateY(1px)}.agora-credit strong{font-size:10px}
+}
+@media(max-width:360px){.header-identity .brand{gap:6px}.header-identity .brand-icon{width:30px;height:32px}.header-identity .brand strong,html[lang=en] .header-identity .brand strong{font-size:16px}.header-identity .brand small{font-size:6px}.tools{gap:4px}.tools .icon-button{width:32px;min-width:32px}.tools .language-button{padding:3px}}
+.agora-mark{display:flex;align-items:center;gap:5px;color:#087bc1}.agora-mark img{object-fit:contain}
+@media(min-width:701px){
+  .stage,body[data-mode=solo][data-view=home] .stage{height:clamp(280px,calc(100dvh - 487px),500px)}
+  body[data-view=playing] .stage,body[data-view=countdown] .stage{height:clamp(340px,calc(100dvh - 287px),660px)}
+}
+@media(max-width:700px){
+  .agora-mark{display:none}
+  body[data-view=playing] .stage,body[data-view=countdown] .stage{height:clamp(150px,calc(100dvh - 412px - env(safe-area-inset-bottom)),600px)}
+}
+/* Game controls keep the Halloween palette; only the Agora credit is blue. */
+.music-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:6px 10px;border:1px solid #aa8bc4;border-radius:8px;background:#ece2fa;color:#432580;font:800 11px Nunito,sans-serif;white-space:nowrap}
+.music-toggle[aria-pressed=true]{background:#7141d9;color:#fff;border-color:#432580}
+.under-stage{gap:8px;flex-wrap:wrap}.room-sync-line{display:flex;gap:7px;align-items:center;min-height:16px;white-space:nowrap;font-size:10px;line-height:1.4;color:#087344}
+#signal-status[data-state=connecting],#signal-status[data-state=reconnecting],#signal-status[data-state=error]{color:#946014}
+#signal-retry{padding:0;min-height:20px;font-size:10px;margin:0;text-decoration:underline}
+#view-results-board{margin-top:10px;width:100%;min-height:42px}
+@media(max-width:700px){
+  .music-toggle{min-height:40px;margin-right:auto}.under-stage{align-items:center}
+  body[data-view=playing] .stage,body[data-view=countdown] .stage{height:clamp(150px,calc(100dvh - 432px - env(safe-area-inset-bottom)),600px)}
+}
+
+@media(max-width:700px){
+  body[data-mode=solo][data-view=home]{padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+  body[data-mode=solo][data-view=home] .action-wrap{position:fixed;z-index:35;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));padding:0;background:#fff8e5;border-radius:14px;box-shadow:0 -4px 22px #352b421a}
+  body[data-mode=solo][data-view=home] .main-action{min-height:70px}
+}

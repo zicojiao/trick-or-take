@@ -1,0 +1,19 @@
+/* The approved OG lettering and a small, readable pumpkin emblem. */
+.topbar .brand{gap:10px;flex-shrink:0}
+.topbar .brand-icon{width:44px;height:44px;display:block;border:0;border-radius:12px;background:none;box-shadow:none;transform:none;flex:none}
+.topbar .brand-icon img{display:block;width:100%;height:100%}
+.topbar .brand-wordmark{display:block;width:226px;height:auto}
+@media(max-width:700px){.topbar .brand{gap:6px}.topbar .brand-icon{width:28px;height:28px;border-radius:8px}.topbar .brand-wordmark{width:112px}}
+@media(max-width:380px){.topbar .brand-wordmark{width:96px}.topbar .brand{gap:4px}.topbar .brand-icon{width:25px;height:25px}}
+@media(min-width:701px) and (max-width:1000px){
+ .topbar .brand-wordmark{width:180px}.topbar .brand-icon{width:36px;height:36px}
+ .topbar .header-identity{gap:14px}.topbar .agora-credit{gap:5px;font-size:10px}
+ .topbar .agora-credit img{width:60px;height:22px}.topbar .agora-credit strong{font-size:10px}
+}
+@media(max-width:700px){
+ .topbar{height:60px;min-height:60px;justify-content:space-between}
+ .topbar .header-identity{display:flex;flex-direction:column;align-items:flex-start;flex:0 1 auto;gap:3px}
+ .topbar .agora-credit{margin-left:0;gap:4px;font-size:8px;line-height:1}
+ .topbar .agora-credit img{width:44px;height:14px;transform:none}
+ .topbar .agora-credit strong{display:inline;font-size:7px;letter-spacing:0}
+}

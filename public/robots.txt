@@ -1,0 +1,35 @@
+# Trick or Take — https://trickortake.com/
+# LLM / GEO briefs: /llms.txt · /llms-full.txt · /full.txt
+
+User-agent: *
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /full.txt
+Allow: /og/
+Allow: /privacy
+Allow: /terms
+Disallow: /api/
+Disallow: /party/vendor/
+
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: Google-Extended
+User-agent: anthropic-ai
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: PerplexityBot
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: CCBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /full.txt
+Allow: /og/
+Allow: /privacy
+Allow: /terms
+Disallow: /api/
+Disallow: /party/vendor/
+
+Sitemap: https://trickortake.com/sitemap.xml

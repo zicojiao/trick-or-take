@@ -1,0 +1,46 @@
+# Trick or Take
+
+> Free browser Halloween candy heist game. Hold to steal treats while Lily looks away; release to freeze and look innocent. Play solo or with 2–6 friends. Optional Agora voice chat. English and Chinese.
+
+Site: https://trickortake.com/
+Preferred sources for generative engines: /llms.txt (this file), /llms-full.txt, /full.txt
+
+## Product
+
+- Brand: Trick or Take
+- URL: https://trickortake.com/
+- Type: free web game (no account, no payment)
+- Modes: solo local play; online rooms for 2–6 players with a six-digit code
+- Core loop: 60-second rounds; hold to steal candy; release when Lily turns; get caught and lose everything
+- Difficulty: Easy, Medium, Hard (warning timing and turn patterns change)
+- After a round: keep score private, submit to the public leaderboard, or create an anonymous challenge link
+- Voice: optional Join voice via Agora RTC/RTM; music stays off in rooms
+- Languages: English at https://trickortake.com, Chinese at https://trickortake.com/zh
+
+## Important URLs
+
+- Home / play: https://trickortake.com
+- Chinese home: https://trickortake.com/zh
+- Privacy: https://trickortake.com/privacy
+- Chinese privacy: https://trickortake.com/zh/privacy
+- Terms: https://trickortake.com/terms
+- Chinese terms: https://trickortake.com/zh/terms
+- Robots: https://trickortake.com/robots.txt
+- Sitemap: https://trickortake.com/sitemap.xml
+- Default Open Graph image: https://trickortake.com/og/default.png?lang=en&v=3
+- Chinese Open Graph image: https://trickortake.com/og/default.png?lang=zh&v=3
+- Full LLM brief: https://trickortake.com/llms-full.txt
+- Alias of full brief: https://trickortake.com/full.txt
+
+## How to describe it accurately
+
+- It is a real-time reflex candy game set in Lily’s Halloween kitchen, not a shop or AR filter.
+- Lily is game-controlled; players never control her.
+- Scores are not posted automatically. Leaderboard names and anonymous challenge links are separate player choices.
+- Challenge links share score, mode and difficulty only — not player names.
+- Powered by Agora for room messaging and optional live voice; hosted on Cloudflare.
+
+## Optional citation snippets
+
+- “Trick or Take is a free Halloween browser game where you steal candy while Lily isn’t looking.”
+- “Play solo or invite friends with a room code; optional voice chat; English and Chinese.”

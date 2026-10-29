@@ -1,0 +1,148 @@
+/* Final layout layer. stage-fit.mjs sets the stage height and --card-max from
+ * measured space; this file owns the dock, panel placement and minimum type
+ * sizes. Loaded last, so equal-specificity rules win. */
+.play-column>:is(.game-card,.voice-bar,.network-note){max-width:var(--card-max,none);margin-inline:auto}
+.game-card>.under-stage{display:none!important}
+
+/* Minimum type sizes for labels and gameplay copy. */
+.game-heading .eyebrow,#board-content>.eyebrow,.online-panel .eyebrow,.lobby-panel .eyebrow{font-size:11px}
+.mode-switch small{font-size:11px}
+.difficulty-control .difficulty-hint{font-size:12px}.difficulty-control .dock-label{font-size:11px}
+#board-content .score-table th{font-size:11px}
+.score-bubble small,.timer-bubble small{font-size:11px}
+.scene-badge{font-size:11px}
+.game-dock .dock-label{font-size:11px}.game-dock .dock-label strong{font-size:12px}
+.game-dock .progress-block p{font-size:12px}
+.main-action small{font-size:12px}
+.best-block small,.match-block small{font-size:12px}
+footer{font-size:11px}
+footer a{display:inline-flex;align-items:center;min-height:32px;white-space:nowrap}
+.attention-pill{font-size:15px}
+body[data-attention=warning] .attention-pill,body[data-attention=watching] .attention-pill{transform:translateX(-50%) scale(1.08)}
+
+/* Text colour animates with the fill, so a newly selected choice never shows white on a pale ground. */
+.difficulty-button,.choice-option{transition:background-color .12s,color .12s,border-color .12s,box-shadow .12s}
+
+/* Topbar music toggle sits with the other audio and help icons. */
+.tools .music-button{font:800 17px/1 Fredoka,Nunito,sans-serif}
+.tools .music-button[aria-pressed=false]{opacity:.55;text-decoration:line-through}
+
+/* Leaving a match lives on the scene, opposite the mode badge. */
+#exit-match.stage-exit{position:absolute;z-index:5;right:14px;bottom:12px;min-height:32px;padding:6px 11px;border:1.5px solid var(--ink,#352b42);border-radius:8px;background:#fff8e5eb;color:var(--ink,#352b42);font:800 12px Nunito,sans-serif;box-shadow:1px 2px 0 #352b4238}
+#exit-match.stage-exit:hover{background:#fff}
+
+/* The countdown reads on any part of the kitchen. */
+.stage .countdown-overlay{background:#2b1f3699}
+.stage .countdown-overlay :is(small,span){color:#fff8e5;text-shadow:0 2px 0 #2b1f36,0 0 14px #2b1f36}
+
+/* Character picker: avatar buttons; the scene shows the pick live. */
+.game-dock .character-select{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;margin:0;padding:0;background:none;border:0;box-shadow:none}
+.game-dock .character-select h2{margin:0;font:800 11px/1.3 Nunito,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#746173}
+.game-dock .character-select .avatar-picker{display:flex;gap:6px}
+.game-dock .character-select .avatar-choice{display:grid;place-items:center;width:48px;height:48px;padding:0;border-width:1.5px;border-radius:10px}
+.game-dock .character-select .avatar-choice[aria-pressed=true]{border-width:2.5px}
+.game-dock .character-select .avatar-sprite{grid-row:auto;width:40px;height:44px}
+.game-dock .character-select :is(.avatar-name,.avatar-state){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+@media(min-width:701px){
+  /* Dock: picker or speed on the left, the one main button centred, scores on the right. */
+  .game-dock{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,340px) minmax(0,1fr);gap:18px;align-items:center;padding:12px 18px}
+  .game-dock>:is(.character-select,.progress-block){grid-column:1;grid-row:1}
+  .game-dock>.action-wrap{grid-column:2;grid-row:1}
+  .game-dock>:is(.best-block,.match-block){grid-column:3;grid-row:1;justify-self:end}
+  .game-dock .main-action{width:100%;margin:0;gap:10px;padding:10px 16px}
+  .game-dock .main-action small{white-space:nowrap}
+  .setup-panel{padding:12px 0 10px}
+  .game-heading{padding:0 2px 10px}
+  .game-heading h1,html[lang=en] .game-heading h1{font-size:24px}
+  .challenge-toolbar{margin:0 2px}
+  /* Room entry: the picker stays reachable; the card floats over the scene. */
+  body[data-mode=online][data-view=home] .game-dock :is(.action-wrap,.best-block,.match-block,.progress-block){display:none}
+  body[data-mode=online][data-view=home] :is(.hud,.scene-badge,.stage-tool),
+  body[data-view=lobby] :is(.game-dock,.hud,.scene-badge,.stage-tool){display:none!important}
+  .online-panel,.lobby-panel{top:50%;transform:translate(-50%,-50%);max-height:calc(100% - 24px);padding:18px 24px 14px}
+  .online-panel .panel-copy{margin-bottom:12px}
+  /* Lily's line sits beside her head, not over it. */
+  .hostess-bubble{left:auto;right:41%;top:20%}
+  /* Results float over the dimmed kitchen instead of replacing it. */
+  body[data-view=finished] .stage::after{content:"";position:absolute;inset:0;z-index:8;background:#2b1f36a6;pointer-events:none}
+  body[data-view=finished] :is(.hud,.stage-tool,.stage-exit,.scene-badge,.hostess-bubble,.countdown-overlay){display:none!important}
+  body[data-view=finished] .result-panel{top:50%;transform:translate(-50%,-50%);width:min(780px,calc(100% - 32px));max-width:none;max-height:calc(100% - 24px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;padding:20px 24px 16px}
+  .result-summary{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .result-summary>#again-button{margin-top:6px}
+  .result-actions{display:flex;flex-direction:column;gap:10px}
+  .result-actions>*{margin:0}
+}
+@media(min-width:1100px){
+  /* The leaderboard steps aside during a match and returns for results. */
+  body:is([data-view=playing],[data-view=countdown]) .desktop-layout{grid-template-columns:minmax(0,1fr)}
+  body:is([data-view=playing],[data-view=countdown]) .desktop-board{display:none}
+  #view-results-board{display:none}
+}
+
+@media(max-width:700px){
+  .game-heading .eyebrow{font-size:10px}
+  .mode-switch small{font-size:10px}
+  .score-bubble small,.timer-bubble small,.scene-badge{font-size:10px}
+  .game-dock .dock-label{font-size:10px}.game-dock .progress-block p{font-size:11px}
+  .main-action small{font-size:11px}
+  footer a{min-height:44px}
+  .challenge-toolbar>.small-button{min-height:50px;align-self:flex-start}
+  /* The warning pill gets its own row under the score and timer. */
+  .attention-pill{top:54px;font-size:13px;max-width:calc(100% - 96px);padding:7px 12px;white-space:nowrap}
+  #exit-match.stage-exit{right:10px;bottom:10px;min-height:36px;font-size:11px}
+  /* Picker: three labelled cards in one row under the scene. */
+  .game-dock>.character-select{grid-column:1/-1;grid-row:1;align-items:stretch}
+  .game-dock .character-select h2{font-size:10px}
+  .game-dock .character-select .avatar-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .game-dock .character-select .avatar-choice{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:4px;width:auto;height:50px;padding:3px 6px}
+  .game-dock .character-select .avatar-sprite{width:36px;height:40px;flex:none}
+  .game-dock .character-select .avatar-name{position:static;width:auto;height:auto;overflow:visible;clip-path:none;font-size:12px}
+  body[data-mode=solo][data-view=home] .game-dock>:is(.best-block,.match-block){grid-row:2}
+  /* Room entry: pick a character first, then fill the form below it. */
+  body[data-mode=online][data-view=home] .game-card{display:flex;flex-direction:column}
+  body[data-mode=online][data-view=home] .game-dock{display:grid;order:-1;border-top:0;border-bottom:2px solid var(--ink,#352b42);padding:14px 16px}
+  body[data-mode=online][data-view=home] .game-dock>:not(.character-select){display:none}
+  body[data-mode=online][data-view=home] .game-dock .character-select{padding:0}
+  body[data-mode=online][data-view=home] .game-dock .character-select h2{font-size:10px}
+  body[data-mode=online][data-view=home] .game-dock .character-select .avatar-choice{height:50px}
+  body[data-mode=online][data-view=home] .game-dock .character-select .avatar-sprite{width:36px;height:40px}
+}
+
+/* Phone landscape and very short windows: setup beside the stage, controls beside it in a match. */
+@media(min-width:701px) and (max-height:500px){
+  .app-shell{width:calc(100% - 24px)}
+  .topbar{height:50px}
+  .play-column{display:grid;grid-template-columns:minmax(220px,260px) minmax(0,1fr);column-gap:12px;align-items:start}
+  .play-column>*{grid-column:1/-1}
+  .play-column>.setup-panel{grid-column:1;grid-row:1/span 3;padding:4px 0}
+  .play-column>.game-card{grid-column:2;grid-row:1}
+  body:is([data-view=playing],[data-view=countdown],[data-view=finished]) .play-column>.game-card{grid-column:1/-1}
+  .setup-panel .game-heading{flex-direction:column;align-items:stretch;gap:8px;padding-bottom:8px}
+  .setup-panel .game-heading .eyebrow{display:none}
+  .game-heading h1,html[lang=en] .game-heading h1{font-size:19px}
+  .mode-switch button{flex:1;justify-content:center;padding:8px 6px}
+  .challenge-toolbar{flex-wrap:wrap;gap:6px}
+  .difficulty-control .difficulty-hint{display:none}
+  .game-dock{grid-template-columns:auto minmax(0,1fr);gap:12px;padding:8px 12px}
+  .game-dock>.action-wrap{grid-column:2}
+  body[data-view=home] .game-dock>:is(.best-block,.match-block){display:none}
+  .game-dock .character-select h2{display:none}
+  .game-dock .character-select .avatar-choice{width:42px;height:42px}
+  .game-dock .main-action{min-height:50px;gap:10px;padding:8px 14px}
+  body[data-view=home] .game-dock .main-action small{display:none}
+  body:is([data-view=playing],[data-view=countdown]) .topbar{display:none}
+  body:is([data-view=playing],[data-view=countdown]) .app-shell{padding-top:8px}
+  body:is([data-view=playing],[data-view=countdown]) .game-card{display:grid;grid-template-columns:minmax(0,1fr) 210px}
+  body:is([data-view=playing],[data-view=countdown]) .stage{grid-column:1;grid-row:1}
+  body:is([data-view=playing],[data-view=countdown]) .game-dock{grid-column:2;grid-row:1;display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:12px;border-top:0;border-left:2px solid var(--ink,#352b42)}
+  body:is([data-view=playing],[data-view=countdown]) .game-dock>*{justify-self:auto}
+  body:is([data-view=playing],[data-view=countdown]) .main-action :is(kbd,.button-candy){display:none}
+  body:is([data-view=playing],[data-view=countdown]) .game-dock .main-action small{white-space:normal}
+  .hud{inset:10px 12px auto}
+  .score-bubble{padding:6px 10px 6px 7px;min-width:0}.score-bubble strong{font-size:23px}
+  .timer-bubble{padding:8px 10px}.timer-bubble strong{font-size:22px}
+  .attention-pill{top:52px;font-size:13px;padding:7px 12px}
+  .hostess-bubble{display:none!important}
+  body[data-view=finished] .result-panel{grid-template-columns:1fr;width:min(440px,calc(100% - 24px))}
+}
