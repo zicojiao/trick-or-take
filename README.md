@@ -14,6 +14,10 @@
 
 [![Lily turns with her broom while the little thieves grab candy](public/party/assets/og-home-v3-en.png)](https://trickortake.com/)
 
+## Gameplay video
+
+[Watch Trick or Take on YouTube](https://youtu.be/KwlDBXsbCUM) to see a full gameplay demo.
+
 ## The game
 
 Lily is busy in the kitchen. The candy is right there. Surely she won’t notice one missing sweet?
